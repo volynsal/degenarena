@@ -1,5 +1,6 @@
 import { createClient } from '@supabase/supabase-js'
 import { DexScreenerService, type DexScreenerPair } from './dexscreener'
+import { alertService, type AlertPayload } from './alerts'
 import type { Formula } from '@/types/database'
 
 // Service role client for server-side operations
@@ -55,7 +56,7 @@ export class TokenMonitorService {
   }
   
   /**
-   * Save a new token match to the database
+   * Save a new token match to the database and send immediate alert
    */
   async saveMatch(
     pair: DexScreenerPair,
@@ -77,6 +78,30 @@ export class TokenMonitorService {
     
     console.log(`✅ New match: ${pair.baseToken.symbol} for formula "${formula.name}"`)
     console.log(`   Reasons: ${reasons.join(', ')}`)
+    
+    // Send immediate alert
+    try {
+      const alertPayload: AlertPayload = {
+        userId: formula.user_id,
+        formulaId: formula.id,
+        formulaName: formula.name,
+        matchId: data.id,
+        tokenSymbol: pair.baseToken.symbol,
+        tokenName: pair.baseToken.name,
+        tokenAddress: pair.baseToken.address,
+        chain: pair.chainId || 'solana',
+        price: parseFloat(pair.priceUsd || '0'),
+        liquidity: pair.liquidity?.usd || 0,
+        volume24h: pair.volume?.h24 || 0,
+        dexscreenerUrl: pair.url || '',
+      }
+      
+      const alertResults = await alertService.sendMatchAlerts(alertPayload)
+      console.log(`📨 Alert sent for ${pair.baseToken.symbol}:`, alertResults)
+    } catch (alertError) {
+      console.error('Error sending immediate alert:', alertError)
+      // Don't fail the match save if alert fails
+    }
     
     return data.id
   }

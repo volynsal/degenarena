@@ -2,6 +2,7 @@ import { createClient } from '@/lib/supabase/server'
 import { NextRequest, NextResponse } from 'next/server'
 import type { ApiResponse } from '@/types/database'
 import { DexScreenerService } from '@/lib/services/dexscreener'
+import { alertService, type AlertPayload } from '@/lib/services/alerts'
 import { createClient as createAdminClient } from '@supabase/supabase-js'
 
 // POST /api/formulas/[id]/scan - Trigger immediate scan for a formula
@@ -81,7 +82,7 @@ export async function POST(
         
         if (!existingMatch) {
           // Insert new match
-          await adminClient
+          const { data: newMatch } = await adminClient
             .from('token_matches')
             .insert({
               formula_id: formula.id,
@@ -97,8 +98,34 @@ export async function POST(
               dexscreener_url: token.url,
               contract_verified: true,
             })
+            .select()
+            .single()
           
           matchCount++
+          
+          // Send immediate alert
+          if (newMatch) {
+            try {
+              const alertPayload: AlertPayload = {
+                userId: formula.user_id,
+                formulaId: formula.id,
+                formulaName: formula.name,
+                matchId: newMatch.id,
+                tokenSymbol: token.baseToken.symbol,
+                tokenName: token.baseToken.name,
+                tokenAddress: token.baseToken.address,
+                chain: 'solana',
+                price: parseFloat(token.priceUsd || '0'),
+                liquidity: token.liquidity?.usd || 0,
+                volume24h: token.volume?.h24 || 0,
+                dexscreenerUrl: token.url || '',
+              }
+              
+              await alertService.sendMatchAlerts(alertPayload)
+            } catch (alertError) {
+              console.error('Error sending immediate alert:', alertError)
+            }
+          }
         }
       }
     }

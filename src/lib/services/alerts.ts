@@ -166,7 +166,7 @@ export class AlertService {
           'Authorization': `Bearer ${apiKey}`,
         },
         body: JSON.stringify({
-          from: 'DegenArena <alerts@degenarena.com>',
+          from: 'DegenArena <onboarding@resend.dev>',
           to: email,
           subject: `🎯 New Match: ${payload.tokenSymbol} matched your "${payload.formulaName}" formula`,
           html,
