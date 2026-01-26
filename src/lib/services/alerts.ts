@@ -22,6 +22,30 @@ export interface AlertPayload {
   dexscreenerUrl: string
 }
 
+export interface DigestMatch {
+  tokenSymbol: string
+  tokenName: string
+  tokenAddress: string
+  chain: string
+  price: number
+  liquidity: number
+  volume24h: number
+  dexscreenerUrl: string
+  matchId: string
+}
+
+export interface DigestFormula {
+  formulaId: string
+  formulaName: string
+  matches: DigestMatch[]
+}
+
+export interface DigestPayload {
+  userId: string
+  formulas: DigestFormula[]
+  totalMatches: number
+}
+
 export class AlertService {
   
   /**
@@ -186,6 +210,93 @@ export class AlertService {
     }
   }
   
+  /**
+   * Send digest email with multiple matches (using Resend)
+   */
+  async sendDigestEmail(email: string, payload: DigestPayload): Promise<boolean> {
+    const apiKey = process.env.RESEND_API_KEY
+    if (!apiKey) {
+      console.error('Resend API key not configured')
+      return false
+    }
+    
+    const html = this.formatDigestEmailHtml(payload)
+    
+    try {
+      const response = await fetch('https://api.resend.com/emails', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${apiKey}`,
+        },
+        body: JSON.stringify({
+          from: 'DegenArena <onboarding@resend.dev>',
+          to: email,
+          subject: `🎯 DegenArena Daily Report: ${payload.totalMatches} new match${payload.totalMatches === 1 ? '' : 'es'} found`,
+          html,
+        }),
+      })
+      
+      if (!response.ok) {
+        const error = await response.json()
+        console.error('Resend API error:', error)
+        return false
+      }
+      
+      return true
+    } catch (error) {
+      console.error('Error sending digest email:', error)
+      return false
+    }
+  }
+
+  /**
+   * Send digest alerts for a user (all matches in one email)
+   */
+  async sendDigestAlerts(payload: DigestPayload): Promise<{ email: boolean | null }> {
+    const results = { email: null as boolean | null }
+    
+    if (payload.totalMatches === 0) {
+      return results
+    }
+    
+    // Get user's alert settings
+    const settings = await this.getAlertSettings(payload.userId)
+    if (!settings) {
+      console.log(`No alert settings for user ${payload.userId}`)
+      return results
+    }
+    
+    // Get user email for email alerts
+    if (settings.email_enabled) {
+      const { data: profile } = await supabaseAdmin
+        .from('profiles')
+        .select('email')
+        .eq('id', payload.userId)
+        .single()
+      
+      if (profile?.email) {
+        results.email = await this.sendDigestEmail(profile.email, payload)
+        
+        // Record one alert entry for the digest
+        if (results.email) {
+          await supabaseAdmin
+            .from('alerts')
+            .insert({
+              user_id: payload.userId,
+              formula_id: payload.formulas[0]?.formulaId || null,
+              token_match_id: payload.formulas[0]?.matches[0]?.matchId || null,
+              type: 'email',
+              status: 'sent',
+              sent_at: new Date().toISOString(),
+            })
+        }
+      }
+    }
+    
+    return results
+  }
+
   /**
    * Record an alert in the database
    */
@@ -417,6 +528,91 @@ export class AlertService {
     <a href="${payload.dexscreenerUrl}" class="cta">View on DexScreener →</a>
     
     <div class="footer">
+      <p>You're receiving this because you have email alerts enabled for your DegenArena formulas.</p>
+      <p>Manage your alert settings in your dashboard.</p>
+    </div>
+  </div>
+</body>
+</html>
+`.trim()
+  }
+
+  private formatDigestEmailHtml(payload: DigestPayload): string {
+    const formatNumber = (n: number) => n.toLocaleString('en-US', { maximumFractionDigits: 2 })
+    
+    const formulaSections = payload.formulas.map(formula => {
+      const matchRows = formula.matches.map(match => `
+        <tr>
+          <td style="padding: 12px; border-bottom: 1px solid rgba(255,255,255,0.1);">
+            <strong style="color: #a855f7;">${match.tokenSymbol}</strong>
+            <div style="color: #888; font-size: 12px;">${match.tokenName}</div>
+          </td>
+          <td style="padding: 12px; border-bottom: 1px solid rgba(255,255,255,0.1); text-align: right;">
+            $${formatNumber(match.liquidity)}
+          </td>
+          <td style="padding: 12px; border-bottom: 1px solid rgba(255,255,255,0.1); text-align: right;">
+            $${formatNumber(match.volume24h)}
+          </td>
+          <td style="padding: 12px; border-bottom: 1px solid rgba(255,255,255,0.1); text-align: center;">
+            <a href="${match.dexscreenerUrl}" style="color: #00ff9d; text-decoration: none;">View →</a>
+          </td>
+        </tr>
+      `).join('')
+
+      return `
+        <div style="margin-bottom: 30px;">
+          <h3 style="margin: 0 0 15px 0; color: #fff; font-size: 16px;">
+            📊 ${formula.formulaName}
+            <span style="color: #00ff9d; font-size: 14px; font-weight: normal; margin-left: 10px;">
+              ${formula.matches.length} match${formula.matches.length === 1 ? '' : 'es'}
+            </span>
+          </h3>
+          <table style="width: 100%; border-collapse: collapse; background: rgba(255,255,255,0.02); border-radius: 8px; overflow: hidden;">
+            <thead>
+              <tr style="background: rgba(255,255,255,0.05);">
+                <th style="padding: 12px; text-align: left; color: #888; font-size: 12px; font-weight: 500;">Token</th>
+                <th style="padding: 12px; text-align: right; color: #888; font-size: 12px; font-weight: 500;">Liquidity</th>
+                <th style="padding: 12px; text-align: right; color: #888; font-size: 12px; font-weight: 500;">24h Vol</th>
+                <th style="padding: 12px; text-align: center; color: #888; font-size: 12px; font-weight: 500;">Link</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${matchRows}
+            </tbody>
+          </table>
+        </div>
+      `
+    }).join('')
+
+    return `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #0d0d12; color: #fff; padding: 20px; margin: 0;">
+  <div style="max-width: 600px; margin: 0 auto; background: #141419; border-radius: 12px; padding: 30px;">
+    <div style="text-align: center; margin-bottom: 30px;">
+      <div style="font-size: 24px; font-weight: bold; background: linear-gradient(to right, #a855f7, #00ff9d); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">DegenArena</div>
+    </div>
+    
+    <div style="text-align: center; margin-bottom: 30px;">
+      <h1 style="font-size: 28px; margin: 0 0 10px 0;">🎯 Daily Report</h1>
+      <p style="color: #888; margin: 0;">
+        Your formulas found <strong style="color: #00ff9d;">${payload.totalMatches} new token${payload.totalMatches === 1 ? '' : 's'}</strong> today
+      </p>
+    </div>
+    
+    ${formulaSections}
+    
+    <div style="text-align: center; margin-top: 30px;">
+      <a href="${process.env.NEXT_PUBLIC_APP_URL || 'https://degenarena.com'}/dashboard" style="display: inline-block; background: linear-gradient(to right, #a855f7, #00ff9d); color: white; text-decoration: none; padding: 15px 30px; border-radius: 8px; font-weight: 600;">
+        View Dashboard →
+      </a>
+    </div>
+    
+    <div style="text-align: center; color: #666; font-size: 12px; margin-top: 30px; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.1);">
       <p>You're receiving this because you have email alerts enabled for your DegenArena formulas.</p>
       <p>Manage your alert settings in your dashboard.</p>
     </div>

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
-import { alertService, type AlertPayload } from '@/lib/services/alerts'
+import { alertService, type DigestPayload, type DigestFormula, type DigestMatch } from '@/lib/services/alerts'
 
 // Service role client
 const supabaseAdmin = createClient(
@@ -8,8 +8,8 @@ const supabaseAdmin = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 )
 
-// This endpoint sends alerts for new matches that haven't been alerted yet
-// Should be called frequently (every 1-5 minutes) by a cron job
+// This endpoint sends digest alerts for new matches
+// Groups all matches by user and sends ONE email per user
 
 export async function GET(request: NextRequest) {
   // Verify cron secret
@@ -21,11 +21,10 @@ export async function GET(request: NextRequest) {
   }
   
   try {
-    console.log('📨 Cron job: Sending alerts for new matches...')
+    console.log('📨 Cron job: Sending digest alerts for new matches...')
     
-    // Get recent matches that haven't had alerts sent yet
-    // We check for matches created in the last hour without corresponding alerts
-    const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000).toISOString()
+    // Get matches from last 24 hours that haven't been alerted
+    const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString()
     
     const { data: recentMatches } = await supabaseAdmin
       .from('token_matches')
@@ -43,42 +42,72 @@ export async function GET(request: NextRequest) {
         matched_at,
         formula:formulas(id, name, user_id)
       `)
-      .gte('matched_at', oneHourAgo)
+      .gte('matched_at', oneDayAgo)
       .order('matched_at', { ascending: false })
-      .limit(50)
     
     if (!recentMatches || recentMatches.length === 0) {
       return NextResponse.json({
         success: true,
         message: 'No new matches to alert',
-        alertsSent: 0,
+        digestsSent: 0,
       })
     }
     
-    let alertsSent = 0
-    let alertsFailed = 0
+    // Filter out matches that already have alerts
+    const matchesNeedingAlerts: typeof recentMatches = []
     
     for (const match of recentMatches) {
-      const formula = match.formula as any
-      if (!formula) continue
-      
-      // Check if we've already sent alerts for this match
       const { data: existingAlerts } = await supabaseAdmin
         .from('alerts')
         .select('id')
         .eq('token_match_id', match.id)
         .limit(1)
       
-      if (existingAlerts && existingAlerts.length > 0) {
-        continue // Already alerted
+      if (!existingAlerts || existingAlerts.length === 0) {
+        matchesNeedingAlerts.push(match)
+      }
+    }
+    
+    if (matchesNeedingAlerts.length === 0) {
+      return NextResponse.json({
+        success: true,
+        message: 'All matches already alerted',
+        digestsSent: 0,
+      })
+    }
+    
+    // Group matches by user
+    const userDigests = new Map<string, DigestPayload>()
+    
+    for (const match of matchesNeedingAlerts) {
+      const formula = match.formula as any
+      if (!formula) continue
+      
+      const userId = formula.user_id
+      
+      if (!userDigests.has(userId)) {
+        userDigests.set(userId, {
+          userId,
+          formulas: [],
+          totalMatches: 0,
+        })
       }
       
-      // Prepare alert payload
-      const payload: AlertPayload = {
-        userId: formula.user_id,
-        formulaId: formula.id,
-        formulaName: formula.name,
-        matchId: match.id,
+      const digest = userDigests.get(userId)!
+      
+      // Find or create formula entry
+      let formulaEntry = digest.formulas.find(f => f.formulaId === formula.id)
+      if (!formulaEntry) {
+        formulaEntry = {
+          formulaId: formula.id,
+          formulaName: formula.name,
+          matches: [],
+        }
+        digest.formulas.push(formulaEntry)
+      }
+      
+      // Add match to formula
+      formulaEntry.matches.push({
         tokenSymbol: match.token_symbol,
         tokenName: match.token_name,
         tokenAddress: match.token_address,
@@ -87,30 +116,55 @@ export async function GET(request: NextRequest) {
         liquidity: match.liquidity || 0,
         volume24h: match.volume_24h || 0,
         dexscreenerUrl: match.dexscreener_url || '',
-      }
+        matchId: match.id,
+      })
       
-      // Send alerts
-      const results = await alertService.sendMatchAlerts(payload)
+      digest.totalMatches++
+    }
+    
+    // Send digest to each user
+    let digestsSent = 0
+    let digestsFailed = 0
+    
+    for (const [userId, digest] of userDigests) {
+      console.log(`📧 Sending digest to user ${userId}: ${digest.totalMatches} matches across ${digest.formulas.length} formulas`)
       
-      // Count results
-      if (results.telegram || results.discord || results.email) {
-        alertsSent++
-        console.log(`✅ Sent alert for ${match.token_symbol} to user ${formula.user_id}`)
-      }
+      const result = await alertService.sendDigestAlerts(digest)
       
-      if (results.telegram === false || results.discord === false || results.email === false) {
-        alertsFailed++
+      if (result.email) {
+        digestsSent++
+        console.log(`✅ Digest sent to user ${userId}`)
+        
+        // Mark all matches as alerted
+        for (const formula of digest.formulas) {
+          for (const match of formula.matches) {
+            await supabaseAdmin
+              .from('alerts')
+              .insert({
+                user_id: userId,
+                formula_id: formula.formulaId,
+                token_match_id: match.matchId,
+                type: 'email',
+                status: 'sent',
+                sent_at: new Date().toISOString(),
+              })
+          }
+        }
+      } else {
+        digestsFailed++
+        console.log(`❌ Failed to send digest to user ${userId}`)
       }
     }
     
-    console.log(`📊 Alerts summary: ${alertsSent} sent, ${alertsFailed} failed`)
+    console.log(`📊 Digest summary: ${digestsSent} sent, ${digestsFailed} failed`)
     
     return NextResponse.json({
       success: true,
       timestamp: new Date().toISOString(),
-      matchesProcessed: recentMatches.length,
-      alertsSent,
-      alertsFailed,
+      totalMatches: matchesNeedingAlerts.length,
+      usersNotified: userDigests.size,
+      digestsSent,
+      digestsFailed,
     })
   } catch (error) {
     console.error('❌ Cron job error:', error)
