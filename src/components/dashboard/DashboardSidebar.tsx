@@ -6,21 +6,15 @@ import { cn } from '@/lib/utils'
 import { 
   LayoutDashboard, 
   Sliders, 
-  Bell, 
   Trophy, 
-  BarChart3,
   Settings,
-  Users,
   Sparkles
 } from 'lucide-react'
 
 const navigation = [
   { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
   { name: 'My Formulas', href: '/formulas', icon: Sliders },
-  { name: 'Alerts', href: '/alerts', icon: Bell },
   { name: 'Leaderboard', href: '/leaderboard', icon: Trophy },
-  { name: 'Analytics', href: '/analytics', icon: BarChart3 },
-  { name: 'Community', href: '/community', icon: Users },
 ]
 
 const bottomNavigation = [
@@ -55,21 +49,15 @@ export function DashboardSidebar() {
           })}
         </nav>
         
-        {/* Upgrade card */}
+        {/* Upgrade card - coming soon */}
         <div className="mb-4 p-4 rounded-xl bg-gradient-to-br from-arena-purple/20 to-arena-cyan/10 border border-white/10">
           <div className="flex items-center gap-2 mb-2">
             <Sparkles className="w-4 h-4 text-arena-cyan" />
-            <span className="text-sm font-medium text-white">Go Pro</span>
+            <span className="text-sm font-medium text-white">Pro Coming Soon</span>
           </div>
-          <p className="text-xs text-gray-400 mb-3">
+          <p className="text-xs text-gray-400">
             Unlimited formulas, instant alerts, and priority support.
           </p>
-          <Link
-            href="/pricing"
-            className="block text-center py-2 px-3 rounded-lg bg-gradient-to-r from-arena-purple to-arena-cyan text-white text-sm font-medium hover:opacity-90 transition-opacity"
-          >
-            Upgrade
-          </Link>
         </div>
         
         {/* Bottom navigation */}
