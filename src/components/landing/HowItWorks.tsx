@@ -7,26 +7,26 @@ const steps = [
   },
   {
     number: '02',
-    title: 'Backtest Your Strategy',
-    description: 'Run your formula against historical data to see how it would have performed. Refine your parameters before going live.',
+    title: 'Start Tracking Instantly',
+    description: 'Once activated, your formula immediately scans new token launches. Every match is recorded from day one — building your track record in real-time.',
     color: 'from-arena-blue to-arena-cyan',
   },
   {
     number: '03',
-    title: 'Monitor in Real-Time',
-    description: 'Your formula runs 24/7, scanning every new token launch. When a match is found, you\'re alerted instantly.',
+    title: 'Monitor & Get Alerts',
+    description: 'Your formula runs 24/7, scanning new tokens on Solana. When a match is found, get notified via Telegram, Discord, or email.',
     color: 'from-arena-cyan to-arena-purple',
   },
   {
     number: '04',
-    title: 'Track Performance',
-    description: 'Every match is recorded with price at discovery. Watch how your picks perform over 1hr, 24hr, and 7-day windows.',
+    title: 'Review Your Results',
+    description: 'View your complete match history with price at discovery. Track performance over 1hr, 24hr, and 7-day windows. See your win rate, best picks, and worst misses.',
     color: 'from-arena-purple to-arena-pink',
   },
   {
     number: '05',
     title: 'Compete & Share',
-    description: 'Climb the leaderboard with your win rate. Share your winning formulas on Twitter, or copy strategies from top performers.',
+    description: 'Climb the leaderboard with your win rate. Share winning formulas on Twitter, or copy proven strategies from top performers in the community.',
     color: 'from-arena-pink to-arena-cyan',
   },
 ]

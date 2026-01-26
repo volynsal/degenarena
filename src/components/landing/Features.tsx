@@ -49,8 +49,8 @@ const features = [
   },
   {
     icon: BarChart3,
-    title: 'Backtesting',
-    description: 'Test your formulas against historical data before going live. See how they would have performed.',
+    title: 'Performance History',
+    description: 'View your complete track record since formula creation. Analyze win rates, returns, and refine your strategy over time.',
   },
   {
     icon: Users,

@@ -118,10 +118,7 @@ export async function POST(request: NextRequest) {
       .replace(/[^a-z0-9]+/g, '-')
       .replace(/^-|-$/g, '')
     
-    // Generate invite code
-    const inviteCode = Math.random().toString(36).substring(2, 10).toUpperCase()
-    
-    // Create clan
+    // Create clan (always private - invite-only)
     const { data: clan, error: clanError } = await supabase
       .from('clans')
       .insert({
@@ -129,8 +126,7 @@ export async function POST(request: NextRequest) {
         slug,
         description: body.description?.trim() || null,
         owner_id: session.user.id,
-        invite_code: inviteCode,
-        is_public: body.is_public ?? true,
+        is_public: false,
       })
       .select()
       .single()

@@ -222,7 +222,7 @@ export default function EditFormulaPage({ params }: { params: { id: string } }) 
         <div className="flex items-center gap-2">
           <Link href={`/formulas/${params.id}/backtest`}>
             <Button variant="secondary" size="sm">
-              Backtest
+              History
             </Button>
           </Link>
           <Link href={`/formulas/${params.id}/matches`}>

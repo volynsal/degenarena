@@ -10,14 +10,14 @@ import {
   Trophy,
   Target,
   Shield,
-  Copy,
-  UserPlus,
+  Link as LinkIcon,
   LogOut,
   Loader2,
   Crown,
-  Star
+  Star,
+  Copy,
+  Check
 } from 'lucide-react'
-import { cn } from '@/lib/utils'
 
 interface ClanMember {
   user_id: string
@@ -36,7 +36,6 @@ interface ClanDetails {
   logo_url: string | null
   owner_id: string
   is_public: boolean
-  invite_code: string | null
   member_count: number
   total_matches: number
   avg_win_rate: number
@@ -55,6 +54,9 @@ export default function ClanPage({ params }: { params: { slug: string } }) {
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [isJoining, setIsJoining] = useState(false)
+  const [inviteLink, setInviteLink] = useState<string | null>(null)
+  const [isGenerating, setIsGenerating] = useState(false)
+  const [copied, setCopied] = useState(false)
   
   useEffect(() => {
     fetchClan()
@@ -122,10 +124,31 @@ export default function ClanPage({ params }: { params: { slug: string } }) {
     }
   }
   
-  const copyInviteCode = () => {
-    if (clan?.invite_code) {
-      navigator.clipboard.writeText(clan.invite_code)
-      alert('Invite code copied!')
+  const generateInvite = async () => {
+    setIsGenerating(true)
+    try {
+      const res = await fetch(`/api/clans/${params.slug}/invites`, {
+        method: 'POST',
+      })
+      const data = await res.json()
+      
+      if (!res.ok) {
+        throw new Error(data.error || 'Failed to generate invite')
+      }
+      
+      setInviteLink(data.data.link)
+    } catch (err) {
+      alert(err instanceof Error ? err.message : 'Failed to generate invite')
+    } finally {
+      setIsGenerating(false)
+    }
+  }
+  
+  const copyInviteLink = () => {
+    if (inviteLink) {
+      navigator.clipboard.writeText(inviteLink)
+      setCopied(true)
+      setTimeout(() => setCopied(false), 2000)
     }
   }
   
@@ -200,12 +223,24 @@ export default function ClanPage({ params }: { params: { slug: string } }) {
             
             {/* Actions */}
             <div className="flex flex-col gap-2">
-              {clan.is_member ? (
+              {clan.is_member && (
                 <>
-                  {clan.invite_code && (
-                    <Button variant="secondary" onClick={copyInviteCode}>
-                      <Copy className="w-4 h-4 mr-2" />
-                      Copy Invite Code
+                  {inviteLink ? (
+                    <div className="flex gap-2">
+                      <input
+                        type="text"
+                        value={inviteLink}
+                        readOnly
+                        className="flex-1 px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm font-mono"
+                      />
+                      <Button variant="secondary" onClick={copyInviteLink}>
+                        {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+                      </Button>
+                    </div>
+                  ) : (
+                    <Button variant="secondary" onClick={generateInvite} loading={isGenerating}>
+                      <LinkIcon className="w-4 h-4 mr-2" />
+                      Generate Invite Link
                     </Button>
                   )}
                   {clan.user_role !== 'owner' && (
@@ -215,11 +250,6 @@ export default function ClanPage({ params }: { params: { slug: string } }) {
                     </Button>
                   )}
                 </>
-              ) : (
-                <Button variant="primary" onClick={handleJoin} loading={isJoining}>
-                  <UserPlus className="w-4 h-4 mr-2" />
-                  Join Clan
-                </Button>
               )}
             </div>
           </div>
