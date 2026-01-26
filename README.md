@@ -49,10 +49,14 @@
 
 4. **Set up the database**
    
-   Go to your Supabase project's SQL editor and run the migration:
-   ```bash
-   # Copy the contents of supabase/migrations/001_initial_schema.sql
-   # and run it in your Supabase SQL editor
+   Go to your Supabase project's SQL editor and run the migrations in order:
+   ```
+   supabase/migrations/001_initial_schema.sql
+   supabase/migrations/002_community_upvotes.sql
+   supabase/migrations/003_profiles_and_clans.sql
+   supabase/migrations/004_clan_invites.sql
+   supabase/migrations/005_badges.sql
+   supabase/migrations/006_waitlist.sql
    ```
 
 5. **Run the development server**
@@ -95,9 +99,11 @@ The app uses three cron jobs for automated tasks:
 
 | Endpoint | Schedule | Description |
 |----------|----------|-------------|
-| `/api/cron/monitor` | Every 5 min | Scans for new tokens matching active formulas |
-| `/api/cron/send-alerts` | Every 2 min | Sends alerts for new matches |
-| `/api/cron/update-returns` | Every hour | Updates price returns for matches |
+| `/api/cron/monitor` | Daily 8am UTC | Scans for new tokens matching active formulas |
+| `/api/cron/send-alerts` | Daily 9am UTC | Sends alerts for new matches |
+| `/api/cron/update-returns` | Daily 10am UTC | Updates price returns for matches |
+
+> Note: On Vercel Hobby tier, cron jobs are limited to once per day. Upgrade to Pro for more frequent scans.
 
 **For Vercel**: Cron jobs are configured in `vercel.json` and run automatically on deployment.
 
@@ -193,4 +199,4 @@ MIT License - see [LICENSE](LICENSE) for details.
 
 ---
 
-Built with ❤️ by degens, for degens.
+Built by crypto fanatics.

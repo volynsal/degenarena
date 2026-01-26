@@ -122,8 +122,12 @@ export default function SignupPage() {
         <div className="flex-1 flex items-center justify-center p-4">
           <div className="w-full max-w-md">
             <div className="mb-8">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-arena-cyan/10 border border-arena-cyan/20 text-arena-cyan text-xs mb-4">
+                <Zap className="w-3 h-3" />
+                Early Access
+              </div>
               <h1 className="text-2xl font-bold text-white mb-2">Create your account</h1>
-              <p className="text-gray-400">Start building winning formulas today</p>
+              <p className="text-gray-400">Welcome to DegenArena. Let&apos;s get you set up.</p>
             </div>
             
             {/* Google Sign Up */}
@@ -249,21 +253,12 @@ export default function SignupPage() {
             ))}
           </div>
           
-          {/* Social proof */}
+          {/* Early access note */}
           <div className="mt-12 pt-8 border-t border-white/10">
-            <div className="flex items-center gap-4">
-              <div className="flex -space-x-2">
-                {[1, 2, 3, 4].map((i) => (
-                  <div
-                    key={i}
-                    className="w-8 h-8 rounded-full bg-gradient-to-br from-arena-purple to-arena-cyan border-2 border-arena-darker"
-                  />
-                ))}
-              </div>
-              <p className="text-sm text-gray-400">
-                <span className="text-white font-medium">1,000+</span> traders already hunting gems
-              </p>
-            </div>
+            <p className="text-sm text-gray-400">
+              You&apos;re getting <span className="text-arena-cyan font-medium">early access</span> to DegenArena. 
+              This link was shared with approved waitlist members.
+            </p>
           </div>
         </div>
       </div>

@@ -156,11 +156,11 @@ export default function LoginPage() {
               </Button>
             </form>
             
-            {/* Sign up link */}
+            {/* Waitlist link */}
             <p className="mt-6 text-center text-sm text-gray-400">
               Don&apos;t have an account?{' '}
-              <Link href="/signup" className="text-arena-purple hover:text-arena-cyan transition-colors font-medium">
-                Sign up for free
+              <Link href="/#waitlist" className="text-arena-purple hover:text-arena-cyan transition-colors font-medium">
+                Join the waitlist
               </Link>
             </p>
           </div>

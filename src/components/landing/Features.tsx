@@ -5,17 +5,18 @@ import {
   TrendingUp, 
   Trophy, 
   Share2, 
-  Shield,
   Zap,
   BarChart3,
-  Users
+  Users,
+  Swords,
+  Building2
 } from 'lucide-react'
 
 const features = [
   {
     icon: Sliders,
     title: 'Formula Builder',
-    description: 'Create custom token filters with liquidity, volume, holder count, and more. Save and refine your winning strategies.',
+    description: 'Create custom token filters with liquidity, volume, token age, and more. Fine-tune your strategy to find the needle in the haystack.',
   },
   {
     icon: Bell,
@@ -33,14 +34,14 @@ const features = [
     description: 'Rank your formulas against others. Climb the daily, weekly, and all-time leaderboards.',
   },
   {
-    icon: Share2,
-    title: 'Formula Sharing',
-    description: 'Share your winning formulas or clone strategies from top performers with full attribution.',
+    icon: Swords,
+    title: 'Trading Clans',
+    description: 'Form exclusive teams with invite-only access. Your combined performance gets ranked. Compete as a squad.',
   },
   {
-    icon: Shield,
-    title: 'Security Checks',
-    description: 'Built-in honeypot detection, contract verification, and liquidity lock checks to filter out scams.',
+    icon: Share2,
+    title: 'Formula Sharing',
+    description: 'Share your winning formulas or copy strategies from top performers with full attribution.',
   },
   {
     icon: Zap,
@@ -50,12 +51,13 @@ const features = [
   {
     icon: BarChart3,
     title: 'Performance History',
-    description: 'View your complete track record since formula creation. Analyze win rates, returns, and refine your strategy over time.',
+    description: 'View your complete track record since formula creation. Analyze win rates, returns, and refine your strategy.',
   },
   {
-    icon: Users,
-    title: 'Community Formulas',
-    description: 'Discover trending formulas, upvote the best ones, and learn from the community.',
+    icon: Building2,
+    title: 'Exchange Listing Score',
+    description: 'Predict which tokens have the best chance of getting listed on major exchanges. The ultimate alpha indicator.',
+    comingSoon: true,
   },
 ]
 
@@ -78,8 +80,13 @@ export function Features() {
         {/* Features grid */}
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {features.map((feature, index) => (
-            <Card key={index} hover className="group">
+            <Card key={index} hover className="group relative">
               <CardContent>
+                {'comingSoon' in feature && feature.comingSoon && (
+                  <span className="absolute top-4 right-4 text-xs px-2 py-1 rounded-full bg-gradient-to-r from-arena-purple to-arena-cyan text-white font-medium">
+                    Coming Soon
+                  </span>
+                )}
                 <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-arena-purple/20 to-arena-cyan/20 flex items-center justify-center mb-4 group-hover:from-arena-purple/30 group-hover:to-arena-cyan/30 transition-colors">
                   <feature.icon className="w-6 h-6 text-arena-cyan" />
                 </div>

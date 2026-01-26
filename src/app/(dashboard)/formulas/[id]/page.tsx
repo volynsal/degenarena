@@ -394,39 +394,21 @@ export default function EditFormulaPage({ params }: { params: { id: string } }) 
         </CardContent>
       </Card>
       
-      {/* Holder Settings */}
-      <Card>
+      {/* Holder Settings - Coming Soon */}
+      <Card className="opacity-60">
         <CardHeader>
-          <div className="flex items-center gap-2">
-            <Users className="w-5 h-5 text-arena-cyan" />
-            <CardTitle>Holders</CardTitle>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Users className="w-5 h-5 text-gray-500" />
+              <CardTitle className="text-gray-400">Holders</CardTitle>
+            </div>
+            <span className="text-xs px-2 py-1 rounded-full bg-white/10 text-gray-400">Coming Soon</span>
           </div>
         </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="grid sm:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-300 mb-2">
-                Minimum Holders
-              </label>
-              <input
-                type="number"
-                value={formParams.holdersMin}
-                onChange={(e) => updateParam('holdersMin', Number(e.target.value))}
-                className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-white focus:border-arena-purple transition-colors"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-300 mb-2">
-                Maximum Holders
-              </label>
-              <input
-                type="number"
-                value={formParams.holdersMax}
-                onChange={(e) => updateParam('holdersMax', Number(e.target.value))}
-                className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-white focus:border-arena-purple transition-colors"
-              />
-            </div>
-          </div>
+        <CardContent>
+          <p className="text-sm text-gray-500">
+            Filter by holder count and distribution. Requires on-chain data integration.
+          </p>
         </CardContent>
       </Card>
       
@@ -453,33 +435,21 @@ export default function EditFormulaPage({ params }: { params: { id: string } }) 
         </CardContent>
       </Card>
       
-      {/* Security Checks */}
-      <Card>
+      {/* Security Checks - Coming Soon */}
+      <Card className="opacity-60">
         <CardHeader>
-          <div className="flex items-center gap-2">
-            <Shield className="w-5 h-5 text-arena-cyan" />
-            <CardTitle>Security Checks</CardTitle>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Shield className="w-5 h-5 text-gray-500" />
+              <CardTitle className="text-gray-400">Security Checks</CardTitle>
+            </div>
+            <span className="text-xs px-2 py-1 rounded-full bg-white/10 text-gray-400">Coming Soon</span>
           </div>
         </CardHeader>
-        <CardContent className="space-y-4">
-          <ToggleOption
-            enabled={formParams.requireVerifiedContract}
-            onToggle={() => updateParam('requireVerifiedContract', !formParams.requireVerifiedContract)}
-            title="Verified Contract"
-            description="Only match tokens with verified source code"
-          />
-          <ToggleOption
-            enabled={formParams.requireHoneypotCheck}
-            onToggle={() => updateParam('requireHoneypotCheck', !formParams.requireHoneypotCheck)}
-            title="Honeypot Check"
-            description="Filter out potential honeypot/scam tokens"
-          />
-          <ToggleOption
-            enabled={formParams.requireLiquidityLock}
-            onToggle={() => updateParam('requireLiquidityLock', !formParams.requireLiquidityLock)}
-            title="Liquidity Lock"
-            description="Require liquidity to be locked"
-          />
+        <CardContent>
+          <p className="text-sm text-gray-500">
+            Honeypot detection, contract verification, and liquidity lock checks. Requires security API integration.
+          </p>
         </CardContent>
       </Card>
       

@@ -2,7 +2,7 @@ const steps = [
   {
     number: '01',
     title: 'Create Your Formula',
-    description: 'Set your parameters: liquidity thresholds, volume spikes, holder distribution, token age, and security checks. Name it something memorable.',
+    description: 'Set your parameters: liquidity range, volume thresholds, token age limits. Each combination is unique — find the one that works.',
     color: 'from-arena-purple to-arena-blue',
   },
   {
@@ -20,13 +20,13 @@ const steps = [
   {
     number: '04',
     title: 'Review Your Results',
-    description: 'View your complete match history with price at discovery. Track performance over 1hr, 24hr, and 7-day windows. See your win rate, best picks, and worst misses.',
+    description: 'View your complete match history with price at discovery. Track performance over 1hr, 24hr, and 7-day windows. See your win rate and refine your strategy.',
     color: 'from-arena-purple to-arena-pink',
   },
   {
     number: '05',
-    title: 'Compete & Share',
-    description: 'Climb the leaderboard with your win rate. Share winning formulas on Twitter, or copy proven strategies from top performers in the community.',
+    title: 'Join a Clan & Compete',
+    description: 'Team up with other traders in invite-only clans. Your combined wins climb the clan leaderboard. Share strategies, compete together, build reputation.',
     color: 'from-arena-pink to-arena-cyan',
   },
 ]
