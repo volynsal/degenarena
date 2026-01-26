@@ -91,6 +91,23 @@ export default function NewFormulaPage() {
         throw new Error(data.error || 'Failed to create formula')
       }
       
+      // If activated, trigger immediate scan
+      if (activate && data.data?.id) {
+        try {
+          const scanRes = await fetch(`/api/formulas/${data.data.id}/scan`, {
+            method: 'POST',
+          })
+          const scanData = await scanRes.json()
+          
+          if (scanData.data?.matches > 0) {
+            alert(`Formula created! Found ${scanData.data.matches} matching token(s).`)
+          }
+        } catch (scanErr) {
+          // Scan failed but formula was created, continue anyway
+          console.error('Scan failed:', scanErr)
+        }
+      }
+      
       router.push('/formulas')
     } catch (err) {
       alert(err instanceof Error ? err.message : 'An error occurred')
