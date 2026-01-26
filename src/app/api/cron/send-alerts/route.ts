@@ -126,7 +126,7 @@ export async function GET(request: NextRequest) {
     let digestsSent = 0
     let digestsFailed = 0
     
-    for (const [userId, digest] of userDigests) {
+    for (const [userId, digest] of Array.from(userDigests.entries())) {
       console.log(`📧 Sending digest to user ${userId}: ${digest.totalMatches} matches across ${digest.formulas.length} formulas`)
       
       const result = await alertService.sendDigestAlerts(digest)
