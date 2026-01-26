@@ -112,7 +112,7 @@ export default function BacktestPage({ params }: { params: { id: string } }) {
             </button>
           </Link>
           <div>
-            <h1 className="text-2xl sm:text-3xl font-bold gradient-text">Performance History</h1>
+            <h1 className="text-2xl sm:text-3xl font-bold text-white">Performance History</h1>
             <p className="text-gray-400 text-sm sm:text-base mt-1">{formula?.name} — tracked since creation</p>
           </div>
         </div>

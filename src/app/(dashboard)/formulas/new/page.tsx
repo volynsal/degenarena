@@ -131,7 +131,7 @@ export default function NewFormulaPage() {
             </button>
           </Link>
           <div>
-            <h1 className="text-2xl sm:text-3xl font-bold gradient-text">Create Formula</h1>
+            <h1 className="text-2xl sm:text-3xl font-bold text-white">Create Formula</h1>
             <p className="text-gray-400 text-sm sm:text-base mt-1">Define your token-finding criteria</p>
           </div>
         </div>

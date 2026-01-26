@@ -180,7 +180,7 @@ export default function EditFormulaPage({ params }: { params: { id: string } }) 
           </button>
         </Link>
         <div>
-          <h1 className="text-2xl sm:text-3xl font-bold gradient-text">Edit Formula</h1>
+          <h1 className="text-2xl sm:text-3xl font-bold text-white">Edit Formula</h1>
           <p className="text-gray-400 text-sm sm:text-base mt-1">Update your token-finding criteria</p>
         </div>
       </div>

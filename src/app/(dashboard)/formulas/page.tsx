@@ -38,7 +38,7 @@ export default function FormulasPage() {
       {/* Header */}
       <div className="space-y-4">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-bold gradient-text">My Formulas</h1>
+          <h1 className="text-2xl sm:text-3xl font-bold text-white">My Formulas</h1>
           <p className="text-gray-400 text-sm sm:text-base mt-1">Create and manage your token-finding strategies</p>
         </div>
         <Link href="/formulas/new" className="block sm:w-fit">

@@ -44,7 +44,7 @@ export default function FormulaMatchesPage({ params }: { params: { id: string } 
           </button>
         </Link>
         <div>
-          <h1 className="text-2xl sm:text-3xl font-bold gradient-text">
+          <h1 className="text-2xl sm:text-3xl font-bold text-white">
             {formula?.name || 'Formula'} - Matches
           </h1>
           <p className="text-gray-400 text-sm sm:text-base mt-1">
