@@ -199,4 +199,4 @@ MIT License - see [LICENSE](LICENSE) for details.
 
 ---
 
-Built by crypto fanatics.
+Built with ❤️ by crypto fanatics.
