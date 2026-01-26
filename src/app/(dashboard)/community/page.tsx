@@ -19,6 +19,7 @@ import {
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { useFormulas } from '@/lib/hooks/use-formulas'
+import { useAuthStore } from '@/lib/stores/auth-store'
 
 interface CommunityFormula {
   id: string
@@ -50,6 +51,7 @@ export default function CommunityPage() {
   const [search, setSearch] = useState('')
   const [searchInput, setSearchInput] = useState('')
   const { copyFormula } = useFormulas()
+  const { user } = useAuthStore()
   
   const fetchFormulas = async () => {
     setIsLoading(true)
@@ -137,7 +139,7 @@ export default function CommunityPage() {
     <div className="space-y-8">
       {/* Header */}
       <div>
-        <h1 className="text-2xl font-bold text-white">Community</h1>
+        <h1 className="text-3xl font-bold gradient-text">Community</h1>
         <p className="text-gray-400 mt-1">Discover and copy winning formulas from top traders</p>
       </div>
       
@@ -265,14 +267,18 @@ export default function CommunityPage() {
                     <span>{formatDate(formula.created_at)}</span>
                   </div>
                   
-                  <Button
-                    variant="primary"
-                    size="sm"
-                    onClick={() => handleCopy(formula.id)}
-                  >
-                    <Copy className="w-3 h-3 mr-1" />
-                    Copy
-                  </Button>
+                  {formula.user_id !== user?.id ? (
+                    <Button
+                      variant="primary"
+                      size="sm"
+                      onClick={() => handleCopy(formula.id)}
+                    >
+                      <Copy className="w-3 h-3 mr-1" />
+                      Copy
+                    </Button>
+                  ) : (
+                    <span className="text-xs text-gray-500 italic">Your formula</span>
+                  )}
                 </div>
               </CardContent>
             </Card>

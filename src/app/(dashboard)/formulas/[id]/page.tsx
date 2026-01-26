@@ -173,32 +173,15 @@ export default function EditFormulaPage({ params }: { params: { id: string } }) 
   return (
     <div className="max-w-4xl mx-auto space-y-8">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-4">
-          <Link href="/formulas">
-            <button className="p-2 text-gray-400 hover:text-white hover:bg-white/5 rounded-lg transition-colors">
-              <ArrowLeft className="w-5 h-5" />
-            </button>
-          </Link>
-          <div>
-            <h1 className="text-2xl font-bold text-white">Edit Formula</h1>
-            <p className="text-gray-400 mt-1">Update your token-finding criteria</p>
-          </div>
-        </div>
-        <div className="flex items-center gap-3">
-          <Button 
-            variant="ghost" 
-            onClick={handleDelete}
-            loading={isDeleting}
-            className="text-red-400 hover:text-red-300 hover:bg-red-500/10"
-          >
-            <Trash2 className="w-4 h-4 mr-2" />
-            Delete
-          </Button>
-          <Button variant="primary" onClick={handleSave} loading={isSaving}>
-            <Save className="w-4 h-4 mr-2" />
-            Save Changes
-          </Button>
+      <div className="flex items-center gap-4">
+        <Link href="/formulas">
+          <button className="p-2 text-gray-400 hover:text-white hover:bg-white/5 rounded-lg transition-colors">
+            <ArrowLeft className="w-5 h-5" />
+          </button>
+        </Link>
+        <div>
+          <h1 className="text-3xl font-bold gradient-text">Edit Formula</h1>
+          <p className="text-gray-400 mt-1">Update your token-finding criteria</p>
         </div>
       </div>
       
@@ -499,6 +482,23 @@ export default function EditFormulaPage({ params }: { params: { id: string } }) 
           />
         </CardContent>
       </Card>
+      
+      {/* Action Buttons */}
+      <div className="flex items-center justify-between pt-4 border-t border-white/10">
+        <Button 
+          variant="ghost" 
+          onClick={handleDelete}
+          loading={isDeleting}
+          className="text-red-400 hover:text-red-300 hover:bg-red-500/10"
+        >
+          <Trash2 className="w-4 h-4 mr-2" />
+          Delete Formula
+        </Button>
+        <Button variant="primary" size="lg" onClick={handleSave} loading={isSaving}>
+          <Save className="w-4 h-4 mr-2" />
+          Save Changes
+        </Button>
+      </div>
     </div>
   )
 }

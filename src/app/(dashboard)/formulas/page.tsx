@@ -38,7 +38,7 @@ export default function FormulasPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-white">My Formulas</h1>
+          <h1 className="text-3xl font-bold gradient-text">My Formulas</h1>
           <p className="text-gray-400 mt-1">Create and manage your token-finding strategies</p>
         </div>
         <Link href="/formulas/new">

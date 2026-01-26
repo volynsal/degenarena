@@ -20,6 +20,7 @@ import {
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { useFormulas } from '@/lib/hooks/use-formulas'
+import { useAuthStore } from '@/lib/stores/auth-store'
 
 interface PublicProfile {
   id: string
@@ -79,6 +80,7 @@ export default function UserProfilePage({ params }: { params: { username: string
   const [error, setError] = useState<string | null>(null)
   const [isFollowing, setIsFollowing] = useState(false)
   const { copyFormula } = useFormulas()
+  const { user } = useAuthStore()
   
   useEffect(() => {
     fetchProfile()
@@ -385,15 +387,19 @@ export default function UserProfilePage({ params }: { params: { username: string
                         </span>
                       </div>
                       
-                      <Button
-                        variant="secondary"
-                        size="sm"
-                        onClick={() => handleCopyFormula(formula.id)}
-                        className="w-full"
-                      >
-                        <Copy className="w-3 h-3 mr-2" />
-                        Copy Formula
-                      </Button>
+                      {profile.id !== user?.id ? (
+                        <Button
+                          variant="secondary"
+                          size="sm"
+                          onClick={() => handleCopyFormula(formula.id)}
+                          className="w-full"
+                        >
+                          <Copy className="w-3 h-3 mr-2" />
+                          Copy Formula
+                        </Button>
+                      ) : (
+                        <p className="text-center text-xs text-gray-500 py-2">Your formula</p>
+                      )}
                     </CardContent>
                   </Card>
                 ))}
