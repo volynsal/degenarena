@@ -66,13 +66,13 @@ export function Hero() {
         
         {/* Email signup form */}
         {!isSubmitted ? (
-          <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-3 max-w-md mx-auto">
+          <form onSubmit={handleSubmit} className="flex flex-col items-center sm:flex-row sm:items-stretch gap-3 max-w-md mx-auto">
             <Input
               type="email"
               placeholder="Enter your email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="flex-1"
+              className="flex-1 w-full sm:w-auto"
               required
             />
             <Button type="submit" variant="primary" size="lg" loading={isSubmitting}>

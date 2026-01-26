@@ -104,7 +104,7 @@ export default function BacktestPage({ params }: { params: { id: string } }) {
   return (
     <div className="space-y-8">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="space-y-4">
         <div className="flex items-center gap-4">
           <Link href={`/formulas/${params.id}`}>
             <button className="p-2 text-gray-400 hover:text-white hover:bg-white/5 rounded-lg transition-colors">
@@ -112,19 +112,19 @@ export default function BacktestPage({ params }: { params: { id: string } }) {
             </button>
           </Link>
           <div>
-            <h1 className="text-3xl font-bold gradient-text">Performance History</h1>
-            <p className="text-gray-400 mt-1">{formula?.name} — tracked since formula creation</p>
+            <h1 className="text-2xl sm:text-3xl font-bold gradient-text">Performance History</h1>
+            <p className="text-gray-400 text-sm sm:text-base mt-1">{formula?.name} — tracked since creation</p>
           </div>
         </div>
         
         {/* Period selector */}
-        <div className="flex items-center gap-2 bg-white/5 rounded-lg p-1">
+        <div className="flex items-center gap-1 sm:gap-2 bg-white/5 rounded-lg p-1 w-fit">
           {periods.map((p) => (
             <button
               key={p.value}
               onClick={() => setPeriod(p.value)}
               className={cn(
-                'px-4 py-2 rounded-md text-sm font-medium transition-colors',
+                'px-2 sm:px-4 py-2 rounded-md text-xs sm:text-sm font-medium transition-colors',
                 period === p.value
                   ? 'bg-gradient-to-r from-arena-purple to-arena-cyan text-white'
                   : 'text-gray-400 hover:text-white'

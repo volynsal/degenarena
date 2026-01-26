@@ -123,7 +123,7 @@ export default function NewFormulaPage() {
   return (
     <div className="max-w-4xl mx-auto space-y-8">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="space-y-4">
         <div className="flex items-center gap-4">
           <Link href="/formulas">
             <button className="p-2 text-gray-400 hover:text-white hover:bg-white/5 rounded-lg transition-colors">
@@ -131,16 +131,16 @@ export default function NewFormulaPage() {
             </button>
           </Link>
           <div>
-            <h1 className="text-3xl font-bold gradient-text">Create Formula</h1>
-            <p className="text-gray-400 mt-1">Define your token-finding criteria</p>
+            <h1 className="text-2xl sm:text-3xl font-bold gradient-text">Create Formula</h1>
+            <p className="text-gray-400 text-sm sm:text-base mt-1">Define your token-finding criteria</p>
           </div>
         </div>
         <div className="flex items-center gap-3">
-          <Button variant="secondary" onClick={() => handleSave(false)} loading={isSaving}>
+          <Button variant="secondary" onClick={() => handleSave(false)} loading={isSaving} className="flex-1 sm:flex-none">
             <Save className="w-4 h-4 mr-2" />
             Save Draft
           </Button>
-          <Button variant="primary" onClick={() => handleSave(true)} loading={isSaving}>
+          <Button variant="primary" onClick={() => handleSave(true)} loading={isSaving} className="flex-1 sm:flex-none">
             <Play className="w-4 h-4 mr-2" />
             Save & Activate
           </Button>

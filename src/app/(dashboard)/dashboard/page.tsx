@@ -50,8 +50,8 @@ export default function DashboardPage() {
     <div className="space-y-8">
       {/* Header */}
       <div>
-        <h1 className="text-3xl font-bold gradient-text">Dashboard</h1>
-        <p className="text-gray-400 mt-1">Overview of your formula performance</p>
+        <h1 className="text-2xl sm:text-3xl font-bold gradient-text">Dashboard</h1>
+        <p className="text-gray-400 text-sm sm:text-base mt-1">Overview of your formula performance</p>
       </div>
       
       {/* Stats grid */}

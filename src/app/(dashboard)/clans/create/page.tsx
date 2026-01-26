@@ -59,8 +59,8 @@ export default function CreateClanPage() {
           </button>
         </Link>
         <div>
-          <h1 className="text-3xl font-bold gradient-text">Create a Clan</h1>
-          <p className="text-gray-400 mt-1">Start your own trading team</p>
+          <h1 className="text-2xl sm:text-3xl font-bold gradient-text">Create a Clan</h1>
+          <p className="text-gray-400 text-sm sm:text-base mt-1">Start your own trading team</p>
         </div>
       </div>
       

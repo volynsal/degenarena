@@ -48,11 +48,11 @@ export function DashboardNav() {
         {/* Right side */}
         <div className="flex items-center gap-2">
           <Link 
-            href="/alerts" 
+            href="/settings" 
             className="relative p-2 text-gray-400 hover:text-white transition-colors"
+            title="Alert Settings"
           >
             <Bell size={20} />
-            <span className="absolute top-1 right-1 w-2 h-2 bg-arena-cyan rounded-full" />
           </Link>
           <Link 
             href="/settings"

@@ -36,13 +36,13 @@ export default function FormulasPage() {
   return (
     <div className="space-y-8">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="space-y-4">
         <div>
-          <h1 className="text-3xl font-bold gradient-text">My Formulas</h1>
-          <p className="text-gray-400 mt-1">Create and manage your token-finding strategies</p>
+          <h1 className="text-2xl sm:text-3xl font-bold gradient-text">My Formulas</h1>
+          <p className="text-gray-400 text-sm sm:text-base mt-1">Create and manage your token-finding strategies</p>
         </div>
-        <Link href="/formulas/new">
-          <Button variant="primary">
+        <Link href="/formulas/new" className="block sm:w-fit">
+          <Button variant="primary" className="w-full sm:w-auto">
             <Plus className="w-4 h-4 mr-2" />
             New Formula
           </Button>

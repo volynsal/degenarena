@@ -40,8 +40,8 @@ export default function LeaderboardPage() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold gradient-text">Leaderboard</h1>
-          <p className="text-gray-400 mt-1">Top performing formulas ranked by win rate</p>
+          <h1 className="text-2xl sm:text-3xl font-bold gradient-text">Leaderboard</h1>
+          <p className="text-gray-400 text-sm sm:text-base mt-1">Top performing formulas ranked by win rate</p>
         </div>
         
         {/* Timeframe selector */}
