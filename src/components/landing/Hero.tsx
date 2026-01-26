@@ -75,9 +75,9 @@ export function Hero() {
           </div>
         )}
         
-        {/* Social proof */}
-        <p className="mt-6 text-sm text-gray-500">
-          Join 2,400+ traders waiting for early access
+        {/* Launch date */}
+        <p className="mt-6 text-sm text-gray-400">
+          Coming Q1 2026
         </p>
         
         {/* Preview image/mockup */}

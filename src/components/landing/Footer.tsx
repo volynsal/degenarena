@@ -54,7 +54,10 @@ export function Footer() {
         </div>
         
         {/* Copyright */}
-        <div className="mt-8 pt-8 border-t border-white/5 text-center">
+        <div className="mt-8 pt-8 border-t border-white/5 text-center space-y-2">
+          <p className="text-sm text-gray-400">
+            Built by crypto fanatics.
+          </p>
           <p className="text-sm text-gray-500">
             © {new Date().getFullYear()} DegenArena. All rights reserved.
           </p>
