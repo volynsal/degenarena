@@ -1,0 +1,16 @@
+{
+  "crons": [
+    {
+      "path": "/api/cron/monitor",
+      "schedule": "*/5 * * * *"
+    },
+    {
+      "path": "/api/cron/send-alerts",
+      "schedule": "*/2 * * * *"
+    },
+    {
+      "path": "/api/cron/update-returns",
+      "schedule": "0 * * * *"
+    }
+  ]
+}
