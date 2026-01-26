@@ -53,9 +53,28 @@ interface Formula {
   avg_return: number
 }
 
+interface Badge {
+  id: string
+  name: string
+  description: string
+  icon: string
+  category: string
+  rarity: string
+  earned_at: string
+}
+
+const rarityColors: Record<string, string> = {
+  common: 'bg-gray-500/20 border-gray-500/30 text-gray-300',
+  uncommon: 'bg-green-500/20 border-green-500/30 text-green-400',
+  rare: 'bg-blue-500/20 border-blue-500/30 text-blue-400',
+  epic: 'bg-purple-500/20 border-purple-500/30 text-purple-400',
+  legendary: 'bg-yellow-500/20 border-yellow-500/30 text-yellow-400',
+}
+
 export default function UserProfilePage({ params }: { params: { username: string } }) {
   const [profile, setProfile] = useState<PublicProfile | null>(null)
   const [formulas, setFormulas] = useState<Formula[]>([])
+  const [badges, setBadges] = useState<Badge[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [isFollowing, setIsFollowing] = useState(false)
@@ -87,6 +106,14 @@ export default function UserProfilePage({ params }: { params: { username: string
       
       if (formulasData.data) {
         setFormulas(formulasData.data)
+      }
+      
+      // Fetch badges
+      const badgesRes = await fetch(`/api/profiles/${params.username}/badges`)
+      const badgesData = await badgesRes.json()
+      
+      if (badgesData.data) {
+        setBadges(badgesData.data)
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load profile')
@@ -287,6 +314,42 @@ export default function UserProfilePage({ params }: { params: { username: string
             </CardContent>
           </Card>
         </div>
+        
+        {/* Badges */}
+        {badges.length > 0 && (
+          <Card className="mb-8">
+            <CardHeader>
+              <CardTitle>Badges ({badges.length})</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="flex flex-wrap gap-3">
+                {badges.map((badge) => (
+                  <div
+                    key={badge.id}
+                    className={cn(
+                      'group relative px-4 py-3 rounded-lg border cursor-default transition-all hover:scale-105',
+                      rarityColors[badge.rarity] || rarityColors.common
+                    )}
+                    title={badge.description}
+                  >
+                    <div className="flex items-center gap-2">
+                      <span className="text-2xl">{badge.icon}</span>
+                      <div>
+                        <p className="font-medium text-sm">{badge.name}</p>
+                        <p className="text-xs opacity-70 capitalize">{badge.rarity}</p>
+                      </div>
+                    </div>
+                    
+                    {/* Tooltip on hover */}
+                    <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-2 bg-arena-dark border border-white/10 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-10">
+                      <p className="text-xs text-gray-300">{badge.description}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        )}
         
         {/* Formulas */}
         <Card>
