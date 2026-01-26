@@ -1,0 +1,344 @@
+'use client'
+
+import { useState, useEffect } from 'react'
+import Link from 'next/link'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card'
+import { Button } from '@/components/ui/Button'
+import { 
+  User,
+  Trophy,
+  Target,
+  TrendingUp,
+  Users,
+  Calendar,
+  Twitter,
+  Copy,
+  Loader2,
+  UserPlus,
+  UserMinus,
+  Shield
+} from 'lucide-react'
+import { cn } from '@/lib/utils'
+import { useFormulas } from '@/lib/hooks/use-formulas'
+
+interface PublicProfile {
+  id: string
+  username: string
+  bio: string | null
+  avatar_url: string | null
+  twitter_handle: string | null
+  follower_count: number
+  following_count: number
+  created_at: string
+  clan: {
+    id: string
+    name: string
+    slug: string
+  } | null
+  stats: {
+    total_formulas: number
+    total_matches: number
+    avg_win_rate: number
+    leaderboard_rank: number | null
+  }
+  is_following: boolean
+}
+
+interface Formula {
+  id: string
+  name: string
+  description: string | null
+  win_rate: number
+  total_matches: number
+  avg_return: number
+}
+
+export default function UserProfilePage({ params }: { params: { username: string } }) {
+  const [profile, setProfile] = useState<PublicProfile | null>(null)
+  const [formulas, setFormulas] = useState<Formula[]>([])
+  const [isLoading, setIsLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+  const [isFollowing, setIsFollowing] = useState(false)
+  const { copyFormula } = useFormulas()
+  
+  useEffect(() => {
+    fetchProfile()
+  }, [params.username])
+  
+  const fetchProfile = async () => {
+    setIsLoading(true)
+    setError(null)
+    
+    try {
+      // Fetch profile
+      const profileRes = await fetch(`/api/profiles/${params.username}`)
+      const profileData = await profileRes.json()
+      
+      if (!profileRes.ok) {
+        throw new Error(profileData.error || 'User not found')
+      }
+      
+      setProfile(profileData.data)
+      setIsFollowing(profileData.data.is_following)
+      
+      // Fetch formulas
+      const formulasRes = await fetch(`/api/profiles/${params.username}/formulas`)
+      const formulasData = await formulasRes.json()
+      
+      if (formulasData.data) {
+        setFormulas(formulasData.data)
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to load profile')
+    } finally {
+      setIsLoading(false)
+    }
+  }
+  
+  const handleFollow = async () => {
+    try {
+      const res = await fetch(`/api/profiles/${params.username}/follow`, {
+        method: 'POST',
+      })
+      const data = await res.json()
+      
+      if (data.data) {
+        setIsFollowing(data.data.following)
+        setProfile(prev => prev ? {
+          ...prev,
+          follower_count: data.data.following 
+            ? prev.follower_count + 1 
+            : prev.follower_count - 1
+        } : null)
+      }
+    } catch (err) {
+      console.error('Failed to follow:', err)
+    }
+  }
+  
+  const handleCopyFormula = async (formulaId: string) => {
+    try {
+      await copyFormula(formulaId)
+      alert('Formula copied to your collection!')
+    } catch (err) {
+      alert('Failed to copy formula')
+    }
+  }
+  
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString('en-US', {
+      month: 'long',
+      year: 'numeric',
+    })
+  }
+  
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-arena-darker flex items-center justify-center">
+        <Loader2 className="w-8 h-8 text-arena-cyan animate-spin" />
+      </div>
+    )
+  }
+  
+  if (error || !profile) {
+    return (
+      <div className="min-h-screen bg-arena-darker flex items-center justify-center">
+        <Card className="max-w-md">
+          <CardContent className="p-8 text-center">
+            <User className="w-12 h-12 mx-auto mb-4 text-gray-600" />
+            <h1 className="text-xl font-bold text-white mb-2">User Not Found</h1>
+            <p className="text-gray-400 mb-6">{error || 'This user does not exist.'}</p>
+            <Link href="/community">
+              <Button variant="primary">Browse Community</Button>
+            </Link>
+          </CardContent>
+        </Card>
+      </div>
+    )
+  }
+  
+  return (
+    <div className="min-h-screen bg-arena-darker">
+      {/* Header */}
+      <nav className="border-b border-white/5 p-4">
+        <div className="max-w-4xl mx-auto flex items-center justify-between">
+          <Link href="/" className="flex items-center gap-2">
+            <img src="/logo.png" alt="DegenArena" className="w-10 h-10 rounded-lg" />
+            <span className="text-xl font-bold gradient-text">DegenArena</span>
+          </Link>
+          <Link href="/community">
+            <Button variant="secondary" size="sm">
+              Browse Community
+            </Button>
+          </Link>
+        </div>
+      </nav>
+      
+      <div className="max-w-4xl mx-auto px-4 py-8">
+        {/* Profile Header */}
+        <Card className="mb-8">
+          <CardContent className="p-8">
+            <div className="flex flex-col sm:flex-row items-start gap-6">
+              {/* Avatar */}
+              <div className="w-24 h-24 rounded-full bg-gradient-to-br from-arena-purple to-arena-cyan flex items-center justify-center text-3xl font-bold text-white">
+                {profile.avatar_url ? (
+                  <img src={profile.avatar_url} alt={profile.username} className="w-full h-full rounded-full object-cover" />
+                ) : (
+                  profile.username.charAt(0).toUpperCase()
+                )}
+              </div>
+              
+              {/* Info */}
+              <div className="flex-1">
+                <div className="flex items-center gap-3 mb-2">
+                  <h1 className="text-2xl font-bold text-white">@{profile.username}</h1>
+                  {profile.clan && (
+                    <Link 
+                      href={`/clans/${profile.clan.slug}`}
+                      className="flex items-center gap-1 px-2 py-1 rounded-full bg-arena-purple/20 text-arena-purple text-sm"
+                    >
+                      <Shield className="w-3 h-3" />
+                      {profile.clan.name}
+                    </Link>
+                  )}
+                </div>
+                
+                {profile.bio && (
+                  <p className="text-gray-400 mb-4">{profile.bio}</p>
+                )}
+                
+                <div className="flex flex-wrap items-center gap-4 text-sm text-gray-500">
+                  <span className="flex items-center gap-1">
+                    <Users className="w-4 h-4" />
+                    <strong className="text-white">{profile.follower_count}</strong> followers
+                  </span>
+                  <span className="flex items-center gap-1">
+                    <strong className="text-white">{profile.following_count}</strong> following
+                  </span>
+                  <span className="flex items-center gap-1">
+                    <Calendar className="w-4 h-4" />
+                    Joined {formatDate(profile.created_at)}
+                  </span>
+                  {profile.twitter_handle && (
+                    <a 
+                      href={`https://twitter.com/${profile.twitter_handle}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-1 text-arena-cyan hover:underline"
+                    >
+                      <Twitter className="w-4 h-4" />
+                      @{profile.twitter_handle}
+                    </a>
+                  )}
+                </div>
+              </div>
+              
+              {/* Follow button */}
+              <Button
+                variant={isFollowing ? 'secondary' : 'primary'}
+                onClick={handleFollow}
+              >
+                {isFollowing ? (
+                  <>
+                    <UserMinus className="w-4 h-4 mr-2" />
+                    Unfollow
+                  </>
+                ) : (
+                  <>
+                    <UserPlus className="w-4 h-4 mr-2" />
+                    Follow
+                  </>
+                )}
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+        
+        {/* Stats */}
+        <div className="grid sm:grid-cols-4 gap-4 mb-8">
+          <Card>
+            <CardContent className="p-4 text-center">
+              <Target className="w-6 h-6 mx-auto mb-2 text-gray-400" />
+              <p className="text-2xl font-bold text-white">{profile.stats.total_formulas}</p>
+              <p className="text-xs text-gray-500">Formulas</p>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="p-4 text-center">
+              <TrendingUp className="w-6 h-6 mx-auto mb-2 text-arena-cyan" />
+              <p className="text-2xl font-bold text-white">{profile.stats.avg_win_rate}%</p>
+              <p className="text-xs text-gray-500">Avg Win Rate</p>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="p-4 text-center">
+              <Target className="w-6 h-6 mx-auto mb-2 text-gray-400" />
+              <p className="text-2xl font-bold text-white">{profile.stats.total_matches}</p>
+              <p className="text-xs text-gray-500">Total Matches</p>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="p-4 text-center">
+              <Trophy className="w-6 h-6 mx-auto mb-2 text-yellow-500" />
+              <p className="text-2xl font-bold text-white">
+                {profile.stats.leaderboard_rank ? `#${profile.stats.leaderboard_rank}` : '—'}
+              </p>
+              <p className="text-xs text-gray-500">Leaderboard</p>
+            </CardContent>
+          </Card>
+        </div>
+        
+        {/* Formulas */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Public Formulas</CardTitle>
+          </CardHeader>
+          <CardContent>
+            {formulas.length === 0 ? (
+              <p className="text-center text-gray-400 py-8">
+                No public formulas yet
+              </p>
+            ) : (
+              <div className="grid sm:grid-cols-2 gap-4">
+                {formulas.map((formula) => (
+                  <Card key={formula.id} hover className="bg-white/5">
+                    <CardContent className="p-4">
+                      <h3 className="text-lg font-semibold text-white mb-2">{formula.name}</h3>
+                      {formula.description && (
+                        <p className="text-sm text-gray-400 mb-3 line-clamp-2">{formula.description}</p>
+                      )}
+                      
+                      <div className="flex items-center gap-4 text-sm mb-3">
+                        <span className="text-gray-400">
+                          Win: <strong className="text-white">{formula.win_rate}%</strong>
+                        </span>
+                        <span className="text-gray-400">
+                          Return: <strong className={formula.avg_return >= 0 ? 'text-arena-cyan' : 'text-red-400'}>
+                            {formula.avg_return >= 0 ? '+' : ''}{formula.avg_return}%
+                          </strong>
+                        </span>
+                        <span className="text-gray-400">
+                          Matches: <strong className="text-white">{formula.total_matches}</strong>
+                        </span>
+                      </div>
+                      
+                      <Button
+                        variant="secondary"
+                        size="sm"
+                        onClick={() => handleCopyFormula(formula.id)}
+                        className="w-full"
+                      >
+                        <Copy className="w-3 h-3 mr-2" />
+                        Copy Formula
+                      </Button>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      </div>
+    </div>
+  )
+}
