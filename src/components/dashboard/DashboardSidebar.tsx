@@ -7,6 +7,7 @@ import {
   LayoutDashboard, 
   Sliders, 
   Trophy, 
+  Users,
   Settings,
   Sparkles
 } from 'lucide-react'
@@ -14,6 +15,7 @@ import {
 const navigation = [
   { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
   { name: 'My Formulas', href: '/formulas', icon: Sliders },
+  { name: 'Community', href: '/community', icon: Users },
   { name: 'Leaderboard', href: '/leaderboard', icon: Trophy },
 ]
 
