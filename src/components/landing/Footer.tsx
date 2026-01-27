@@ -10,7 +10,7 @@ export function Footer() {
         style={{ backgroundImage: 'url(/footer-bg.png)' }}
       />
       {/* Dark Overlay for readability */}
-      <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/85 to-black/70" />
+      <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/60 to-black/40" />
       
       {/* Content */}
       <div className="relative z-10 py-16">
