@@ -64,6 +64,11 @@ export function Hero() {
           No more Twitter screenshots—just verified performance.
         </p>
         
+        {/* Urgency */}
+        <p className="text-sm text-arena-cyan/90 font-medium mb-6">
+          Private beta spots limited. Launching in Q1 2026.
+        </p>
+        
         {/* Email signup form */}
         {!isSubmitted ? (
           <form onSubmit={handleSubmit} className="flex flex-col items-center sm:flex-row sm:items-stretch gap-3 max-w-md mx-auto">
@@ -89,9 +94,9 @@ export function Hero() {
           </div>
         )}
         
-        {/* Launch date */}
-        <p className="mt-6 text-sm text-gray-400">
-          Coming Q1 2026
+        {/* Reinforce urgency after submit */}
+        <p className="mt-6 text-sm text-gray-500">
+          Private beta spots limited · Launching Q1 2026
         </p>
         
         {/* Preview image/mockup */}
