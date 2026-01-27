@@ -55,20 +55,28 @@ export async function GET(
     }, { status: 404 })
   }
   
-  // Get members with their stats
-  const { data: members } = await supabase
+  // Get members (simple query without join)
+  const { data: members, error: membersError } = await supabase
     .from('clan_members')
-    .select(`
-      user_id,
-      role,
-      profile:profiles(username, avatar_url)
-    `)
+    .select('user_id, role')
     .eq('clan_id', clan.id)
-    .order('role', { ascending: true })
+    .order('joined_at', { ascending: true })
   
-  // Get member formula stats
+  if (membersError) {
+    console.error('Error fetching members:', membersError)
+  }
+  
+  // Get member details and stats
   const memberStats: any[] = []
   for (const member of members || []) {
+    // Get profile separately
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('username, avatar_url')
+      .eq('id', member.user_id)
+      .single()
+    
+    // Get formula stats
     const { data: formulas } = await supabase
       .from('formulas')
       .select('win_rate, total_matches')
@@ -81,8 +89,8 @@ export async function GET(
     
     memberStats.push({
       user_id: member.user_id,
-      username: (member.profile as any)?.username || 'Unknown',
-      avatar_url: (member.profile as any)?.avatar_url || null,
+      username: profile?.username || 'Unknown User',
+      avatar_url: profile?.avatar_url || null,
       role: member.role,
       win_rate: Math.round(avgWinRate * 10) / 10,
       total_matches: totalMatches,
@@ -143,20 +151,66 @@ export async function DELETE(
     }, { status: 401 })
   }
   
-  const { error } = await supabase
+  // First verify the clan exists and user is owner
+  const { data: clan, error: fetchError } = await supabase
+    .from('clans')
+    .select('id, owner_id')
+    .eq('slug', params.slug)
+    .single()
+  
+  if (fetchError || !clan) {
+    return NextResponse.json<ApiResponse<null>>({
+      error: 'Clan not found'
+    }, { status: 404 })
+  }
+  
+  if (clan.owner_id !== session.user.id) {
+    return NextResponse.json<ApiResponse<null>>({
+      error: 'Only the clan owner can delete the clan'
+    }, { status: 403 })
+  }
+  
+  // Delete all clan members first (cascade should handle this, but being explicit)
+  await supabase
+    .from('clan_members')
+    .delete()
+    .eq('clan_id', clan.id)
+  
+  // Delete all clan invites
+  await supabase
+    .from('clan_invites')
+    .delete()
+    .eq('clan_id', clan.id)
+  
+  // Now delete the clan
+  const { error: deleteError } = await supabase
     .from('clans')
     .delete()
-    .eq('slug', params.slug)
-    .eq('owner_id', session.user.id)
+    .eq('id', clan.id)
   
-  if (error) {
+  if (deleteError) {
+    console.error('Failed to delete clan:', deleteError)
     return NextResponse.json<ApiResponse<null>>({
-      error: 'Failed to delete clan or not authorized'
-    }, { status: 400 })
+      error: 'Failed to delete clan: ' + deleteError.message
+    }, { status: 500 })
+  }
+  
+  // Verify deletion
+  const { data: checkClan } = await supabase
+    .from('clans')
+    .select('id')
+    .eq('id', clan.id)
+    .single()
+  
+  if (checkClan) {
+    console.error('Clan still exists after delete attempt')
+    return NextResponse.json<ApiResponse<null>>({
+      error: 'Clan deletion failed - please try again'
+    }, { status: 500 })
   }
   
   return NextResponse.json<ApiResponse<null>>({
     data: null,
-    message: 'Clan deleted'
+    message: 'Clan deleted successfully'
   })
 }
