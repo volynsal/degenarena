@@ -94,11 +94,6 @@ export function Hero() {
           </div>
         )}
         
-        {/* Reinforce urgency after submit */}
-        <p className="mt-6 text-sm text-gray-500">
-          Private beta spots limited · Launching Q1 2026
-        </p>
-        
         {/* Preview image/mockup */}
         <div className="mt-16 relative">
           <div className="absolute inset-0 bg-gradient-to-t from-arena-darker via-transparent to-transparent z-10 pointer-events-none" />
