@@ -11,8 +11,10 @@ import {
   Loader2,
   Shield,
   Target,
-  Link as LinkIcon
+  Key,
+  ArrowRight
 } from 'lucide-react'
+import { useRouter } from 'next/navigation'
 
 interface MyClan {
   id: string
@@ -27,8 +29,38 @@ interface MyClan {
 }
 
 export default function ClansPage() {
+  const router = useRouter()
   const [myClan, setMyClan] = useState<MyClan | null>(null)
   const [isLoading, setIsLoading] = useState(true)
+  const [inviteCode, setInviteCode] = useState('')
+  const [isJoining, setIsJoining] = useState(false)
+  const [joinError, setJoinError] = useState<string | null>(null)
+  
+  const handleJoinWithCode = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!inviteCode.trim()) return
+    
+    setIsJoining(true)
+    setJoinError(null)
+    
+    try {
+      const res = await fetch(`/api/clans/join/${inviteCode.trim().toUpperCase()}`, {
+        method: 'POST',
+      })
+      const data = await res.json()
+      
+      if (!res.ok) {
+        throw new Error(data.error || 'Invalid invite code')
+      }
+      
+      // Redirect to the clan page
+      router.push(`/clans/${data.data.slug}`)
+    } catch (err) {
+      setJoinError(err instanceof Error ? err.message : 'Failed to join clan')
+    } finally {
+      setIsJoining(false)
+    }
+  }
   
   const fetchMyClan = async () => {
     setIsLoading(true)
@@ -147,12 +179,30 @@ export default function ClansPage() {
           
           <div className="mt-8 p-4 rounded-lg bg-white/5 text-left max-w-sm mx-auto">
             <div className="flex items-start gap-3">
-              <LinkIcon className="w-5 h-5 text-arena-cyan mt-0.5" />
-              <div>
-                <p className="text-sm font-medium text-white">Have an invite link?</p>
-                <p className="text-xs text-gray-400 mt-1">
-                  Paste it in your browser to join a clan directly.
-                </p>
+              <Key className="w-5 h-5 text-arena-cyan mt-0.5" />
+              <div className="flex-1">
+                <p className="text-sm font-medium text-white mb-2">Have an invite code?</p>
+                <form onSubmit={handleJoinWithCode} className="flex gap-2">
+                  <input
+                    type="text"
+                    value={inviteCode}
+                    onChange={(e) => setInviteCode(e.target.value.toUpperCase())}
+                    placeholder="Enter code"
+                    maxLength={8}
+                    className="flex-1 px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm font-mono tracking-widest text-center placeholder:text-gray-500 placeholder:tracking-normal"
+                  />
+                  <Button 
+                    type="submit" 
+                    variant="secondary" 
+                    loading={isJoining}
+                    disabled={!inviteCode.trim()}
+                  >
+                    <ArrowRight className="w-4 h-4" />
+                  </Button>
+                </form>
+                {joinError && (
+                  <p className="text-xs text-red-400 mt-2">{joinError}</p>
+                )}
               </div>
             </div>
           </div>

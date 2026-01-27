@@ -10,14 +10,17 @@ import {
   Trophy,
   Target,
   Shield,
-  Link as LinkIcon,
   LogOut,
   Loader2,
   Crown,
   Star,
   Copy,
-  Check
+  Check,
+  Trash2,
+  UserMinus,
+  Key
 } from 'lucide-react'
+import { useRouter } from 'next/navigation'
 
 interface ClanMember {
   user_id: string
@@ -50,13 +53,16 @@ interface ClanDetails {
 }
 
 export default function ClanPage({ params }: { params: { slug: string } }) {
+  const router = useRouter()
   const [clan, setClan] = useState<ClanDetails | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [isJoining, setIsJoining] = useState(false)
-  const [inviteLink, setInviteLink] = useState<string | null>(null)
+  const [inviteCode, setInviteCode] = useState<string | null>(null)
   const [isGenerating, setIsGenerating] = useState(false)
   const [copied, setCopied] = useState(false)
+  const [isDeleting, setIsDeleting] = useState(false)
+  const [removingMember, setRemovingMember] = useState<string | null>(null)
   
   useEffect(() => {
     fetchClan()
@@ -136,7 +142,7 @@ export default function ClanPage({ params }: { params: { slug: string } }) {
         throw new Error(data.error || 'Failed to generate invite')
       }
       
-      setInviteLink(data.data.link)
+      setInviteCode(data.data.code)
     } catch (err) {
       alert(err instanceof Error ? err.message : 'Failed to generate invite')
     } finally {
@@ -144,11 +150,55 @@ export default function ClanPage({ params }: { params: { slug: string } }) {
     }
   }
   
-  const copyInviteLink = () => {
-    if (inviteLink) {
-      navigator.clipboard.writeText(inviteLink)
+  const copyInviteCode = () => {
+    if (inviteCode) {
+      navigator.clipboard.writeText(inviteCode)
       setCopied(true)
       setTimeout(() => setCopied(false), 2000)
+    }
+  }
+  
+  const handleDeleteClan = async () => {
+    if (!confirm('Are you sure you want to delete this clan? This action cannot be undone.')) return
+    
+    setIsDeleting(true)
+    try {
+      const res = await fetch(`/api/clans/${params.slug}`, {
+        method: 'DELETE',
+      })
+      const data = await res.json()
+      
+      if (!res.ok) {
+        throw new Error(data.error || 'Failed to delete clan')
+      }
+      
+      router.push('/clans')
+    } catch (err) {
+      alert(err instanceof Error ? err.message : 'Failed to delete clan')
+    } finally {
+      setIsDeleting(false)
+    }
+  }
+  
+  const handleRemoveMember = async (userId: string, username: string) => {
+    if (!confirm(`Are you sure you want to remove @${username} from the clan?`)) return
+    
+    setRemovingMember(userId)
+    try {
+      const res = await fetch(`/api/clans/${params.slug}/members/${userId}`, {
+        method: 'DELETE',
+      })
+      const data = await res.json()
+      
+      if (!res.ok) {
+        throw new Error(data.error || 'Failed to remove member')
+      }
+      
+      fetchClan()
+    } catch (err) {
+      alert(err instanceof Error ? err.message : 'Failed to remove member')
+    } finally {
+      setRemovingMember(null)
     }
   }
   
@@ -225,28 +275,42 @@ export default function ClanPage({ params }: { params: { slug: string } }) {
             <div className="flex flex-col gap-2">
               {clan.is_member && (
                 <>
-                  {inviteLink ? (
-                    <div className="flex gap-2">
-                      <input
-                        type="text"
-                        value={inviteLink}
-                        readOnly
-                        className="flex-1 px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm font-mono"
-                      />
-                      <Button variant="secondary" onClick={copyInviteLink}>
-                        {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
-                      </Button>
+                  {inviteCode ? (
+                    <div className="flex flex-col gap-2">
+                      <p className="text-xs text-gray-400">Share this code:</p>
+                      <div className="flex gap-2">
+                        <input
+                          type="text"
+                          value={inviteCode}
+                          readOnly
+                          className="w-32 px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-center text-sm font-mono tracking-widest"
+                        />
+                        <Button variant="secondary" onClick={copyInviteCode}>
+                          {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+                        </Button>
+                      </div>
                     </div>
                   ) : (
                     <Button variant="secondary" onClick={generateInvite} loading={isGenerating}>
-                      <LinkIcon className="w-4 h-4 mr-2" />
-                      Generate Invite Link
+                      <Key className="w-4 h-4 mr-2" />
+                      Generate Invite Code
                     </Button>
                   )}
                   {clan.user_role !== 'owner' && (
                     <Button variant="ghost" onClick={handleLeave} loading={isJoining}>
                       <LogOut className="w-4 h-4 mr-2" />
                       Leave Clan
+                    </Button>
+                  )}
+                  {clan.user_role === 'owner' && (
+                    <Button 
+                      variant="ghost" 
+                      onClick={handleDeleteClan} 
+                      loading={isDeleting}
+                      className="text-red-400 hover:text-red-300 hover:bg-red-500/10"
+                    >
+                      <Trash2 className="w-4 h-4 mr-2" />
+                      Delete Clan
                     </Button>
                   )}
                 </>
@@ -289,12 +353,11 @@ export default function ClanPage({ params }: { params: { slug: string } }) {
         <CardContent className="p-0">
           <div className="divide-y divide-white/5">
             {clan.members.map((member) => (
-              <Link 
+              <div 
                 key={member.user_id} 
-                href={`/u/${member.username}`}
                 className="flex items-center justify-between p-4 hover:bg-white/5 transition-colors"
               >
-                <div className="flex items-center gap-4">
+                <Link href={`/u/${member.username}`} className="flex items-center gap-4 flex-1">
                   <div className="w-10 h-10 rounded-full bg-gradient-to-br from-arena-purple/50 to-arena-cyan/50 flex items-center justify-center text-white font-medium">
                     {member.avatar_url ? (
                       <img src={member.avatar_url} alt={member.username} className="w-full h-full rounded-full object-cover" />
@@ -314,9 +377,9 @@ export default function ClanPage({ params }: { params: { slug: string } }) {
                     </div>
                     <span className="text-sm text-gray-500 capitalize">{member.role}</span>
                   </div>
-                </div>
+                </Link>
                 
-                <div className="flex items-center gap-6 text-sm">
+                <div className="flex items-center gap-4 text-sm">
                   <div className="text-right">
                     <p className="text-white font-medium">{member.win_rate}%</p>
                     <p className="text-gray-500">Win Rate</p>
@@ -325,8 +388,24 @@ export default function ClanPage({ params }: { params: { slug: string } }) {
                     <p className="text-white font-medium">{member.total_matches}</p>
                     <p className="text-gray-500">Matches</p>
                   </div>
+                  
+                  {/* Remove member button - only for owner, and can't remove owner */}
+                  {clan.user_role === 'owner' && member.role !== 'owner' && (
+                    <button
+                      onClick={() => handleRemoveMember(member.user_id, member.username)}
+                      disabled={removingMember === member.user_id}
+                      className="p-2 text-gray-500 hover:text-red-400 hover:bg-red-500/10 rounded-lg transition-colors disabled:opacity-50"
+                      title="Remove member"
+                    >
+                      {removingMember === member.user_id ? (
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                      ) : (
+                        <UserMinus className="w-4 h-4" />
+                      )}
+                    </button>
+                  )}
                 </div>
-              </Link>
+              </div>
             ))}
           </div>
         </CardContent>

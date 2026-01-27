@@ -157,14 +157,10 @@ export async function POST(
     }, { status: 500 })
   }
   
-  // Generate full invite link
-  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://degenarena.com'
-  const inviteLink = `${baseUrl}/clans/join/${code}`
-  
-  return NextResponse.json<ApiResponse<{ invite: typeof invite; link: string }>>({
+  return NextResponse.json<ApiResponse<{ invite: typeof invite; code: string }>>({
     data: { 
       invite, 
-      link: inviteLink 
+      code: code 
     },
     message: 'Invite created'
   }, { status: 201 })

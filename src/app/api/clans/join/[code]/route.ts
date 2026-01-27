@@ -2,62 +2,7 @@ import { createClient } from '@/lib/supabase/server'
 import { NextRequest, NextResponse } from 'next/server'
 import type { ApiResponse } from '@/types/database'
 
-// GET /api/clans/join/[code] - Get invite info (public)
-export async function GET(
-  request: NextRequest,
-  { params }: { params: { code: string } }
-) {
-  const supabase = createClient()
-  
-  // Get invite with clan info
-  const { data: invite, error } = await supabase
-    .from('clan_invites')
-    .select(`
-      id,
-      code,
-      is_used,
-      expires_at,
-      clan:clans(
-        id,
-        name,
-        slug,
-        description,
-        logo_url,
-        member_count,
-        max_members,
-        avg_win_rate,
-        owner:profiles!owner_id(username)
-      )
-    `)
-    .eq('code', params.code.toUpperCase())
-    .single()
-  
-  if (error || !invite) {
-    return NextResponse.json<ApiResponse<null>>({
-      error: 'Invalid invite code'
-    }, { status: 404 })
-  }
-  
-  // Check if already used
-  if (invite.is_used) {
-    return NextResponse.json<ApiResponse<null>>({
-      error: 'This invite has already been used'
-    }, { status: 400 })
-  }
-  
-  // Check if expired
-  if (invite.expires_at && new Date(invite.expires_at) < new Date()) {
-    return NextResponse.json<ApiResponse<null>>({
-      error: 'This invite has expired'
-    }, { status: 400 })
-  }
-  
-  return NextResponse.json<ApiResponse<{ clan: typeof invite.clan }>>({
-    data: { clan: invite.clan }
-  })
-}
-
-// POST /api/clans/join/[code] - Use invite to join clan
+// POST /api/clans/join/[code] - Join a clan using an invite code
 export async function POST(
   request: NextRequest,
   { params }: { params: { code: string } }
@@ -71,20 +16,9 @@ export async function POST(
     }, { status: 401 })
   }
   
-  // Check if user is already in a clan
-  const { data: existingMembership } = await supabase
-    .from('clan_members')
-    .select('id')
-    .eq('user_id', session.user.id)
-    .single()
+  const code = params.code.toUpperCase()
   
-  if (existingMembership) {
-    return NextResponse.json<ApiResponse<null>>({
-      error: 'You are already in a clan. Leave your current clan first.'
-    }, { status: 400 })
-  }
-  
-  // Get invite
+  // Find the invite
   const { data: invite, error: inviteError } = await supabase
     .from('clan_invites')
     .select(`
@@ -92,9 +26,9 @@ export async function POST(
       clan_id,
       is_used,
       expires_at,
-      clan:clans(id, slug, member_count, max_members)
+      clan:clans(id, name, slug, member_count, max_members)
     `)
-    .eq('code', params.code.toUpperCase())
+    .eq('code', code)
     .single()
   
   if (inviteError || !invite) {
@@ -103,17 +37,17 @@ export async function POST(
     }, { status: 404 })
   }
   
-  // Check if already used
+  // Check if invite is already used
   if (invite.is_used) {
     return NextResponse.json<ApiResponse<null>>({
-      error: 'This invite has already been used'
+      error: 'This invite code has already been used'
     }, { status: 400 })
   }
   
-  // Check if expired
+  // Check if invite has expired
   if (invite.expires_at && new Date(invite.expires_at) < new Date()) {
     return NextResponse.json<ApiResponse<null>>({
-      error: 'This invite has expired'
+      error: 'This invite code has expired'
     }, { status: 400 })
   }
   
@@ -122,22 +56,49 @@ export async function POST(
   // Check if clan is full
   if (clan.member_count >= clan.max_members) {
     return NextResponse.json<ApiResponse<null>>({
-      error: 'Clan is full'
+      error: 'This clan is full'
     }, { status: 400 })
   }
   
-  // Join clan
+  // Check if user is already a member
+  const { data: existingMember } = await supabase
+    .from('clan_members')
+    .select('id')
+    .eq('clan_id', clan.id)
+    .eq('user_id', session.user.id)
+    .single()
+  
+  if (existingMember) {
+    return NextResponse.json<ApiResponse<null>>({
+      error: 'You are already a member of this clan'
+    }, { status: 400 })
+  }
+  
+  // Check if user is already in another clan
+  const { data: otherMembership } = await supabase
+    .from('clan_members')
+    .select('id')
+    .eq('user_id', session.user.id)
+    .single()
+  
+  if (otherMembership) {
+    return NextResponse.json<ApiResponse<null>>({
+      error: 'You are already in a clan. Leave your current clan first.'
+    }, { status: 400 })
+  }
+  
+  // Add member to clan
   const { error: joinError } = await supabase
     .from('clan_members')
     .insert({
-      clan_id: invite.clan_id,
+      clan_id: clan.id,
       user_id: session.user.id,
       role: 'member',
     })
   
   if (joinError) {
     return NextResponse.json<ApiResponse<null>>({
-      error: joinError.message
+      error: 'Failed to join clan'
     }, { status: 500 })
   }
   
@@ -153,6 +114,6 @@ export async function POST(
   
   return NextResponse.json<ApiResponse<{ slug: string }>>({
     data: { slug: clan.slug },
-    message: 'Successfully joined clan!'
+    message: 'Successfully joined clan'
   })
 }
