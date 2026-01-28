@@ -8,7 +8,7 @@ export interface FormulaPreset {
   name: string
   description: string
   tier: 'pro' | 'elite' // Minimum subscription tier required
-  strategy: 'launch_sniper' | 'momentum' | 'accumulation'
+  strategy: 'launch_sniper' | 'momentum' | 'accumulation' | 'cex_ready'
   riskLevel: 'low' | 'medium' | 'high' | 'degen'
   holdTime: string // Expected hold duration
   parameters: Partial<CreateFormulaInput>
@@ -165,6 +165,34 @@ export const FORMULA_PRESETS: FormulaPreset[] = [
       liquidity_min: 100000,
     }
   },
+  
+  // === CEX-READY CANDIDATE ===
+  {
+    id: 'cex_ready_candidate',
+    name: 'CEX-Ready Candidate',
+    description: 'Find established tokens with exchange-worthy metrics. Strong fundamentals that could attract CEX listings.',
+    tier: 'elite',
+    strategy: 'cex_ready',
+    riskLevel: 'medium',
+    holdTime: '1-4 weeks',
+    parameters: {
+      // Established tokens - not new launches
+      token_age_max_hours: 720, // 30+ days old
+      // Market cap sweet spot for exchange interest
+      fdv_min: 1000000,      // $1M min - too small won't attract exchanges
+      fdv_max: 100000000,    // $100M max - too big likely already listed
+      // Strong liquidity required by exchanges
+      liquidity_min: 100000,  // $100k+ liquidity
+      // Consistent trading activity
+      volume_24h_min: 100000, // $100k daily volume
+      tx_count_24h_min: 500,  // Active community
+      // Stable price action - not dumping or pumping on rumors
+      price_change_24h_min: -15,
+      price_change_24h_max: 30,
+      // Steady volume pattern (not declining)
+      volume_6h_vs_24h_spike: 0.9,
+    }
+  },
 ]
 
 // Helper to get presets available for a subscription tier
@@ -193,14 +221,16 @@ export const RISK_COLORS = {
 }
 
 // Strategy icons/colors for UI
-export const STRATEGY_COLORS = {
+export const STRATEGY_COLORS: Record<string, string> = {
   launch_sniper: 'text-arena-cyan bg-arena-cyan/10 border-arena-cyan/20',
   momentum: 'text-arena-purple bg-arena-purple/10 border-arena-purple/20',
   accumulation: 'text-blue-400 bg-blue-400/10 border-blue-400/20',
+  cex_ready: 'text-yellow-400 bg-yellow-400/10 border-yellow-400/20',
 }
 
-export const STRATEGY_LABELS = {
+export const STRATEGY_LABELS: Record<string, string> = {
   launch_sniper: 'Launch Sniper',
   momentum: 'Momentum',
   accumulation: 'Accumulation',
+  cex_ready: 'CEX Ready',
 }

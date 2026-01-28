@@ -174,6 +174,56 @@ export default function NewFormulaPage() {
     setParams(prev => ({ ...prev, [key]: value }))
   }
   
+  // Apply preset values to form
+  const applyPreset = (preset: FormulaPreset) => {
+    const p = preset.parameters
+    setParams(prev => ({
+      ...prev,
+      name: preset.name,
+      description: preset.description,
+      // Map preset parameters to form state
+      liquidityMin: p.liquidity_min ?? prev.liquidityMin,
+      liquidityMax: p.liquidity_max ?? prev.liquidityMax,
+      volume24hMin: p.volume_24h_min ?? prev.volume24hMin,
+      volume24hSpike: p.volume_24h_spike ?? prev.volume24hSpike,
+      tokenAgeMaxHours: p.token_age_max_hours ?? prev.tokenAgeMaxHours,
+      tokenAgeMinMinutes: p.token_age_min_minutes ?? prev.tokenAgeMinMinutes,
+      buySellRatio1hMin: p.buy_sell_ratio_1h_min ?? prev.buySellRatio1hMin,
+      txCount1hMin: p.tx_count_1h_min ?? prev.txCount1hMin,
+      txCount24hMin: p.tx_count_24h_min ?? prev.txCount24hMin,
+      fdvMin: p.fdv_min ?? prev.fdvMin,
+      fdvMax: p.fdv_max ?? prev.fdvMax,
+      priceChange1hMin: p.price_change_1h_min ?? prev.priceChange1hMin,
+      priceChange1hMax: p.price_change_1h_max ?? prev.priceChange1hMax,
+      priceChange6hMin: p.price_change_6h_min ?? prev.priceChange6hMin,
+      priceChange6hMax: p.price_change_6h_max ?? prev.priceChange6hMax,
+      priceChange24hMin: p.price_change_24h_min ?? prev.priceChange24hMin,
+      priceChange24hMax: p.price_change_24h_max ?? prev.priceChange24hMax,
+      volume1hVs6hSpike: p.volume_1h_vs_6h_spike ?? prev.volume1hVs6hSpike,
+      volume6hVs24hSpike: p.volume_6h_vs_24h_spike ?? prev.volume6hVs24hSpike,
+    }))
+    // Show advanced filters if preset uses them
+    if (p.buy_sell_ratio_1h_min || p.tx_count_1h_min || p.price_change_1h_min || p.volume_1h_vs_6h_spike) {
+      setShowAdvanced(true)
+    }
+  }
+  
+  // TODO: Replace with actual subscription check
+  const userTier: 'free' | 'pro' | 'elite' = 'free'
+  
+  const handlePresetClick = (preset: FormulaPreset) => {
+    // Check if user has access
+    if (userTier === 'free') {
+      alert('Upgrade to Pro to use strategy presets!')
+      return
+    }
+    if (userTier === 'pro' && preset.tier === 'elite') {
+      alert('Upgrade to Elite to use this preset!')
+      return
+    }
+    applyPreset(preset)
+  }
+  
   return (
     <div className="max-w-4xl mx-auto space-y-8">
       {/* Header */}
@@ -216,34 +266,48 @@ export default function NewFormulaPage() {
         </CardHeader>
         <CardContent>
           <p className="text-sm text-gray-400 mb-4">
-            Pre-configured formulas based on proven trading strategies. Upgrade to Pro to unlock.
+            Pre-configured formulas based on proven trading strategies. {userTier === 'free' ? 'Upgrade to Pro to unlock.' : 'Click to auto-fill parameters.'}
           </p>
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
-            {FORMULA_PRESETS.map((preset) => (
-              <div
-                key={preset.id}
-                className="relative p-4 rounded-lg border border-white/10 bg-white/5 opacity-60 cursor-not-allowed"
-              >
-                {/* Lock overlay */}
-                <div className="absolute inset-0 flex items-center justify-center bg-black/20 rounded-lg">
-                  <Lock className="w-6 h-6 text-gray-400" />
-                </div>
-                
-                <div className="flex items-start justify-between mb-2">
-                  <h4 className="text-sm font-medium text-white">{preset.name}</h4>
-                  <span className={`text-xs px-1.5 py-0.5 rounded border ${RISK_COLORS[preset.riskLevel]}`}>
-                    {preset.riskLevel}
-                  </span>
-                </div>
-                <p className="text-xs text-gray-500 mb-2 line-clamp-2">{preset.description}</p>
-                <div className="flex items-center gap-2">
-                  <span className={`text-xs px-1.5 py-0.5 rounded border ${STRATEGY_COLORS[preset.strategy]}`}>
-                    {STRATEGY_LABELS[preset.strategy]}
-                  </span>
-                  <span className="text-xs text-gray-500">{preset.holdTime}</span>
-                </div>
-              </div>
-            ))}
+            {FORMULA_PRESETS.map((preset) => {
+              const isLocked = userTier === 'free' || (userTier === 'pro' && preset.tier === 'elite')
+              
+              return (
+                <button
+                  key={preset.id}
+                  onClick={() => handlePresetClick(preset)}
+                  className={`relative p-4 rounded-lg border text-left transition-all ${
+                    isLocked 
+                      ? 'border-white/10 bg-white/5 opacity-60 cursor-not-allowed' 
+                      : 'border-white/20 bg-white/5 hover:border-arena-purple/50 hover:bg-white/10 cursor-pointer'
+                  }`}
+                >
+                  {/* Lock overlay for locked presets */}
+                  {isLocked && (
+                    <div className="absolute inset-0 flex items-center justify-center bg-black/20 rounded-lg">
+                      <div className="flex flex-col items-center gap-1">
+                        <Lock className="w-5 h-5 text-gray-400" />
+                        <span className="text-xs text-gray-400">{preset.tier === 'elite' ? 'Elite' : 'Pro'}</span>
+                      </div>
+                    </div>
+                  )}
+                  
+                  <div className="flex items-start justify-between mb-2">
+                    <h4 className="text-sm font-medium text-white">{preset.name}</h4>
+                    <span className={`text-xs px-1.5 py-0.5 rounded border ${RISK_COLORS[preset.riskLevel]}`}>
+                      {preset.riskLevel}
+                    </span>
+                  </div>
+                  <p className="text-xs text-gray-500 mb-2 line-clamp-2">{preset.description}</p>
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <span className={`text-xs px-1.5 py-0.5 rounded border ${STRATEGY_COLORS[preset.strategy]}`}>
+                      {STRATEGY_LABELS[preset.strategy]}
+                    </span>
+                    <span className="text-xs text-gray-500">{preset.holdTime}</span>
+                  </div>
+                </button>
+              )
+            })}
           </div>
         </CardContent>
       </Card>
