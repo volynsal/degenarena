@@ -51,7 +51,7 @@ export default function DashboardPage() {
       {/* Header */}
       <div>
         <h1 className="text-2xl sm:text-3xl font-semibold">
-          <span className="bg-gradient-to-r from-violet-300 via-teal-200 to-gray-100 bg-clip-text text-transparent">
+          <span className="bg-gradient-to-r from-purple-400 via-purple-300 to-teal-400 bg-clip-text text-transparent">
             Dashboard
           </span>
         </h1>
