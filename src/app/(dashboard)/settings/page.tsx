@@ -66,7 +66,7 @@ export default function SettingsPage() {
       {/* Header */}
       <div>
         <h1 className="text-2xl sm:text-3xl font-semibold">
-          <span className="bg-gradient-to-r from-slate-400 via-gray-400 to-zinc-400 bg-clip-text text-transparent">
+          <span className="bg-gradient-to-r from-slate-300 via-gray-400 to-slate-500 bg-clip-text text-transparent">
             Settings
           </span>
         </h1>
