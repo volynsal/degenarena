@@ -1,6 +1,15 @@
 import { createClient } from '@/lib/supabase/server'
+import { createClient as createServiceClient } from '@supabase/supabase-js'
 import { NextRequest, NextResponse } from 'next/server'
 import type { ApiResponse } from '@/types/database'
+
+// Service role client to bypass RLS
+function getServiceClient() {
+  return createServiceClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!
+  )
+}
 
 interface MyClan {
   id: string
@@ -17,6 +26,7 @@ interface MyClan {
 // GET /api/clans/me - Get user's current clan
 export async function GET(request: NextRequest) {
   const supabase = createClient()
+  const serviceClient = getServiceClient()
   const { data: { session } } = await supabase.auth.getSession()
   
   if (!session?.user?.id) {
@@ -25,8 +35,8 @@ export async function GET(request: NextRequest) {
     }, { status: 401 })
   }
   
-  // Get user's clan membership
-  const { data: membership, error } = await supabase
+  // Get user's clan membership using service client to bypass RLS
+  const { data: membership, error } = await serviceClient
     .from('clan_members')
     .select(`
       role,
