@@ -1,10 +1,20 @@
 // Database types - aligned with Supabase schema
 
+export type SubscriptionTier = 'free' | 'pro' | 'elite'
+
+export interface EarnedBadge {
+  id: string
+  earned_at: string
+}
+
 export interface Profile {
   id: string
   username: string
   email: string
   avatar_url?: string | null
+  bio?: string | null
+  subscription_tier: SubscriptionTier
+  badges: EarnedBadge[]
   created_at: string
   updated_at: string
 }

@@ -1,7 +1,8 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
+import type { SubscriptionTier } from '@/types/database'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
@@ -208,8 +209,25 @@ export default function NewFormulaPage() {
     }
   }
   
-  // TODO: Replace with actual subscription check
-  const userTier: 'free' | 'pro' | 'elite' = 'free'
+  // Fetch user's subscription tier
+  const [userTier, setUserTier] = useState<SubscriptionTier>('free')
+  
+  useEffect(() => {
+    const fetchUserTier = async () => {
+      try {
+        const res = await fetch('/api/auth/me')
+        if (res.ok) {
+          const data = await res.json()
+          if (data.data?.subscription_tier) {
+            setUserTier(data.data.subscription_tier)
+          }
+        }
+      } catch (err) {
+        console.error('Failed to fetch user tier:', err)
+      }
+    }
+    fetchUserTier()
+  }, [])
   
   const handlePresetClick = (preset: FormulaPreset) => {
     // Check if user has access
