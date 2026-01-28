@@ -16,14 +16,20 @@ import {
   Users,
   Clock,
   Shield,
-  TrendingUp
+  TrendingUp,
+  Lock,
+  Zap,
+  Target,
+  BarChart3
 } from 'lucide-react'
 import Link from 'next/link'
+import { FORMULA_PRESETS, RISK_COLORS, STRATEGY_COLORS, STRATEGY_LABELS, type FormulaPreset } from '@/lib/formula-presets'
 
 interface FormulaParams {
   name: string
   description: string
   isPublic: boolean
+  // Basic parameters
   liquidityMin: number
   liquidityMax: number
   volume24hMin: number
@@ -34,15 +40,32 @@ interface FormulaParams {
   requireVerifiedContract: boolean
   requireHoneypotCheck: boolean
   requireLiquidityLock: boolean
+  // Enhanced parameters
+  tokenAgeMinMinutes: number
+  buySellRatio1hMin: number
+  txCount1hMin: number
+  txCount24hMin: number
+  fdvMin: number
+  fdvMax: number
+  priceChange1hMin: number
+  priceChange1hMax: number
+  priceChange6hMin: number
+  priceChange6hMax: number
+  priceChange24hMin: number
+  priceChange24hMax: number
+  volume1hVs6hSpike: number
+  volume6hVs24hSpike: number
 }
 
 export default function NewFormulaPage() {
   const router = useRouter()
   const [isSaving, setIsSaving] = useState(false)
+  const [showAdvanced, setShowAdvanced] = useState(false)
   const [params, setParams] = useState<FormulaParams>({
     name: '',
     description: '',
     isPublic: false,
+    // Basic parameters
     liquidityMin: 50000,
     liquidityMax: 500000,
     volume24hMin: 10000,
@@ -53,6 +76,21 @@ export default function NewFormulaPage() {
     requireVerifiedContract: true,
     requireHoneypotCheck: true,
     requireLiquidityLock: false,
+    // Enhanced parameters (0 means not set)
+    tokenAgeMinMinutes: 0,
+    buySellRatio1hMin: 0,
+    txCount1hMin: 0,
+    txCount24hMin: 0,
+    fdvMin: 0,
+    fdvMax: 0,
+    priceChange1hMin: 0,
+    priceChange1hMax: 0,
+    priceChange6hMin: 0,
+    priceChange6hMax: 0,
+    priceChange24hMin: 0,
+    priceChange24hMax: 0,
+    volume1hVs6hSpike: 0,
+    volume6hVs24hSpike: 0,
   })
   
   const handleSave = async (activate = false) => {
@@ -72,16 +110,32 @@ export default function NewFormulaPage() {
           description: params.description?.trim() || null,
           is_public: params.isPublic,
           is_active: activate,
-          liquidity_min: params.liquidityMin,
-          liquidity_max: params.liquidityMax,
-          volume_24h_min: params.volume24hMin,
-          volume_24h_spike: params.volume24hSpike,
-          holders_min: params.holdersMin,
-          holders_max: params.holdersMax,
-          token_age_max_hours: params.tokenAgeMaxHours,
+          // Basic parameters
+          liquidity_min: params.liquidityMin || null,
+          liquidity_max: params.liquidityMax || null,
+          volume_24h_min: params.volume24hMin || null,
+          volume_24h_spike: params.volume24hSpike || null,
+          holders_min: params.holdersMin || null,
+          holders_max: params.holdersMax || null,
+          token_age_max_hours: params.tokenAgeMaxHours || null,
           require_verified_contract: params.requireVerifiedContract,
           require_honeypot_check: params.requireHoneypotCheck,
           require_liquidity_lock: params.requireLiquidityLock,
+          // Enhanced parameters (only send if set)
+          token_age_min_minutes: params.tokenAgeMinMinutes || null,
+          buy_sell_ratio_1h_min: params.buySellRatio1hMin || null,
+          tx_count_1h_min: params.txCount1hMin || null,
+          tx_count_24h_min: params.txCount24hMin || null,
+          fdv_min: params.fdvMin || null,
+          fdv_max: params.fdvMax || null,
+          price_change_1h_min: params.priceChange1hMin || null,
+          price_change_1h_max: params.priceChange1hMax || null,
+          price_change_6h_min: params.priceChange6hMin || null,
+          price_change_6h_max: params.priceChange6hMax || null,
+          price_change_24h_min: params.priceChange24hMin || null,
+          price_change_24h_max: params.priceChange24hMax || null,
+          volume_1h_vs_6h_spike: params.volume1hVs6hSpike || null,
+          volume_6h_vs_24h_spike: params.volume6hVs24hSpike || null,
         }),
       })
       
@@ -146,6 +200,53 @@ export default function NewFormulaPage() {
           </Button>
         </div>
       </div>
+      
+      {/* Strategy Presets - Locked for Free Users */}
+      <Card>
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Zap className="w-5 h-5 text-arena-purple" />
+              <CardTitle>Strategy Presets</CardTitle>
+            </div>
+            <span className="text-xs px-2 py-1 rounded-full bg-arena-purple/20 text-arena-purple border border-arena-purple/30">
+              Pro Feature
+            </span>
+          </div>
+        </CardHeader>
+        <CardContent>
+          <p className="text-sm text-gray-400 mb-4">
+            Pre-configured formulas based on proven trading strategies. Upgrade to Pro to unlock.
+          </p>
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
+            {FORMULA_PRESETS.map((preset) => (
+              <div
+                key={preset.id}
+                className="relative p-4 rounded-lg border border-white/10 bg-white/5 opacity-60 cursor-not-allowed"
+              >
+                {/* Lock overlay */}
+                <div className="absolute inset-0 flex items-center justify-center bg-black/20 rounded-lg">
+                  <Lock className="w-6 h-6 text-gray-400" />
+                </div>
+                
+                <div className="flex items-start justify-between mb-2">
+                  <h4 className="text-sm font-medium text-white">{preset.name}</h4>
+                  <span className={`text-xs px-1.5 py-0.5 rounded border ${RISK_COLORS[preset.riskLevel]}`}>
+                    {preset.riskLevel}
+                  </span>
+                </div>
+                <p className="text-xs text-gray-500 mb-2 line-clamp-2">{preset.description}</p>
+                <div className="flex items-center gap-2">
+                  <span className={`text-xs px-1.5 py-0.5 rounded border ${STRATEGY_COLORS[preset.strategy]}`}>
+                    {STRATEGY_LABELS[preset.strategy]}
+                  </span>
+                  <span className="text-xs text-gray-500">{preset.holdTime}</span>
+                </div>
+              </div>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
       
       {/* Basic Info */}
       <Card>
@@ -325,21 +426,259 @@ export default function NewFormulaPage() {
             <CardTitle>Token Age</CardTitle>
           </div>
         </CardHeader>
-        <CardContent>
-          <div>
-            <label className="block text-sm font-medium text-gray-300 mb-2">
-              Maximum Age (hours)
-            </label>
-            <input
-              type="number"
-              value={params.tokenAgeMaxHours}
-              onChange={(e) => updateParam('tokenAgeMaxHours', Number(e.target.value))}
-              className="w-full sm:w-48 bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:border-arena-purple transition-colors"
-            />
-            <p className="text-xs text-gray-500 mt-1">Only match tokens launched within this time</p>
+        <CardContent className="space-y-4">
+          <div className="grid sm:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-300 mb-2">
+                Minimum Age (minutes)
+              </label>
+              <input
+                type="number"
+                value={params.tokenAgeMinMinutes || ''}
+                onChange={(e) => updateParam('tokenAgeMinMinutes', Number(e.target.value))}
+                placeholder="e.g., 10"
+                className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:border-arena-purple transition-colors"
+              />
+              <p className="text-xs text-gray-500 mt-1">Skip first X minutes (avoid bot wars)</p>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-300 mb-2">
+                Maximum Age (hours)
+              </label>
+              <input
+                type="number"
+                value={params.tokenAgeMaxHours || ''}
+                onChange={(e) => updateParam('tokenAgeMaxHours', Number(e.target.value))}
+                placeholder="e.g., 24"
+                className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:border-arena-purple transition-colors"
+              />
+              <p className="text-xs text-gray-500 mt-1">Only match tokens within this age</p>
+            </div>
           </div>
         </CardContent>
       </Card>
+      
+      {/* Market Cap / FDV */}
+      <Card>
+        <CardHeader>
+          <div className="flex items-center gap-2">
+            <BarChart3 className="w-5 h-5 text-arena-cyan" />
+            <CardTitle>Market Cap (FDV)</CardTitle>
+          </div>
+        </CardHeader>
+        <CardContent>
+          <div className="grid sm:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-300 mb-2">
+                Minimum Market Cap
+              </label>
+              <div className="flex items-center gap-2">
+                <span className="text-gray-400">$</span>
+                <input
+                  type="number"
+                  value={params.fdvMin || ''}
+                  onChange={(e) => updateParam('fdvMin', Number(e.target.value))}
+                  placeholder="e.g., 50000"
+                  className="flex-1 bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:border-arena-purple transition-colors"
+                />
+              </div>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-300 mb-2">
+                Maximum Market Cap
+              </label>
+              <div className="flex items-center gap-2">
+                <span className="text-gray-400">$</span>
+                <input
+                  type="number"
+                  value={params.fdvMax || ''}
+                  onChange={(e) => updateParam('fdvMax', Number(e.target.value))}
+                  placeholder="e.g., 5000000"
+                  className="flex-1 bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:border-arena-purple transition-colors"
+                />
+              </div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+      
+      {/* Advanced Filters Toggle */}
+      <button
+        onClick={() => setShowAdvanced(!showAdvanced)}
+        className="w-full flex items-center justify-center gap-2 p-4 rounded-lg border border-white/10 bg-white/5 hover:bg-white/10 transition-colors text-gray-300 hover:text-white"
+      >
+        <Target className="w-5 h-5" />
+        <span>{showAdvanced ? 'Hide' : 'Show'} Advanced Filters</span>
+        <span className="text-xs px-2 py-0.5 rounded-full bg-arena-cyan/20 text-arena-cyan">
+          Pro Strategies
+        </span>
+      </button>
+      
+      {showAdvanced && (
+        <>
+          {/* Buy/Sell & Transactions */}
+          <Card>
+            <CardHeader>
+              <div className="flex items-center gap-2">
+                <TrendingUp className="w-5 h-5 text-arena-cyan" />
+                <CardTitle>Buy Pressure & Activity</CardTitle>
+              </div>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="grid sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-300 mb-2">
+                    Min Buy/Sell Ratio (1h)
+                  </label>
+                  <input
+                    type="number"
+                    step="0.1"
+                    value={params.buySellRatio1hMin || ''}
+                    onChange={(e) => updateParam('buySellRatio1hMin', Number(e.target.value))}
+                    placeholder="e.g., 1.5"
+                    className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:border-arena-purple transition-colors"
+                  />
+                  <p className="text-xs text-gray-500 mt-1">1.5 = 50% more buys than sells</p>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-300 mb-2">
+                    Min Transactions (1h)
+                  </label>
+                  <input
+                    type="number"
+                    value={params.txCount1hMin || ''}
+                    onChange={(e) => updateParam('txCount1hMin', Number(e.target.value))}
+                    placeholder="e.g., 50"
+                    className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:border-arena-purple transition-colors"
+                  />
+                  <p className="text-xs text-gray-500 mt-1">Minimum activity level</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+          
+          {/* Price Change Filters */}
+          <Card>
+            <CardHeader>
+              <div className="flex items-center gap-2">
+                <TrendingUp className="w-5 h-5 text-arena-purple" />
+                <CardTitle>Price Change Filters</CardTitle>
+              </div>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              {/* 1h Price Change */}
+              <div>
+                <label className="block text-sm font-medium text-gray-300 mb-2">
+                  1 Hour Price Change (%)
+                </label>
+                <div className="grid sm:grid-cols-2 gap-4">
+                  <div className="flex items-center gap-2">
+                    <span className="text-gray-400 text-sm">Min:</span>
+                    <input
+                      type="number"
+                      value={params.priceChange1hMin || ''}
+                      onChange={(e) => updateParam('priceChange1hMin', Number(e.target.value))}
+                      placeholder="-20"
+                      className="flex-1 bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:border-arena-purple transition-colors"
+                    />
+                    <span className="text-gray-400">%</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-gray-400 text-sm">Max:</span>
+                    <input
+                      type="number"
+                      value={params.priceChange1hMax || ''}
+                      onChange={(e) => updateParam('priceChange1hMax', Number(e.target.value))}
+                      placeholder="100"
+                      className="flex-1 bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:border-arena-purple transition-colors"
+                    />
+                    <span className="text-gray-400">%</span>
+                  </div>
+                </div>
+              </div>
+              
+              {/* 24h Price Change */}
+              <div>
+                <label className="block text-sm font-medium text-gray-300 mb-2">
+                  24 Hour Price Change (%)
+                </label>
+                <div className="grid sm:grid-cols-2 gap-4">
+                  <div className="flex items-center gap-2">
+                    <span className="text-gray-400 text-sm">Min:</span>
+                    <input
+                      type="number"
+                      value={params.priceChange24hMin || ''}
+                      onChange={(e) => updateParam('priceChange24hMin', Number(e.target.value))}
+                      placeholder="-50"
+                      className="flex-1 bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:border-arena-purple transition-colors"
+                    />
+                    <span className="text-gray-400">%</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-gray-400 text-sm">Max:</span>
+                    <input
+                      type="number"
+                      value={params.priceChange24hMax || ''}
+                      onChange={(e) => updateParam('priceChange24hMax', Number(e.target.value))}
+                      placeholder="200"
+                      className="flex-1 bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:border-arena-purple transition-colors"
+                    />
+                    <span className="text-gray-400">%</span>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+          
+          {/* Volume Spike Filters */}
+          <Card>
+            <CardHeader>
+              <div className="flex items-center gap-2">
+                <Zap className="w-5 h-5 text-yellow-400" />
+                <CardTitle>Volume Spike Detection</CardTitle>
+              </div>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="grid sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-300 mb-2">
+                    1h vs 6h Volume Spike
+                  </label>
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="number"
+                      step="0.1"
+                      value={params.volume1hVs6hSpike || ''}
+                      onChange={(e) => updateParam('volume1hVs6hSpike', Number(e.target.value))}
+                      placeholder="e.g., 3.0"
+                      className="flex-1 bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:border-arena-purple transition-colors"
+                    />
+                    <span className="text-gray-400">x</span>
+                  </div>
+                  <p className="text-xs text-gray-500 mt-1">3.0 = current hour has 3x normal volume</p>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-300 mb-2">
+                    6h vs 24h Volume Ratio
+                  </label>
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="number"
+                      step="0.1"
+                      value={params.volume6hVs24hSpike || ''}
+                      onChange={(e) => updateParam('volume6hVs24hSpike', Number(e.target.value))}
+                      placeholder="e.g., 0.7"
+                      className="flex-1 bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:border-arena-purple transition-colors"
+                    />
+                    <span className="text-gray-400">x</span>
+                  </div>
+                  <p className="text-xs text-gray-500 mt-1">Below 1.0 = volume decreasing (quiet accumulation)</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </>
+      )}
       
       {/* Security Checks - Coming Soon */}
       <Card className="opacity-60">

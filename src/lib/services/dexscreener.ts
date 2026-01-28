@@ -171,6 +171,7 @@ export class DexScreenerService {
   checkFormulaMatch(
     pair: DexScreenerPair,
     formula: {
+      // Basic parameters
       liquidity_min?: number | null
       liquidity_max?: number | null
       volume_24h_min?: number | null
@@ -180,10 +181,27 @@ export class DexScreenerService {
       token_age_max_hours?: number | null
       require_verified_contract?: boolean
       require_liquidity_lock?: boolean
+      // Enhanced parameters
+      token_age_min_minutes?: number | null
+      buy_sell_ratio_1h_min?: number | null
+      tx_count_1h_min?: number | null
+      tx_count_24h_min?: number | null
+      fdv_min?: number | null
+      fdv_max?: number | null
+      price_change_1h_min?: number | null
+      price_change_1h_max?: number | null
+      price_change_6h_min?: number | null
+      price_change_6h_max?: number | null
+      price_change_24h_min?: number | null
+      price_change_24h_max?: number | null
+      volume_1h_vs_6h_spike?: number | null
+      volume_6h_vs_24h_spike?: number | null
     }
   ): { matches: boolean; reasons: string[] } {
     const reasons: string[] = []
     let matches = true
+    
+    // === BASIC FILTERS ===
     
     // Check liquidity
     const liquidity = pair.liquidity?.usd || 0
@@ -197,16 +215,16 @@ export class DexScreenerService {
     }
     
     // Check 24h volume
-    const volume = pair.volume?.h24 || 0
-    if (formula.volume_24h_min && volume < formula.volume_24h_min) {
+    const volume24h = pair.volume?.h24 || 0
+    if (formula.volume_24h_min && volume24h < formula.volume_24h_min) {
       matches = false
-      reasons.push(`24h Volume ($${volume.toLocaleString()}) below minimum ($${formula.volume_24h_min.toLocaleString()})`)
+      reasons.push(`24h Volume ($${volume24h.toLocaleString()}) below minimum ($${formula.volume_24h_min.toLocaleString()})`)
     }
     
     // Check volume spike (compare h1 to average)
     if (formula.volume_24h_spike) {
       const hourlyVolume = pair.volume?.h1 || 0
-      const avgHourlyVolume = volume / 24
+      const avgHourlyVolume = volume24h / 24
       const spikePercent = avgHourlyVolume > 0 ? ((hourlyVolume / avgHourlyVolume) - 1) * 100 : 0
       
       if (spikePercent < formula.volume_24h_spike) {
@@ -215,12 +233,135 @@ export class DexScreenerService {
       }
     }
     
-    // Check token age
-    if (formula.token_age_max_hours && pair.pairCreatedAt) {
-      const ageHours = (Date.now() - pair.pairCreatedAt) / (1000 * 60 * 60)
+    // Check token age (maximum)
+    const ageMs = pair.pairCreatedAt ? Date.now() - pair.pairCreatedAt : null
+    const ageHours = ageMs ? ageMs / (1000 * 60 * 60) : null
+    const ageMinutes = ageMs ? ageMs / (1000 * 60) : null
+    
+    if (formula.token_age_max_hours && ageHours !== null) {
       if (ageHours > formula.token_age_max_hours) {
         matches = false
         reasons.push(`Token age (${ageHours.toFixed(1)}h) exceeds maximum (${formula.token_age_max_hours}h)`)
+      }
+    }
+    
+    // === ENHANCED FILTERS ===
+    
+    // Check token age (minimum) - Launch Sniper
+    if (formula.token_age_min_minutes && ageMinutes !== null) {
+      if (ageMinutes < formula.token_age_min_minutes) {
+        matches = false
+        reasons.push(`Token age (${ageMinutes.toFixed(0)}m) below minimum (${formula.token_age_min_minutes}m)`)
+      }
+    }
+    
+    // Check buy/sell ratio - Launch Sniper, Momentum
+    if (formula.buy_sell_ratio_1h_min) {
+      const buys = pair.txns?.h1?.buys || 0
+      const sells = pair.txns?.h1?.sells || 1 // Avoid division by zero
+      const ratio = buys / sells
+      if (ratio < formula.buy_sell_ratio_1h_min) {
+        matches = false
+        reasons.push(`Buy/sell ratio (${ratio.toFixed(2)}) below minimum (${formula.buy_sell_ratio_1h_min})`)
+      }
+    }
+    
+    // Check transaction count 1h - Launch Sniper, Momentum
+    if (formula.tx_count_1h_min) {
+      const txCount = (pair.txns?.h1?.buys || 0) + (pair.txns?.h1?.sells || 0)
+      if (txCount < formula.tx_count_1h_min) {
+        matches = false
+        reasons.push(`1h transactions (${txCount}) below minimum (${formula.tx_count_1h_min})`)
+      }
+    }
+    
+    // Check transaction count 24h
+    if (formula.tx_count_24h_min) {
+      const txCount = (pair.txns?.h24?.buys || 0) + (pair.txns?.h24?.sells || 0)
+      if (txCount < formula.tx_count_24h_min) {
+        matches = false
+        reasons.push(`24h transactions (${txCount}) below minimum (${formula.tx_count_24h_min})`)
+      }
+    }
+    
+    // Check FDV (market cap) - All strategies
+    const fdv = pair.fdv || 0
+    if (formula.fdv_min && fdv < formula.fdv_min) {
+      matches = false
+      reasons.push(`Market cap ($${fdv.toLocaleString()}) below minimum ($${formula.fdv_min.toLocaleString()})`)
+    }
+    if (formula.fdv_max && fdv > formula.fdv_max) {
+      matches = false
+      reasons.push(`Market cap ($${fdv.toLocaleString()}) above maximum ($${formula.fdv_max.toLocaleString()})`)
+    }
+    
+    // Check price change 1h - Launch Sniper, Momentum
+    const priceChange1h = pair.priceChange?.h1 || 0
+    if (formula.price_change_1h_min !== null && formula.price_change_1h_min !== undefined) {
+      if (priceChange1h < formula.price_change_1h_min) {
+        matches = false
+        reasons.push(`1h price change (${priceChange1h.toFixed(1)}%) below minimum (${formula.price_change_1h_min}%)`)
+      }
+    }
+    if (formula.price_change_1h_max !== null && formula.price_change_1h_max !== undefined) {
+      if (priceChange1h > formula.price_change_1h_max) {
+        matches = false
+        reasons.push(`1h price change (${priceChange1h.toFixed(1)}%) above maximum (${formula.price_change_1h_max}%)`)
+      }
+    }
+    
+    // Check price change 6h
+    const priceChange6h = pair.priceChange?.h6 || 0
+    if (formula.price_change_6h_min !== null && formula.price_change_6h_min !== undefined) {
+      if (priceChange6h < formula.price_change_6h_min) {
+        matches = false
+        reasons.push(`6h price change (${priceChange6h.toFixed(1)}%) below minimum (${formula.price_change_6h_min}%)`)
+      }
+    }
+    if (formula.price_change_6h_max !== null && formula.price_change_6h_max !== undefined) {
+      if (priceChange6h > formula.price_change_6h_max) {
+        matches = false
+        reasons.push(`6h price change (${priceChange6h.toFixed(1)}%) above maximum (${formula.price_change_6h_max}%)`)
+      }
+    }
+    
+    // Check price change 24h - Healthy Accumulation
+    const priceChange24h = pair.priceChange?.h24 || 0
+    if (formula.price_change_24h_min !== null && formula.price_change_24h_min !== undefined) {
+      if (priceChange24h < formula.price_change_24h_min) {
+        matches = false
+        reasons.push(`24h price change (${priceChange24h.toFixed(1)}%) below minimum (${formula.price_change_24h_min}%)`)
+      }
+    }
+    if (formula.price_change_24h_max !== null && formula.price_change_24h_max !== undefined) {
+      if (priceChange24h > formula.price_change_24h_max) {
+        matches = false
+        reasons.push(`24h price change (${priceChange24h.toFixed(1)}%) above maximum (${formula.price_change_24h_max}%)`)
+      }
+    }
+    
+    // Check volume spike 1h vs 6h - Momentum Breakout
+    if (formula.volume_1h_vs_6h_spike) {
+      const volume1h = pair.volume?.h1 || 0
+      const volume6h = pair.volume?.h6 || 1
+      const avgVolume1hFrom6h = volume6h / 6
+      const spike = avgVolume1hFrom6h > 0 ? volume1h / avgVolume1hFrom6h : 0
+      if (spike < formula.volume_1h_vs_6h_spike) {
+        matches = false
+        reasons.push(`Volume spike 1h/6h (${spike.toFixed(1)}x) below minimum (${formula.volume_1h_vs_6h_spike}x)`)
+      }
+    }
+    
+    // Check volume spike 6h vs 24h - Healthy Accumulation (inverse - looking for decreasing)
+    if (formula.volume_6h_vs_24h_spike) {
+      const volume6h = pair.volume?.h6 || 0
+      const volume24h = pair.volume?.h24 || 1
+      const avgVolume6hFrom24h = volume24h / 4
+      const spike = avgVolume6hFrom24h > 0 ? volume6h / avgVolume6hFrom24h : 0
+      // For accumulation, we want LOWER volume ratio (quiet period)
+      if (spike > formula.volume_6h_vs_24h_spike) {
+        matches = false
+        reasons.push(`Volume ratio 6h/24h (${spike.toFixed(1)}x) above maximum (${formula.volume_6h_vs_24h_spike}x)`)
       }
     }
     

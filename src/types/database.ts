@@ -17,7 +17,7 @@ export interface Formula {
   is_public: boolean
   is_active: boolean
   
-  // Formula parameters
+  // Formula parameters - Basic
   liquidity_min?: number | null
   liquidity_max?: number | null
   volume_24h_min?: number | null
@@ -28,6 +28,22 @@ export interface Formula {
   require_verified_contract: boolean
   require_honeypot_check: boolean
   require_liquidity_lock: boolean
+  
+  // Formula parameters - Enhanced (Launch Sniper, Momentum, Accumulation)
+  token_age_min_minutes?: number | null
+  buy_sell_ratio_1h_min?: number | null
+  tx_count_1h_min?: number | null
+  tx_count_24h_min?: number | null
+  fdv_min?: number | null
+  fdv_max?: number | null
+  price_change_1h_min?: number | null
+  price_change_1h_max?: number | null
+  price_change_6h_min?: number | null
+  price_change_6h_max?: number | null
+  price_change_24h_min?: number | null
+  price_change_24h_max?: number | null
+  volume_1h_vs_6h_spike?: number | null
+  volume_6h_vs_24h_spike?: number | null
   
   // Stats (denormalized)
   total_matches: number
@@ -199,6 +215,7 @@ export interface CreateFormulaInput {
   description?: string
   is_public?: boolean
   is_active?: boolean
+  // Basic parameters
   liquidity_min?: number
   liquidity_max?: number
   volume_24h_min?: number
@@ -209,6 +226,21 @@ export interface CreateFormulaInput {
   require_verified_contract?: boolean
   require_honeypot_check?: boolean
   require_liquidity_lock?: boolean
+  // Enhanced parameters
+  token_age_min_minutes?: number
+  buy_sell_ratio_1h_min?: number
+  tx_count_1h_min?: number
+  tx_count_24h_min?: number
+  fdv_min?: number
+  fdv_max?: number
+  price_change_1h_min?: number
+  price_change_1h_max?: number
+  price_change_6h_min?: number
+  price_change_6h_max?: number
+  price_change_24h_min?: number
+  price_change_24h_max?: number
+  volume_1h_vs_6h_spike?: number
+  volume_6h_vs_24h_spike?: number
 }
 
 export interface UpdateFormulaInput extends Partial<CreateFormulaInput> {

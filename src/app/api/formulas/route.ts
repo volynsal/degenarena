@@ -81,6 +81,7 @@ export async function POST(request: NextRequest) {
         description: body.description?.trim() || null,
         is_public: body.is_public ?? false,
         is_active: body.is_active ?? true,
+        // Basic parameters
         liquidity_min: body.liquidity_min,
         liquidity_max: body.liquidity_max,
         volume_24h_min: body.volume_24h_min,
@@ -91,6 +92,21 @@ export async function POST(request: NextRequest) {
         require_verified_contract: body.require_verified_contract ?? true,
         require_honeypot_check: body.require_honeypot_check ?? true,
         require_liquidity_lock: body.require_liquidity_lock ?? false,
+        // Enhanced parameters
+        token_age_min_minutes: body.token_age_min_minutes,
+        buy_sell_ratio_1h_min: body.buy_sell_ratio_1h_min,
+        tx_count_1h_min: body.tx_count_1h_min,
+        tx_count_24h_min: body.tx_count_24h_min,
+        fdv_min: body.fdv_min,
+        fdv_max: body.fdv_max,
+        price_change_1h_min: body.price_change_1h_min,
+        price_change_1h_max: body.price_change_1h_max,
+        price_change_6h_min: body.price_change_6h_min,
+        price_change_6h_max: body.price_change_6h_max,
+        price_change_24h_min: body.price_change_24h_min,
+        price_change_24h_max: body.price_change_24h_max,
+        volume_1h_vs_6h_spike: body.volume_1h_vs_6h_spike,
+        volume_6h_vs_24h_spike: body.volume_6h_vs_24h_spike,
       })
       .select()
       .single()
