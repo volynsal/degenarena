@@ -7,9 +7,8 @@ import {
   Share2, 
   Zap,
   BarChart3,
-  Users,
   Swords,
-  Building2
+  Bot
 } from 'lucide-react'
 
 const features = [
@@ -30,8 +29,8 @@ const features = [
   },
   {
     icon: Trophy,
-    title: 'Competitive Leaderboards',
-    description: 'Rank your formulas against others. Climb the daily, weekly, and all-time leaderboards.',
+    title: 'Competitions & Battles',
+    description: 'Enter 24-hour flips, weekly leagues, and head-to-head battles. Prove your formula beats the competition.',
   },
   {
     icon: Swords,
@@ -54,9 +53,9 @@ const features = [
     description: 'View your complete track record since formula creation. Analyze win rates, returns, and refine your strategy.',
   },
   {
-    icon: Building2,
-    title: 'Exchange Listing Score',
-    description: 'Predict which tokens have the best chance of getting listed on major exchanges. The ultimate alpha indicator.',
+    icon: Bot,
+    title: 'Sniper Agent',
+    description: 'AI copilot that watches your formulas 24/7 and executes trades automatically. Follow the house account to see it in action.',
     comingSoon: true,
   },
 ]
