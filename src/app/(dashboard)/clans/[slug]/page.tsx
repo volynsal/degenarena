@@ -499,15 +499,16 @@ export default function ClanPage({ params }: { params: { slug: string } }) {
                     <p className="text-gray-400 mb-3">{clan.description}</p>
                   )}
                   
-                  {clan.telegram_link && (
+                  {/* Telegram link - only visible to clan members */}
+                  {clan.is_member && clan.telegram_link && (
                     <a 
                       href={clan.telegram_link}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="inline-flex items-center gap-2 px-3 py-1.5 bg-[#0088cc]/20 hover:bg-[#0088cc]/30 border border-[#0088cc]/30 rounded-lg text-[#0088cc] text-sm font-medium transition-colors mb-3"
+                      className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-arena-purple/20 to-arena-cyan/20 hover:from-arena-purple/30 hover:to-arena-cyan/30 border border-arena-purple/30 rounded-lg text-white text-sm font-medium transition-all mb-3 group"
                     >
-                      <TelegramIcon className="w-4 h-4" />
-                      Join Telegram
+                      <TelegramIcon className="w-5 h-5 text-arena-cyan group-hover:scale-110 transition-transform" />
+                      <span>Join Telegram Group</span>
                     </a>
                   )}
                 </>

@@ -50,7 +50,7 @@ export default function DashboardPage() {
     <div className="space-y-8">
       {/* Header */}
       <div>
-        <h1 className="text-3xl sm:text-4xl font-bold not-italic bg-gradient-to-r from-white via-arena-cyan to-arena-purple bg-clip-text text-transparent leading-tight pb-2">
+        <h1 className="text-3xl sm:text-4xl font-bold text-white">
           Dashboard
         </h1>
         <p className="text-gray-400 text-sm sm:text-base">Overview of your formula performance</p>
