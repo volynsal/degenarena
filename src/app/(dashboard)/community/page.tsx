@@ -140,7 +140,7 @@ export default function CommunityPage() {
       {/* Header */}
       <div>
         <h1 className="text-2xl sm:text-3xl font-semibold">
-          <span className="bg-gradient-to-r from-teal-400 via-teal-300 via-[70%] to-purple-400 bg-clip-text text-transparent">
+          <span className="bg-gradient-to-r from-arena-cyan via-arena-cyan via-[70%] to-arena-purple bg-clip-text text-transparent">
             Community
           </span>
         </h1>
