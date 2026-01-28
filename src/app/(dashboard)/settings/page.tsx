@@ -105,27 +105,29 @@ export default function SettingsPage() {
             
             {formData.telegram_enabled && (
               <>
+                <div className="p-4 rounded-lg bg-[#0088cc]/10 border border-[#0088cc]/20">
+                  <p className="text-white font-medium mb-2">Step 1: Get your Chat ID</p>
+                  <a 
+                    href="https://t.me/DegenArenaAlertsBot" 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2 px-4 py-2 bg-[#0088cc] hover:bg-[#0088cc]/90 text-white rounded-lg text-sm font-medium transition-colors"
+                  >
+                    <MessageCircle className="w-4 h-4" />
+                    Open @DegenArenaAlertsBot
+                    <ExternalLink className="w-3 h-3" />
+                  </a>
+                  <p className="text-sm text-gray-400 mt-2">
+                    Send <code className="bg-white/10 px-1 rounded">/start</code> to the bot and it will show your Chat ID
+                  </p>
+                </div>
+                
                 <Input
-                  label="Telegram Chat ID"
+                  label="Step 2: Paste your Chat ID"
                   placeholder="e.g., 123456789"
                   value={formData.telegram_chat_id}
                   onChange={(e) => setFormData(prev => ({ ...prev, telegram_chat_id: e.target.value }))}
                 />
-                <div className="flex items-start gap-2 text-sm text-gray-400">
-                  <Info className="w-4 h-4 mt-0.5 flex-shrink-0" />
-                  <p>
-                    To get your Chat ID: Start a chat with{' '}
-                    <a 
-                      href="https://t.me/userinfobot" 
-                      target="_blank" 
-                      rel="noopener noreferrer"
-                      className="text-arena-cyan hover:underline"
-                    >
-                      @userinfobot
-                    </a>
-                    {' '}on Telegram and it will reply with your ID.
-                  </p>
-                </div>
               </>
             )}
           </CardContent>

@@ -34,7 +34,7 @@ export default async function PublicFormulaPage({ params }: { params: { id: stri
             <h1 className="text-xl font-bold text-white mb-2">Formula Not Found</h1>
             <p className="text-gray-400 mb-6">This formula doesn't exist or is private.</p>
             <Link href="/">
-              <Button variant="primary">Go to DegenArena</Button>
+              <Button variant="primary">Go to DegenArena HQ</Button>
             </Link>
           </CardContent>
         </Card>
@@ -50,8 +50,8 @@ export default async function PublicFormulaPage({ params }: { params: { id: stri
       <nav className="border-b border-white/5 p-4">
         <div className="max-w-4xl mx-auto flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2">
-            <img src="/logo.png" alt="DegenArena" className="w-10 h-10 rounded-lg" />
-            <span className="text-xl font-bold gradient-text">DegenArena</span>
+            <img src="/logo.png" alt="DegenArena HQ" className="w-10 h-10 rounded-lg" />
+            <span className="text-xl font-bold gradient-text">DegenArena HQ</span>
           </Link>
           <Link href="/signup">
             <Button variant="primary" size="sm">
@@ -192,7 +192,7 @@ export default async function PublicFormulaPage({ params }: { params: { id: stri
           <CardContent className="p-8 text-center">
             <h2 className="text-xl font-bold text-white mb-2">Want to use this formula?</h2>
             <p className="text-gray-400 mb-6">
-              Sign up for DegenArena to copy this formula and start finding tokens.
+              Sign up for DegenArena HQ to copy this formula and start finding tokens.
             </p>
             <div className="flex flex-col sm:flex-row gap-3 justify-center">
               <Link href={`/signup?copy=${params.id}`}>
@@ -204,7 +204,7 @@ export default async function PublicFormulaPage({ params }: { params: { id: stri
               </Link>
               <a
                 href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(
-                  `Check out this formula on DegenArena! 🎯\n\n"${formula.name}" by @${username}\n📊 ${formula.win_rate}% win rate\n💰 ${formula.avg_return >= 0 ? '+' : ''}${formula.avg_return}% avg return\n\n`
+                  `Check out this formula on DegenArena HQ! 🎯\n\n"${formula.name}" by @${username}\n📊 ${formula.win_rate}% win rate\n💰 ${formula.avg_return >= 0 ? '+' : ''}${formula.avg_return}% avg return\n\n`
                 )}&url=${encodeURIComponent(`https://degenarena.com/f/${params.id}`)}`}
                 target="_blank"
                 rel="noopener noreferrer"

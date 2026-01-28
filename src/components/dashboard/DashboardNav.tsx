@@ -40,8 +40,8 @@ export function DashboardNav() {
             <Menu size={24} />
           </button>
           <Link href="/dashboard" className="flex items-center gap-2">
-            <img src="/logo.png" alt="DegenArena" className="w-10 h-10 rounded-lg" />
-            <span className="text-xl font-bold gradient-text hidden sm:block">DegenArena</span>
+            <img src="/logo.png" alt="DegenArena HQ" className="w-10 h-10 rounded-lg" />
+            <span className="text-xl font-bold gradient-text hidden sm:block">DegenArena HQ</span>
           </Link>
         </div>
         

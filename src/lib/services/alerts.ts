@@ -190,7 +190,7 @@ export class AlertService {
           'Authorization': `Bearer ${apiKey}`,
         },
         body: JSON.stringify({
-          from: 'DegenArena <onboarding@resend.dev>',
+          from: 'DegenArena HQ <onboarding@resend.dev>',
           to: email,
           subject: `🎯 New Match: ${payload.tokenSymbol} matched your "${payload.formulaName}" formula`,
           html,
@@ -230,9 +230,9 @@ export class AlertService {
           'Authorization': `Bearer ${apiKey}`,
         },
         body: JSON.stringify({
-          from: 'DegenArena <onboarding@resend.dev>',
+          from: 'DegenArena HQ <onboarding@resend.dev>',
           to: email,
-          subject: `🎯 DegenArena Daily Report: ${payload.totalMatches} new match${payload.totalMatches === 1 ? '' : 'es'} found`,
+          subject: `🎯 DegenArena HQ Daily Report: ${payload.totalMatches} new match${payload.totalMatches === 1 ? '' : 'es'} found`,
           html,
         }),
       })
@@ -416,7 +416,7 @@ export class AlertService {
 
 🔗 <a href="${payload.dexscreenerUrl}">View on DexScreener</a>
 
-<i>Powered by DegenArena</i>
+<i>Powered by DegenArena HQ</i>
 `.trim()
   }
   
@@ -461,7 +461,7 @@ export class AlertService {
       ],
       url: payload.dexscreenerUrl,
       footer: {
-        text: 'Powered by DegenArena',
+        text: 'Powered by DegenArena HQ',
       },
       timestamp: new Date().toISOString(),
     }
@@ -493,7 +493,7 @@ export class AlertService {
 <body>
   <div class="container">
     <div class="header">
-      <div class="logo">DegenArena</div>
+      <div class="logo">DegenArena HQ</div>
     </div>
     
     <h1>🎯 New Token Match!</h1>
@@ -528,7 +528,7 @@ export class AlertService {
     <a href="${payload.dexscreenerUrl}" class="cta">View on DexScreener →</a>
     
     <div class="footer">
-      <p>You're receiving this because you have email alerts enabled for your DegenArena formulas.</p>
+      <p>You're receiving this because you have email alerts enabled for your DegenArena HQ formulas.</p>
       <p>Manage your alert settings in your dashboard.</p>
     </div>
   </div>
@@ -594,7 +594,7 @@ export class AlertService {
 <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #0d0d12; color: #fff; padding: 20px; margin: 0;">
   <div style="max-width: 600px; margin: 0 auto; background: #141419; border-radius: 12px; padding: 30px;">
     <div style="text-align: center; margin-bottom: 30px;">
-      <div style="font-size: 24px; font-weight: bold; background: linear-gradient(to right, #a855f7, #00ff9d); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">DegenArena</div>
+      <div style="font-size: 24px; font-weight: bold; background: linear-gradient(to right, #a855f7, #00ff9d); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">DegenArena HQ</div>
     </div>
     
     <div style="text-align: center; margin-bottom: 30px;">
@@ -613,7 +613,7 @@ export class AlertService {
     </div>
     
     <div style="text-align: center; color: #666; font-size: 12px; margin-top: 30px; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.1);">
-      <p>You're receiving this because you have email alerts enabled for your DegenArena formulas.</p>
+      <p>You're receiving this because you have email alerts enabled for your DegenArena HQ formulas.</p>
       <p>Manage your alert settings in your dashboard.</p>
     </div>
   </div>

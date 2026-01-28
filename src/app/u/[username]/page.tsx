@@ -192,8 +192,8 @@ export default function UserProfilePage({ params }: { params: { username: string
       <nav className="border-b border-white/5 p-4">
         <div className="max-w-4xl mx-auto flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2">
-            <img src="/logo.png" alt="DegenArena" className="w-10 h-10 rounded-lg" />
-            <span className="text-xl font-bold gradient-text">DegenArena</span>
+            <img src="/logo.png" alt="DegenArena HQ" className="w-10 h-10 rounded-lg" />
+            <span className="text-xl font-bold gradient-text">DegenArena HQ</span>
           </Link>
           <Link href="/community">
             <Button variant="secondary" size="sm">

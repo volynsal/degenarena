@@ -22,8 +22,8 @@ export function Navbar() {
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2">
-            <img src="/logo.png" alt="DegenArena" className="w-10 h-10 rounded-lg" />
-            <span className="text-xl font-bold gradient-text">DegenArena</span>
+            <img src="/logo.png" alt="DegenArena HQ" className="w-10 h-10 rounded-lg" />
+            <span className="text-xl font-bold gradient-text">DegenArena HQ</span>
           </Link>
           
           {/* Desktop Navigation */}

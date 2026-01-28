@@ -1,4 +1,4 @@
-# DegenArena
+# DegenArena HQ
 
 **Build, Battle, Prove Your Alpha** — The competitive platform where you build memecoin formulas, battle other traders, and prove whose strategy actually works.
 

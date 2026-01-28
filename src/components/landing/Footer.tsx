@@ -18,8 +18,8 @@ export function Footer() {
           <div className="flex flex-col md:flex-row items-center justify-between gap-6">
             {/* Logo */}
             <div className="flex items-center gap-2">
-              <img src="/logo.png" alt="DegenArena" className="w-10 h-10 rounded-lg" />
-              <span className="text-lg font-bold text-white">DegenArena</span>
+              <img src="/logo.png" alt="DegenArena HQ" className="w-10 h-10 rounded-lg" />
+              <span className="text-lg font-bold text-white">DegenArena HQ</span>
             </div>
             
             {/* Links */}
@@ -69,7 +69,7 @@ export function Footer() {
               Built with ❤️ by crypto fanatics.
             </p>
             <p className="text-sm text-gray-400">
-              © {new Date().getFullYear()} DegenArena. All rights reserved.
+              © {new Date().getFullYear()} DegenArena HQ. All rights reserved.
             </p>
           </div>
         </div>

@@ -82,8 +82,8 @@ export default function SignupPage() {
       <div className="min-h-screen bg-arena-darker flex flex-col">
         <nav className="p-4">
           <Link href="/" className="flex items-center gap-2 w-fit">
-            <img src="/logo.png" alt="DegenArena" className="w-10 h-10 rounded-lg" />
-            <span className="text-xl font-bold gradient-text">DegenArena</span>
+            <img src="/logo.png" alt="DegenArena HQ" className="w-10 h-10 rounded-lg" />
+            <span className="text-xl font-bold gradient-text">DegenArena HQ</span>
           </Link>
         </nav>
         
@@ -114,8 +114,8 @@ export default function SignupPage() {
       <div className="flex-1 flex flex-col">
         <nav className="p-4">
           <Link href="/" className="flex items-center gap-2 w-fit">
-            <img src="/logo.png" alt="DegenArena" className="w-10 h-10 rounded-lg" />
-            <span className="text-xl font-bold gradient-text">DegenArena</span>
+            <img src="/logo.png" alt="DegenArena HQ" className="w-10 h-10 rounded-lg" />
+            <span className="text-xl font-bold gradient-text">DegenArena HQ</span>
           </Link>
         </nav>
         
@@ -127,7 +127,7 @@ export default function SignupPage() {
                 Early Access
               </div>
               <h1 className="text-2xl font-bold text-white mb-2">Create your account</h1>
-              <p className="text-gray-400">Welcome to DegenArena. Let&apos;s get you set up.</p>
+              <p className="text-gray-400">Welcome to DegenArena HQ. Let&apos;s get you set up.</p>
             </div>
             
             {/* Google Sign Up */}
@@ -256,7 +256,7 @@ export default function SignupPage() {
           {/* Early access note */}
           <div className="mt-12 pt-8 border-t border-white/10">
             <p className="text-sm text-gray-400">
-              You&apos;re getting <span className="text-arena-cyan font-medium">early access</span> to DegenArena. 
+              You&apos;re getting <span className="text-arena-cyan font-medium">early access</span> to DegenArena HQ. 
               This link was shared with approved waitlist members.
             </p>
           </div>

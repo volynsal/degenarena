@@ -7,11 +7,11 @@ import { AuthProvider } from '@/components/providers/AuthProvider'
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
-  title: 'DegenArena - Build, Battle, Prove Your Alpha',
+  title: 'DegenArena HQ - Build, Battle, Prove Your Alpha',
   description: 'The competitive platform where you build memecoin formulas, battle other traders, and prove whose strategy actually works. No more Twitter screenshots. Just cold, hard data.',
   keywords: ['memecoin', 'crypto', 'trading', 'solana', 'defi', 'alpha'],
   openGraph: {
-    title: 'DegenArena - Build, Battle, Prove Your Alpha',
+    title: 'DegenArena HQ - Build, Battle, Prove Your Alpha',
     description: 'The competitive platform where you build memecoin formulas and prove whose strategy actually works.',
     images: ['/og-image.png'],
   },

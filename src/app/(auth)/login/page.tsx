@@ -57,8 +57,8 @@ export default function LoginPage() {
       {/* Header */}
       <nav className="p-4">
         <Link href="/" className="flex items-center gap-2 w-fit">
-          <img src="/logo.png" alt="DegenArena" className="w-10 h-10 rounded-lg" />
-          <span className="text-xl font-bold gradient-text">DegenArena</span>
+          <img src="/logo.png" alt="DegenArena HQ" className="w-10 h-10 rounded-lg" />
+          <span className="text-xl font-bold gradient-text">DegenArena HQ</span>
         </Link>
       </nav>
       
@@ -69,7 +69,7 @@ export default function LoginPage() {
           <div className="bg-arena-dark/50 border border-white/10 rounded-2xl p-8 backdrop-blur-xl">
             <div className="text-center mb-8">
               <h1 className="text-2xl font-bold text-white mb-2">Welcome back</h1>
-              <p className="text-gray-400">Sign in to continue to DegenArena</p>
+              <p className="text-gray-400">Sign in to continue to DegenArena HQ</p>
             </div>
             
             {/* Google Sign In */}

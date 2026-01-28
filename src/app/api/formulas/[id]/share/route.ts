@@ -46,7 +46,7 @@ export async function GET(
   const username = (formula.profile as any)?.username || 'Anonymous'
   
   // Create share text
-  const shareText = `🎯 My "${formula.name}" formula on DegenArena:\n\n` +
+  const shareText = `🎯 My "${formula.name}" formula on DegenArena HQ:\n\n` +
     `📊 Win Rate: ${formula.win_rate}%\n` +
     `🎲 Matches: ${formula.total_matches}\n` +
     `💰 Avg Return: ${formula.avg_return >= 0 ? '+' : ''}${formula.avg_return}%\n\n` +

@@ -32,7 +32,7 @@ export function CTA() {
             Ready to prove your alpha?
           </h2>
           <p className="text-lg text-gray-400 mb-8 max-w-2xl mx-auto">
-            Join the waitlist and be among the first to access DegenArena when we launch. 
+            Join the waitlist and be among the first to access DegenArena HQ when we launch. 
             Early users get lifetime discounts and exclusive features.
           </p>
           
