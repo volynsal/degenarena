@@ -679,14 +679,14 @@ export default function ClanPage({ params }: { params: { slug: string } }) {
                   </div>
                 </Link>
                 
-                <div className="flex items-center gap-4 text-sm">
+                <div className="flex items-center gap-2 sm:gap-4 text-xs sm:text-sm flex-shrink-0">
                   <div className="text-right">
                     <p className="text-white font-medium">{member.win_rate}%</p>
-                    <p className="text-gray-500">Win Rate</p>
+                    <p className="text-gray-500 hidden sm:block">Win Rate</p>
                   </div>
                   <div className="text-right">
                     <p className="text-white font-medium">{member.total_matches}</p>
-                    <p className="text-gray-500">Matches</p>
+                    <p className="text-gray-500 hidden sm:block">Matches</p>
                   </div>
                   
                   {/* Remove member button - only for owner */}
@@ -694,7 +694,7 @@ export default function ClanPage({ params }: { params: { slug: string } }) {
                     <button
                       onClick={() => handleRemoveMember(member.user_id, member.username)}
                       disabled={removingMember === member.user_id}
-                      className="p-2 text-gray-500 hover:text-red-400 hover:bg-red-500/10 rounded-lg transition-colors disabled:opacity-50"
+                      className="p-1.5 sm:p-2 text-gray-500 hover:text-red-400 hover:bg-red-500/10 rounded-lg transition-colors disabled:opacity-50"
                       title="Remove member"
                     >
                       {removingMember === member.user_id ? (

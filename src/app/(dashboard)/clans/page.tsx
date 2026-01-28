@@ -104,11 +104,11 @@ export default function ClansPage() {
         </div>
         
         <Link href={`/clans/${myClan.slug}`}>
-          <Card hover className="max-w-2xl">
-            <CardContent className="p-6">
-              <div className="flex items-start gap-6">
+          <Card hover className="w-full">
+            <CardContent className="p-4 sm:p-6">
+              <div className="flex items-start gap-4">
                 {/* Logo */}
-                <div className="w-20 h-20 rounded-xl bg-gradient-to-br from-arena-purple to-arena-cyan flex items-center justify-center text-2xl font-bold text-white">
+                <div className="w-16 h-16 sm:w-20 sm:h-20 flex-shrink-0 rounded-xl bg-gradient-to-br from-arena-purple to-arena-cyan flex items-center justify-center text-xl sm:text-2xl font-bold text-white overflow-hidden">
                   {myClan.logo_url ? (
                     <img src={myClan.logo_url} alt={myClan.name} className="w-full h-full rounded-xl object-cover" />
                   ) : (
@@ -117,34 +117,33 @@ export default function ClansPage() {
                 </div>
                 
                 {/* Info */}
-                <div className="flex-1">
-                  <div className="flex items-center gap-3 mb-2">
-                    <h2 className="text-xl font-bold text-white">{myClan.name}</h2>
-                    <span className="px-2 py-0.5 rounded bg-arena-purple/20 text-arena-purple text-xs capitalize">
+                <div className="flex-1 min-w-0">
+                  <div className="flex flex-wrap items-center gap-2 mb-1">
+                    <h2 className="text-lg sm:text-xl font-bold text-white truncate">{myClan.name}</h2>
+                    <span className="px-2 py-0.5 rounded bg-arena-purple/20 text-arena-purple text-xs capitalize flex-shrink-0">
                       {myClan.role}
                     </span>
                   </div>
                   
                   {myClan.description && (
-                    <p className="text-gray-400 mb-4">{myClan.description}</p>
+                    <p className="text-gray-400 text-sm mb-3 line-clamp-2">{myClan.description}</p>
                   )}
                   
-                  {/* Stats */}
-                  <div className="flex items-center gap-6 text-sm">
-                    <div className="flex items-center gap-2">
-                      <Users className="w-4 h-4 text-gray-400" />
+                  {/* Stats - responsive grid */}
+                  <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs sm:text-sm">
+                    <div className="flex items-center gap-1.5">
+                      <Users className="w-3.5 h-3.5 text-gray-400" />
                       <span className="text-white font-medium">{myClan.member_count}</span>
                       <span className="text-gray-500">members</span>
                     </div>
-                    <div className="flex items-center gap-2">
-                      <Trophy className="w-4 h-4 text-arena-cyan" />
+                    <div className="flex items-center gap-1.5">
+                      <Trophy className="w-3.5 h-3.5 text-arena-cyan" />
                       <span className="text-white font-medium">{myClan.avg_win_rate}%</span>
-                      <span className="text-gray-500">win rate</span>
+                      <span className="text-gray-500 hidden xs:inline">win rate</span>
                     </div>
-                    <div className="flex items-center gap-2">
-                      <Target className="w-4 h-4 text-gray-400" />
+                    <div className="flex items-center gap-1.5">
+                      <Target className="w-3.5 h-3.5 text-gray-400" />
                       <span className="text-white font-medium">{myClan.total_matches}</span>
-                      <span className="text-gray-500">matches</span>
                     </div>
                   </div>
                 </div>

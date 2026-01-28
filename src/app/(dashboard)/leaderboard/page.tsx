@@ -114,20 +114,20 @@ export default function LeaderboardPage() {
                       </div>
                       
                       {/* Stats */}
-                      <div className="grid grid-cols-3 gap-2 text-center">
+                      <div className="flex justify-center gap-3 sm:gap-4 text-center">
                         <div>
-                          <p className="text-2xl font-bold text-white">{entry.win_rate}%</p>
-                          <p className="text-xs text-gray-500">Win Rate</p>
+                          <p className="text-lg sm:text-2xl font-bold text-white">{entry.win_rate}%</p>
+                          <p className="text-xs text-gray-500">Win</p>
                         </div>
                         <div>
-                          <p className="text-2xl font-bold text-white">{entry.total_matches}</p>
+                          <p className="text-lg sm:text-2xl font-bold text-white">{entry.total_matches}</p>
                           <p className="text-xs text-gray-500">Matches</p>
                         </div>
                         <div>
-                          <p className="text-2xl font-bold text-arena-cyan">
+                          <p className="text-lg sm:text-2xl font-bold text-arena-cyan">
                             {entry.avg_return >= 0 ? '+' : ''}{entry.avg_return}%
                           </p>
-                          <p className="text-xs text-gray-500">Avg Return</p>
+                          <p className="text-xs text-gray-500">Return</p>
                         </div>
                       </div>
                       
@@ -151,12 +151,12 @@ export default function LeaderboardPage() {
       
           {/* Full leaderboard table */}
           <Card>
-            <CardContent className="p-0">
-              {/* Table header */}
-              <div className="grid grid-cols-12 gap-4 px-6 py-4 bg-white/5 border-b border-white/10 text-sm text-gray-400 font-medium">
+            <CardContent className="p-0 overflow-x-auto">
+              {/* Table header - hidden on mobile, shown on sm+ */}
+              <div className="hidden sm:grid grid-cols-12 gap-4 px-6 py-4 bg-white/5 border-b border-white/10 text-sm text-gray-400 font-medium">
                 <div className="col-span-1">#</div>
                 <div className="col-span-4">Trader / Formula</div>
-                <div className="col-span-2 text-center hidden sm:block">Matches</div>
+                <div className="col-span-2 text-center">Matches</div>
                 <div className="col-span-2 text-center">Win Rate</div>
                 <div className="col-span-2 text-right">Avg Return</div>
                 <div className="col-span-1"></div>
@@ -167,50 +167,73 @@ export default function LeaderboardPage() {
                 {entries.map((entry) => (
                   <div
                     key={entry.formula_id}
-                    className="grid grid-cols-12 gap-4 px-6 py-4 items-center hover:bg-white/[0.02] transition-colors"
+                    className="flex flex-col sm:grid sm:grid-cols-12 gap-2 sm:gap-4 px-4 sm:px-6 py-4 sm:items-center hover:bg-white/[0.02] transition-colors"
                   >
-                    {/* Rank */}
-                    <div className="col-span-1">
-                      {entry.rank <= 3 ? (
-                        <div className={`w-8 h-8 rounded-full bg-gradient-to-br ${
-                          badgeColors[entry.rank] || 'from-gray-500 to-gray-700'
-                        } flex items-center justify-center`}>
-                          <span className="text-white text-sm font-bold">{entry.rank}</span>
+                    {/* Mobile: Rank + User row */}
+                    <div className="flex items-center gap-3 sm:contents">
+                      {/* Rank */}
+                      <div className="sm:col-span-1 flex-shrink-0">
+                        {entry.rank <= 3 ? (
+                          <div className={`w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-gradient-to-br ${
+                            badgeColors[entry.rank] || 'from-gray-500 to-gray-700'
+                          } flex items-center justify-center`}>
+                            <span className="text-white text-xs sm:text-sm font-bold">{entry.rank}</span>
+                          </div>
+                        ) : (
+                          <span className="text-gray-400 font-mono text-sm">{entry.rank}</span>
+                        )}
+                      </div>
+                      
+                      {/* User & Formula */}
+                      <div className="sm:col-span-4 flex-1 min-w-0">
+                        <div className="flex items-center gap-2 sm:gap-3">
+                          <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-gradient-to-br from-arena-purple/50 to-arena-cyan/50 flex items-center justify-center flex-shrink-0">
+                            <span className="text-white font-medium text-xs sm:text-sm">
+                              {entry.username.charAt(0).toUpperCase()}
+                            </span>
+                          </div>
+                          <div className="min-w-0">
+                            <p className="text-white font-medium text-sm truncate">{entry.username}</p>
+                            <p className="text-gray-500 text-xs sm:text-sm truncate">{entry.formula_name}</p>
+                          </div>
                         </div>
-                      ) : (
-                        <span className="text-gray-400 font-mono">{entry.rank}</span>
-                      )}
-                    </div>
-                    
-                    {/* User & Formula */}
-                    <div className="col-span-4">
-                      <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-full bg-gradient-to-br from-arena-purple/50 to-arena-cyan/50 flex items-center justify-center flex-shrink-0">
-                          <span className="text-white font-medium text-sm">
-                            {entry.username.charAt(0).toUpperCase()}
-                          </span>
-                        </div>
-                        <div className="min-w-0">
-                          <p className="text-white font-medium truncate">{entry.username}</p>
-                          <p className="text-gray-500 text-sm truncate">{entry.formula_name}</p>
-                        </div>
+                      </div>
+                      
+                      {/* Mobile actions */}
+                      <div className="sm:hidden">
+                        {entry.is_public ? (
+                          <button 
+                            onClick={() => handleCopy(entry.formula_id)}
+                            disabled={copyingId === entry.formula_id}
+                            className="p-1.5 text-gray-400 hover:text-white hover:bg-white/5 rounded-lg transition-colors disabled:opacity-50"
+                          >
+                            <Copy className="w-4 h-4" />
+                          </button>
+                        ) : null}
                       </div>
                     </div>
                     
-                    {/* Total trades */}
-                    <div className="col-span-2 text-center hidden sm:flex items-center justify-center gap-1">
+                    {/* Mobile: Stats row */}
+                    <div className="flex items-center gap-4 text-xs sm:hidden pl-10">
+                      <span className="text-gray-400">{entry.total_matches} matches</span>
+                      <span className="text-white font-medium">{entry.win_rate}%</span>
+                      <span className={entry.avg_return >= 0 ? 'text-arena-cyan' : 'text-red-400'}>
+                        {entry.avg_return >= 0 ? '+' : ''}{entry.avg_return}%
+                      </span>
+                    </div>
+                    
+                    {/* Desktop: Stats columns */}
+                    <div className="hidden sm:flex col-span-2 text-center items-center justify-center gap-1">
                       <Target className="w-4 h-4 text-gray-400" />
                       <span className="text-gray-300 font-mono">{entry.total_matches}</span>
                     </div>
                     
-                    {/* Win rate */}
-                    <div className="col-span-2 text-center">
+                    <div className="hidden sm:block col-span-2 text-center">
                       <span className="text-white font-mono">{entry.win_rate}%</span>
                     </div>
                     
-                    {/* Avg return */}
-                    <div className="col-span-2 text-right">
-                      <span className={`font-mono flex items-center justify-end gap-1 ${
+                    <div className="hidden sm:block col-span-2 text-right">
+                      <span className={`font-mono inline-flex items-center gap-1 ${
                         entry.avg_return >= 0 ? 'text-arena-cyan' : 'text-red-400'
                       }`}>
                         <TrendingUp className="w-4 h-4" />
@@ -218,8 +241,8 @@ export default function LeaderboardPage() {
                       </span>
                     </div>
                     
-                    {/* Actions */}
-                    <div className="col-span-1 text-right">
+                    {/* Desktop: Actions */}
+                    <div className="hidden sm:block col-span-1 text-right">
                       {entry.is_public ? (
                         <button 
                           onClick={() => handleCopy(entry.formula_id)}

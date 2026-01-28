@@ -142,34 +142,34 @@ export default function FormulasPage() {
                 </div>
                 
                 {/* Stats */}
-                <div className="mt-6 grid grid-cols-3 gap-4">
-                  <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center">
-                      <Target className="w-4 h-4 text-gray-400" />
+                <div className="mt-4 sm:mt-6 flex flex-wrap gap-4 sm:gap-6">
+                  <div className="flex items-center gap-2 sm:gap-3">
+                    <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-white/5 flex items-center justify-center">
+                      <Target className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-gray-400" />
                     </div>
                     <div>
-                      <p className="text-sm text-gray-500">Matches</p>
-                      <p className="text-white font-mono">{formula.total_matches}</p>
+                      <p className="text-xs sm:text-sm text-gray-500">Matches</p>
+                      <p className="text-white font-mono text-sm sm:text-base">{formula.total_matches}</p>
                     </div>
                   </div>
                   
-                  <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center">
-                      <TrendingUp className="w-4 h-4 text-gray-400" />
+                  <div className="flex items-center gap-2 sm:gap-3">
+                    <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-white/5 flex items-center justify-center">
+                      <TrendingUp className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-gray-400" />
                     </div>
                     <div>
-                      <p className="text-sm text-gray-500">Win Rate</p>
-                      <p className="text-white font-mono">{formula.win_rate}%</p>
+                      <p className="text-xs sm:text-sm text-gray-500">Win Rate</p>
+                      <p className="text-white font-mono text-sm sm:text-base">{formula.win_rate}%</p>
                     </div>
                   </div>
                   
-                  <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-lg bg-arena-cyan/10 flex items-center justify-center">
-                      <TrendingUp className="w-4 h-4 text-arena-cyan" />
+                  <div className="flex items-center gap-2 sm:gap-3">
+                    <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-arena-cyan/10 flex items-center justify-center">
+                      <TrendingUp className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-arena-cyan" />
                     </div>
                     <div>
-                      <p className="text-sm text-gray-500">Avg Return</p>
-                      <p className={`font-mono ${formula.avg_return >= 0 ? 'text-arena-cyan' : 'text-red-400'}`}>
+                      <p className="text-xs sm:text-sm text-gray-500">Avg Return</p>
+                      <p className={`font-mono text-sm sm:text-base ${formula.avg_return >= 0 ? 'text-arena-cyan' : 'text-red-400'}`}>
                         {formula.avg_return >= 0 ? '+' : ''}{formula.avg_return}%
                       </p>
                     </div>
