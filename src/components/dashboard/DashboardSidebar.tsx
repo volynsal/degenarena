@@ -10,13 +10,15 @@ import {
   Users,
   Shield,
   Settings,
-  Sparkles
+  Sparkles,
+  Swords
 } from 'lucide-react'
 
 const navigation = [
   { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
   { name: 'My Formulas', href: '/formulas', icon: Sliders },
   { name: 'Community', href: '/community', icon: Users },
+  { name: 'Competitions', href: '/competitions', icon: Swords },
   { name: 'Clans', href: '/clans', icon: Shield },
   { name: 'Leaderboard', href: '/leaderboard', icon: Trophy },
 ]

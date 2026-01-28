@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect } from 'react'
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
-import { Bell, Settings, User, Menu, LogOut, ChevronDown, X, LayoutDashboard, Sliders, Users, Shield, Trophy } from 'lucide-react'
+import { Bell, Settings, User, Menu, LogOut, ChevronDown, X, LayoutDashboard, Sliders, Users, Shield, Trophy, Swords } from 'lucide-react'
 import { useAuthStore } from '@/lib/stores/auth-store'
 import { cn } from '@/lib/utils'
 
@@ -11,6 +11,7 @@ const mobileNavigation = [
   { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
   { name: 'My Formulas', href: '/formulas', icon: Sliders },
   { name: 'Community', href: '/community', icon: Users },
+  { name: 'Competitions', href: '/competitions', icon: Swords },
   { name: 'Clans', href: '/clans', icon: Shield },
   { name: 'Leaderboard', href: '/leaderboard', icon: Trophy },
   { name: 'Settings', href: '/settings', icon: Settings },
