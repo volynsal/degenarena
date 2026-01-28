@@ -39,7 +39,7 @@ export default function FormulasPage() {
       <div className="space-y-4">
         <div>
           <h1 className="text-2xl sm:text-3xl font-semibold">
-            <span className="bg-gradient-to-r from-purple-400 via-purple-300 to-teal-400 bg-clip-text text-transparent">
+            <span className="bg-gradient-to-r from-teal-400 via-purple-300 to-purple-400 bg-clip-text text-transparent">
               My Formulas
             </span>
           </h1>
