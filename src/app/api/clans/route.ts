@@ -119,6 +119,7 @@ export async function POST(request: NextRequest) {
       .replace(/^-|-$/g, '')
     
     // Create clan (always private - invite-only)
+    // Set member_count to 0 - the trigger will increment it when owner is added
     const { data: clan, error: clanError } = await supabase
       .from('clans')
       .insert({
@@ -127,6 +128,7 @@ export async function POST(request: NextRequest) {
         description: body.description?.trim() || null,
         owner_id: session.user.id,
         is_public: false,
+        member_count: 0,
       })
       .select()
       .single()

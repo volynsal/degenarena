@@ -1,6 +1,15 @@
 import { createClient } from '@/lib/supabase/server'
+import { createClient as createServiceClient } from '@supabase/supabase-js'
 import { NextRequest, NextResponse } from 'next/server'
 import type { ApiResponse } from '@/types/database'
+
+// Service role client for operations that need to bypass RLS
+function getServiceClient() {
+  return createServiceClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!
+  )
+}
 
 interface ClanDetails {
   id: string
@@ -151,8 +160,11 @@ export async function DELETE(
     }, { status: 401 })
   }
   
+  // Use service client to bypass RLS for full cleanup
+  const serviceClient = getServiceClient()
+  
   // First verify the clan exists and user is owner
-  const { data: clan, error: fetchError } = await supabase
+  const { data: clan, error: fetchError } = await serviceClient
     .from('clans')
     .select('id, owner_id')
     .eq('slug', params.slug)
@@ -170,20 +182,48 @@ export async function DELETE(
     }, { status: 403 })
   }
   
-  // Delete all clan members first (cascade should handle this, but being explicit)
-  await supabase
+  // Get all member user IDs before deleting
+  const { data: members } = await serviceClient
     .from('clan_members')
-    .delete()
+    .select('user_id')
     .eq('clan_id', clan.id)
   
+  const memberIds = members?.map(m => m.user_id) || []
+  
+  // Clear clan_id from all member profiles
+  if (memberIds.length > 0) {
+    const { error: profileError } = await serviceClient
+      .from('profiles')
+      .update({ clan_id: null })
+      .in('id', memberIds)
+    
+    if (profileError) {
+      console.error('Failed to clear profile clan_ids:', profileError)
+    }
+  }
+  
   // Delete all clan invites
-  await supabase
+  const { error: invitesError } = await serviceClient
     .from('clan_invites')
     .delete()
     .eq('clan_id', clan.id)
   
+  if (invitesError) {
+    console.error('Failed to delete clan invites:', invitesError)
+  }
+  
+  // Delete all clan members
+  const { error: membersError } = await serviceClient
+    .from('clan_members')
+    .delete()
+    .eq('clan_id', clan.id)
+  
+  if (membersError) {
+    console.error('Failed to delete clan members:', membersError)
+  }
+  
   // Now delete the clan
-  const { error: deleteError } = await supabase
+  const { error: deleteError } = await serviceClient
     .from('clans')
     .delete()
     .eq('id', clan.id)
@@ -196,7 +236,7 @@ export async function DELETE(
   }
   
   // Verify deletion
-  const { data: checkClan } = await supabase
+  const { data: checkClan } = await serviceClient
     .from('clans')
     .select('id')
     .eq('id', clan.id)
