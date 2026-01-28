@@ -107,6 +107,14 @@ export function DashboardNav() {
                   <p className="text-xs text-gray-500 truncate">{user?.email}</p>
                 </div>
                 <Link 
+                  href={`/u/${username}`}
+                  className="flex items-center gap-2 px-4 py-2 text-sm text-gray-300 hover:text-white hover:bg-white/5"
+                  onClick={() => setShowUserMenu(false)}
+                >
+                  <User size={16} />
+                  View Profile
+                </Link>
+                <Link 
                   href="/settings" 
                   className="flex items-center gap-2 px-4 py-2 text-sm text-gray-300 hover:text-white hover:bg-white/5"
                   onClick={() => setShowUserMenu(false)}
@@ -162,7 +170,10 @@ export function DashboardNav() {
           
           {/* User section at bottom */}
           <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-white/10 bg-arena-darker">
-            <div className="flex items-center gap-3 mb-3">
+            <Link 
+              href={`/u/${username}`}
+              className="flex items-center gap-3 mb-3 p-2 -m-2 rounded-lg hover:bg-white/5 transition-colors"
+            >
               <div className="w-10 h-10 rounded-full bg-gradient-to-br from-arena-purple to-arena-cyan flex items-center justify-center">
                 <span className="text-white text-sm font-medium">
                   {username.charAt(0).toUpperCase()}
@@ -172,7 +183,7 @@ export function DashboardNav() {
                 <p className="text-sm text-white font-medium">{username}</p>
                 <p className="text-xs text-gray-500 truncate">{user?.email}</p>
               </div>
-            </div>
+            </Link>
             <button
               onClick={handleSignOut}
               className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg bg-red-500/10 text-red-400 hover:bg-red-500/20 transition-colors"

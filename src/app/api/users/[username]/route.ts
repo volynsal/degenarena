@@ -33,21 +33,32 @@ export async function GET(
   const supabase = createClient()
   const serviceClient = getServiceClient()
   
+  console.log('Fetching profile for username:', params.username)
+  
   // Get current user (if logged in)
   const { data: { session } } = await supabase.auth.getSession()
   
-  // Fetch user profile
+  // Fetch user profile - case insensitive search
   const { data: profile, error: profileError } = await serviceClient
     .from('profiles')
     .select('*')
-    .eq('username', params.username)
+    .ilike('username', params.username)
     .single()
   
-  if (profileError || !profile) {
+  if (profileError) {
+    console.error('Profile lookup error:', profileError)
+    return NextResponse.json<ApiResponse<null>>({
+      error: `User not found: ${profileError.message}`
+    }, { status: 404 })
+  }
+  
+  if (!profile) {
     return NextResponse.json<ApiResponse<null>>({
       error: 'User not found'
     }, { status: 404 })
   }
+  
+  console.log('Found profile:', profile.username, profile.subscription_tier)
   
   // Fetch user stats from formulas
   const { data: formulas } = await serviceClient
