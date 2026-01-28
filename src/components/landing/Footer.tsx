@@ -4,9 +4,9 @@ import { Twitter, MessageCircle, Github } from 'lucide-react'
 export function Footer() {
   return (
     <footer className="relative overflow-hidden">
-      {/* Background Image - left-aligned on mobile to show "DEGEN", centered on desktop */}
+      {/* Background Image */}
       <div 
-        className="absolute inset-0 bg-cover bg-left md:bg-center bg-no-repeat"
+        className="absolute inset-0 bg-cover bg-center bg-no-repeat"
         style={{ backgroundImage: 'url(/footer-bg.png)' }}
       />
       {/* Dark Overlay for readability */}

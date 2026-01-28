@@ -10,6 +10,18 @@ export const metadata: Metadata = {
   title: 'DegenArena HQ - Build, Battle, Prove Your Alpha',
   description: 'The competitive platform where you build memecoin formulas, battle other traders, and prove whose strategy actually works. No more Twitter screenshots. Just cold, hard data.',
   keywords: ['memecoin', 'crypto', 'trading', 'solana', 'defi', 'alpha'],
+  viewport: {
+    width: 'device-width',
+    initialScale: 1,
+    maximumScale: 1,
+    userScalable: false,
+    viewportFit: 'cover',
+  },
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: 'black-translucent',
+    title: 'DegenArena HQ',
+  },
   openGraph: {
     title: 'DegenArena HQ - Build, Battle, Prove Your Alpha',
     description: 'The competitive platform where you build memecoin formulas and prove whose strategy actually works.',
