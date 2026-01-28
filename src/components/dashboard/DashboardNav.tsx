@@ -108,7 +108,7 @@ export function DashboardNav() {
                 </div>
                 <Link 
                   href={`/u/${username}`}
-                  className="flex items-center gap-2 px-4 py-2 text-sm text-gray-300 hover:text-white hover:bg-white/5"
+                  className="w-full flex items-center gap-2 px-4 py-2 text-sm text-gray-300 hover:text-white hover:bg-white/5 cursor-pointer"
                   onClick={() => setShowUserMenu(false)}
                 >
                   <User size={16} />
@@ -116,7 +116,7 @@ export function DashboardNav() {
                 </Link>
                 <Link 
                   href="/settings" 
-                  className="flex items-center gap-2 px-4 py-2 text-sm text-gray-300 hover:text-white hover:bg-white/5"
+                  className="w-full flex items-center gap-2 px-4 py-2 text-sm text-gray-300 hover:text-white hover:bg-white/5 cursor-pointer"
                   onClick={() => setShowUserMenu(false)}
                 >
                   <Settings size={16} />
