@@ -29,8 +29,8 @@ const features = [
   },
   {
     icon: Trophy,
-    title: 'Competitions & Battles',
-    description: 'Enter 24-hour flips, weekly leagues, and head-to-head battles. Prove your formula beats the competition.',
+    title: 'Leaderboards & Competitions',
+    description: 'Climb the rankings or enter 24-hour flips, weekly leagues, and head-to-head battles. Prove your formula is the best.',
   },
   {
     icon: Swords,
