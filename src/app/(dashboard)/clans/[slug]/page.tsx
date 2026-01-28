@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card'
 import { Button } from '@/components/ui/Button'
@@ -23,7 +23,9 @@ import {
   Edit2,
   Save,
   X,
-  ChevronDown
+  ChevronDown,
+  Camera,
+  Upload
 } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 
@@ -84,6 +86,11 @@ export default function ClanPage({ params }: { params: { slug: string } }) {
     description: '',
     telegram_link: '',
   })
+  
+  // Image upload state
+  const fileInputRef = useRef<HTMLInputElement>(null)
+  const [isUploading, setIsUploading] = useState(false)
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null)
   
   // Role dropdown state
   const [roleDropdownOpen, setRoleDropdownOpen] = useState<string | null>(null)
@@ -232,6 +239,7 @@ export default function ClanPage({ params }: { params: { slug: string } }) {
       description: clan?.description || '',
       telegram_link: clan?.telegram_link || '',
     })
+    setPreviewUrl(null)
     setIsEditing(true)
   }
   
@@ -241,6 +249,67 @@ export default function ClanPage({ params }: { params: { slug: string } }) {
       description: '',
       telegram_link: '',
     })
+    setPreviewUrl(null)
+  }
+  
+  const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    
+    // Validate file type
+    const allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp']
+    if (!allowedTypes.includes(file.type)) {
+      alert('Invalid file type. Allowed: JPG, PNG, GIF, WebP')
+      return
+    }
+    
+    // Validate file size (2MB)
+    if (file.size > 2 * 1024 * 1024) {
+      alert('File too large. Maximum size is 2MB')
+      return
+    }
+    
+    // Create preview
+    const reader = new FileReader()
+    reader.onload = (e) => {
+      setPreviewUrl(e.target?.result as string)
+    }
+    reader.readAsDataURL(file)
+    
+    // Upload immediately
+    uploadImage(file)
+  }
+  
+  const uploadImage = async (file: File) => {
+    setIsUploading(true)
+    try {
+      const formData = new FormData()
+      formData.append('file', file)
+      
+      const res = await fetch(`/api/clans/${params.slug}/upload`, {
+        method: 'POST',
+        body: formData,
+      })
+      const data = await res.json()
+      
+      if (!res.ok) {
+        throw new Error(data.error || 'Failed to upload image')
+      }
+      
+      // Update local state with new URL
+      if (clan) {
+        setClan({ ...clan, logo_url: data.data.logo_url })
+      }
+      setPreviewUrl(null)
+    } catch (err) {
+      alert(err instanceof Error ? err.message : 'Failed to upload image')
+      setPreviewUrl(null)
+    } finally {
+      setIsUploading(false)
+      if (fileInputRef.current) {
+        fileInputRef.current.value = ''
+      }
+    }
   }
   
   const saveChanges = async () => {
@@ -334,11 +403,37 @@ export default function ClanPage({ params }: { params: { slug: string } }) {
         <CardContent className="p-8">
           <div className="flex flex-col sm:flex-row items-start gap-6">
             {/* Logo */}
-            <div className="w-24 h-24 rounded-xl bg-gradient-to-br from-arena-purple to-arena-cyan flex items-center justify-center text-3xl font-bold text-white">
-              {clan.logo_url ? (
-                <img src={clan.logo_url} alt={clan.name} className="w-full h-full rounded-xl object-cover" />
-              ) : (
-                clan.name.charAt(0).toUpperCase()
+            <div className="relative">
+              <input
+                type="file"
+                ref={fileInputRef}
+                onChange={handleImageSelect}
+                accept="image/jpeg,image/png,image/gif,image/webp"
+                className="hidden"
+              />
+              <div 
+                className={`w-24 h-24 rounded-xl bg-gradient-to-br from-arena-purple to-arena-cyan flex items-center justify-center text-3xl font-bold text-white overflow-hidden ${
+                  isEditing ? 'cursor-pointer ring-2 ring-arena-purple ring-offset-2 ring-offset-arena-dark' : ''
+                }`}
+                onClick={() => isEditing && fileInputRef.current?.click()}
+              >
+                {isUploading ? (
+                  <Loader2 className="w-8 h-8 animate-spin" />
+                ) : previewUrl ? (
+                  <img src={previewUrl} alt="Preview" className="w-full h-full object-cover" />
+                ) : clan.logo_url ? (
+                  <img src={clan.logo_url} alt={clan.name} className="w-full h-full object-cover" />
+                ) : (
+                  clan.name.charAt(0).toUpperCase()
+                )}
+              </div>
+              {isEditing && !isUploading && (
+                <div 
+                  className="absolute inset-0 flex items-center justify-center bg-black/50 rounded-xl opacity-0 hover:opacity-100 transition-opacity cursor-pointer"
+                  onClick={() => fileInputRef.current?.click()}
+                >
+                  <Camera className="w-6 h-6 text-white" />
+                </div>
               )}
             </div>
             
