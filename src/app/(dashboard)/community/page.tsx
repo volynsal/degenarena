@@ -139,8 +139,10 @@ export default function CommunityPage() {
     <div className="space-y-8">
       {/* Header */}
       <div>
-        <h1 className="text-3xl sm:text-4xl font-bold text-white">
-          Community
+        <h1 className="text-3xl sm:text-4xl font-bold">
+          <span className="bg-gradient-to-r from-white via-arena-cyan to-arena-purple bg-clip-text text-transparent">
+            Community
+          </span>
         </h1>
         <p className="text-gray-400 text-sm sm:text-base">Discover and copy winning formulas from top traders</p>
       </div>

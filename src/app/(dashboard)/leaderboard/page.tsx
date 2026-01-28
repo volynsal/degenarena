@@ -40,8 +40,10 @@ export default function LeaderboardPage() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl sm:text-4xl font-bold text-white">
-            Leaderboard
+          <h1 className="text-3xl sm:text-4xl font-bold">
+            <span className="bg-gradient-to-r from-white via-arena-cyan to-arena-purple bg-clip-text text-transparent">
+              Leaderboard
+            </span>
           </h1>
           <p className="text-gray-400 text-sm sm:text-base">Top performing formulas ranked by win rate</p>
         </div>

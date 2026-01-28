@@ -32,50 +32,50 @@ export function DashboardNav() {
   const username = user?.user_metadata?.username || user?.email?.split('@')[0] || 'User'
   
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 bg-arena-darker/90 backdrop-blur-xl border-b border-white/5 h-16">
+    <nav className="fixed top-0 left-0 right-0 z-50 bg-arena-darker/90 backdrop-blur-xl border-b border-white/5 h-14">
       <div className="h-full px-4 lg:px-8 flex items-center justify-between">
         {/* Left side */}
-        <div className="flex items-center gap-4">
-          <button className="lg:hidden p-2 text-gray-400 hover:text-white">
-            <Menu size={24} />
+        <div className="flex items-center gap-3">
+          <button className="lg:hidden p-1.5 text-gray-400 hover:text-white">
+            <Menu size={20} />
           </button>
           <Link href="/dashboard" className="flex items-center gap-2">
-            <img src="/logo.png" alt="DegenArena HQ" className="w-10 h-10 rounded-lg" />
-            <span className="text-xl font-bold gradient-text hidden sm:block">DegenArena HQ</span>
+            <img src="/logo.png" alt="DegenArena HQ" className="w-8 h-8 rounded-lg" />
+            <span className="text-lg font-bold gradient-text hidden sm:block">DegenArena HQ</span>
           </Link>
         </div>
         
         {/* Right side */}
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1">
           <Link 
             href="/settings" 
-            className="relative p-2 text-gray-400 hover:text-white transition-colors"
+            className="relative p-1.5 text-gray-400 hover:text-white transition-colors"
             title="Alert Settings"
           >
-            <Bell size={20} />
+            <Bell size={18} />
           </Link>
           <Link 
             href="/settings"
-            className="p-2 text-gray-400 hover:text-white transition-colors"
+            className="p-1.5 text-gray-400 hover:text-white transition-colors"
           >
-            <Settings size={20} />
+            <Settings size={18} />
           </Link>
           
           {/* User menu */}
-          <div className="ml-2 pl-2 border-l border-white/10 relative" ref={menuRef}>
+          <div className="ml-1.5 pl-1.5 border-l border-white/10 relative" ref={menuRef}>
             <button 
               onClick={() => setShowUserMenu(!showUserMenu)}
-              className="flex items-center gap-2 p-2 rounded-lg hover:bg-white/5 transition-colors"
+              className="flex items-center gap-1.5 p-1.5 rounded-lg hover:bg-white/5 transition-colors"
             >
-              <div className="w-8 h-8 rounded-full bg-gradient-to-br from-arena-purple to-arena-cyan flex items-center justify-center">
-                <span className="text-white text-sm font-medium">
+              <div className="w-7 h-7 rounded-full bg-gradient-to-br from-arena-purple to-arena-cyan flex items-center justify-center">
+                <span className="text-white text-xs font-medium">
                   {username.charAt(0).toUpperCase()}
                 </span>
               </div>
               <span className="text-white text-sm font-medium hidden sm:block">
                 {username}
               </span>
-              <ChevronDown size={16} className="text-gray-400 hidden sm:block" />
+              <ChevronDown size={14} className="text-gray-400 hidden sm:block" />
             </button>
             
             {/* Dropdown menu */}
