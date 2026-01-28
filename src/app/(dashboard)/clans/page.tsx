@@ -95,8 +95,8 @@ export default function ClansPage() {
     return (
       <div className="space-y-8">
         <div>
-          <h1 className="text-3xl sm:text-4xl font-bold">
-            <span className="bg-gradient-to-r from-white via-arena-cyan to-arena-purple bg-clip-text text-transparent">
+          <h1 className="text-2xl sm:text-3xl font-semibold">
+            <span className="bg-gradient-to-r from-gray-200 via-gray-300 to-gray-400 bg-clip-text text-transparent">
               Your Clan
             </span>
           </h1>
@@ -160,8 +160,8 @@ export default function ClansPage() {
   return (
     <div className="space-y-8">
       <div>
-        <h1 className="text-3xl sm:text-4xl font-bold">
-          <span className="bg-gradient-to-r from-white via-arena-cyan to-arena-purple bg-clip-text text-transparent">
+        <h1 className="text-2xl sm:text-3xl font-semibold">
+          <span className="bg-gradient-to-r from-gray-200 via-gray-300 to-gray-400 bg-clip-text text-transparent">
             Clans
           </span>
         </h1>
