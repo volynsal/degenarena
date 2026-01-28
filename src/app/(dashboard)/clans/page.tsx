@@ -95,7 +95,7 @@ export default function ClansPage() {
     return (
       <div className="space-y-8">
         <div>
-          <h1 className="text-3xl sm:text-4xl font-bold bg-gradient-to-r from-white via-arena-cyan to-arena-purple bg-clip-text text-transparent pb-1">
+          <h1 className="text-3xl sm:text-4xl font-bold not-italic bg-gradient-to-r from-white via-arena-cyan to-arena-purple bg-clip-text text-transparent leading-tight pb-2">
             Your Clan
           </h1>
           <p className="text-gray-400 text-sm sm:text-base">Manage your trading team</p>
@@ -158,7 +158,7 @@ export default function ClansPage() {
   return (
     <div className="space-y-8">
       <div>
-        <h1 className="text-3xl sm:text-4xl font-bold bg-gradient-to-r from-white via-arena-cyan to-arena-purple bg-clip-text text-transparent pb-1">
+        <h1 className="text-3xl sm:text-4xl font-bold not-italic bg-gradient-to-r from-white via-arena-cyan to-arena-purple bg-clip-text text-transparent leading-tight pb-2">
           Clans
         </h1>
         <p className="text-gray-400 text-sm sm:text-base">Join a trading team or create your own</p>
