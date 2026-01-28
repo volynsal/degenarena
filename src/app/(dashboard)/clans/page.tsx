@@ -95,8 +95,10 @@ export default function ClansPage() {
     return (
       <div className="space-y-8">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-bold text-white">Your Clan</h1>
-          <p className="text-gray-400 text-sm sm:text-base mt-1">Manage your trading team</p>
+          <h1 className="text-3xl sm:text-4xl font-bold bg-gradient-to-r from-white via-arena-cyan to-arena-purple bg-clip-text text-transparent pb-1">
+            Your Clan
+          </h1>
+          <p className="text-gray-400 text-sm sm:text-base">Manage your trading team</p>
         </div>
         
         <Link href={`/clans/${myClan.slug}`}>
@@ -156,8 +158,10 @@ export default function ClansPage() {
   return (
     <div className="space-y-8">
       <div>
-        <h1 className="text-2xl sm:text-3xl font-bold text-white">Clans</h1>
-        <p className="text-gray-400 text-sm sm:text-base mt-1">Join a trading team or create your own</p>
+        <h1 className="text-3xl sm:text-4xl font-bold bg-gradient-to-r from-white via-arena-cyan to-arena-purple bg-clip-text text-transparent pb-1">
+          Clans
+        </h1>
+        <p className="text-gray-400 text-sm sm:text-base">Join a trading team or create your own</p>
       </div>
       
       <Card className="max-w-2xl">
