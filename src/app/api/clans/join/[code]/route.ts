@@ -52,9 +52,25 @@ export async function GET(
     .eq('code', code)
     .single()
   
-  if (inviteError || !invite) {
+  console.log('GET invite lookup - code:', code, 'result:', invite, 'error:', inviteError)
+  
+  if (inviteError) {
+    console.error('GET invite lookup error:', inviteError)
     return NextResponse.json<ApiResponse<null>>({
-      error: 'Invalid invite code'
+      error: `Invalid invite code: ${inviteError.message}`
+    }, { status: 404 })
+  }
+  
+  if (!invite) {
+    return NextResponse.json<ApiResponse<null>>({
+      error: 'Invalid invite code - not found'
+    }, { status: 404 })
+  }
+  
+  if (!invite.clan) {
+    console.error('GET - Invite found but clan is null:', invite)
+    return NextResponse.json<ApiResponse<null>>({
+      error: 'Invite code is valid but the clan no longer exists'
     }, { status: 404 })
   }
   
@@ -155,9 +171,23 @@ export async function POST(
     .eq('code', code)
     .single()
   
-  if (inviteError || !invite) {
+  if (inviteError) {
+    console.error('Invite lookup error:', inviteError)
     return NextResponse.json<ApiResponse<null>>({
-      error: 'Invalid invite code'
+      error: `Invalid invite code: ${inviteError.message}`
+    }, { status: 404 })
+  }
+  
+  if (!invite) {
+    return NextResponse.json<ApiResponse<null>>({
+      error: 'Invalid invite code - not found'
+    }, { status: 404 })
+  }
+  
+  if (!invite.clan) {
+    console.error('Invite found but clan is null:', invite)
+    return NextResponse.json<ApiResponse<null>>({
+      error: 'Invite code is valid but the clan no longer exists'
     }, { status: 404 })
   }
   

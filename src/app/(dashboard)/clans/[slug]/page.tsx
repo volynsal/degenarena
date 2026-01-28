@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card'
 import { Button } from '@/components/ui/Button'
+import { Input } from '@/components/ui/Input'
 import { 
   ArrowLeft,
   Users, 
@@ -18,9 +19,20 @@ import {
   Check,
   Trash2,
   UserMinus,
-  Key
+  Key,
+  Edit2,
+  Save,
+  X,
+  ChevronDown
 } from 'lucide-react'
 import { useRouter } from 'next/navigation'
+
+// Telegram icon component
+const TelegramIcon = ({ className }: { className?: string }) => (
+  <svg className={className} viewBox="0 0 24 24" fill="currentColor">
+    <path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/>
+  </svg>
+)
 
 interface ClanMember {
   user_id: string
@@ -37,6 +49,7 @@ interface ClanDetails {
   slug: string
   description: string | null
   logo_url: string | null
+  telegram_link: string | null
   owner_id: string
   is_public: boolean
   member_count: number
@@ -63,6 +76,18 @@ export default function ClanPage({ params }: { params: { slug: string } }) {
   const [copied, setCopied] = useState(false)
   const [isDeleting, setIsDeleting] = useState(false)
   const [removingMember, setRemovingMember] = useState<string | null>(null)
+  
+  // Edit mode state
+  const [isEditing, setIsEditing] = useState(false)
+  const [isSaving, setIsSaving] = useState(false)
+  const [editForm, setEditForm] = useState({
+    description: '',
+    telegram_link: '',
+  })
+  
+  // Role dropdown state
+  const [roleDropdownOpen, setRoleDropdownOpen] = useState<string | null>(null)
+  const [updatingRole, setUpdatingRole] = useState<string | null>(null)
   
   useEffect(() => {
     fetchClan()
@@ -202,6 +227,72 @@ export default function ClanPage({ params }: { params: { slug: string } }) {
     }
   }
   
+  const startEditing = () => {
+    setEditForm({
+      description: clan?.description || '',
+      telegram_link: clan?.telegram_link || '',
+    })
+    setIsEditing(true)
+  }
+  
+  const cancelEditing = () => {
+    setIsEditing(false)
+    setEditForm({
+      description: '',
+      telegram_link: '',
+    })
+  }
+  
+  const saveChanges = async () => {
+    setIsSaving(true)
+    try {
+      const res = await fetch(`/api/clans/${params.slug}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          description: editForm.description || null,
+          telegram_link: editForm.telegram_link || null,
+        }),
+      })
+      const data = await res.json()
+      
+      if (!res.ok) {
+        throw new Error(data.error || 'Failed to save changes')
+      }
+      
+      setIsEditing(false)
+      fetchClan()
+    } catch (err) {
+      alert(err instanceof Error ? err.message : 'Failed to save changes')
+    } finally {
+      setIsSaving(false)
+    }
+  }
+  
+  const handleRoleChange = async (userId: string, newRole: string) => {
+    setUpdatingRole(userId)
+    setRoleDropdownOpen(null)
+    
+    try {
+      const res = await fetch(`/api/clans/${params.slug}/members/${userId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ role: newRole }),
+      })
+      const data = await res.json()
+      
+      if (!res.ok) {
+        throw new Error(data.error || 'Failed to update role')
+      }
+      
+      fetchClan()
+    } catch (err) {
+      alert(err instanceof Error ? err.message : 'Failed to update role')
+    } finally {
+      setUpdatingRole(null)
+    }
+  }
+  
   if (isLoading) {
     return (
       <div className="flex items-center justify-center py-20">
@@ -260,10 +351,71 @@ export default function ClanPage({ params }: { params: { slug: string } }) {
                     Private
                   </span>
                 )}
+                {clan.user_role === 'owner' && !isEditing && (
+                  <button
+                    onClick={startEditing}
+                    className="p-1.5 text-gray-400 hover:text-white hover:bg-white/10 rounded-lg transition-colors"
+                    title="Edit clan"
+                  >
+                    <Edit2 className="w-4 h-4" />
+                  </button>
+                )}
               </div>
               
-              {clan.description && (
-                <p className="text-gray-400 mb-4">{clan.description}</p>
+              {isEditing ? (
+                <div className="space-y-4 mb-4">
+                  <div>
+                    <label className="block text-sm text-gray-400 mb-1">Description</label>
+                    <textarea
+                      value={editForm.description}
+                      onChange={(e) => setEditForm(prev => ({ ...prev, description: e.target.value }))}
+                      placeholder="Describe your clan..."
+                      rows={2}
+                      className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-2 text-white placeholder-gray-500 focus:border-arena-purple transition-colors resize-none"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm text-gray-400 mb-1">Telegram Group Link</label>
+                    <div className="flex items-center gap-2">
+                      <TelegramIcon className="w-5 h-5 text-[#0088cc]" />
+                      <input
+                        type="url"
+                        value={editForm.telegram_link}
+                        onChange={(e) => setEditForm(prev => ({ ...prev, telegram_link: e.target.value }))}
+                        placeholder="https://t.me/yourgroup"
+                        className="flex-1 bg-white/5 border border-white/10 rounded-lg px-4 py-2 text-white placeholder-gray-500 focus:border-arena-purple transition-colors"
+                      />
+                    </div>
+                  </div>
+                  <div className="flex gap-2">
+                    <Button variant="primary" onClick={saveChanges} loading={isSaving}>
+                      <Save className="w-4 h-4 mr-2" />
+                      Save
+                    </Button>
+                    <Button variant="ghost" onClick={cancelEditing}>
+                      <X className="w-4 h-4 mr-2" />
+                      Cancel
+                    </Button>
+                  </div>
+                </div>
+              ) : (
+                <>
+                  {clan.description && (
+                    <p className="text-gray-400 mb-3">{clan.description}</p>
+                  )}
+                  
+                  {clan.telegram_link && (
+                    <a 
+                      href={clan.telegram_link}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-2 px-3 py-1.5 bg-[#0088cc]/20 hover:bg-[#0088cc]/30 border border-[#0088cc]/30 rounded-lg text-[#0088cc] text-sm font-medium transition-colors mb-3"
+                    >
+                      <TelegramIcon className="w-4 h-4" />
+                      Join Telegram
+                    </a>
+                  )}
+                </>
               )}
               
               <p className="text-sm text-gray-500">
@@ -273,7 +425,7 @@ export default function ClanPage({ params }: { params: { slug: string } }) {
             
             {/* Actions */}
             <div className="flex flex-col gap-2">
-              {clan.is_member && (
+              {clan.is_member && !isEditing && (
                 <>
                   {inviteCode ? (
                     <div className="flex flex-col gap-2">
@@ -375,7 +527,59 @@ export default function ClanPage({ params }: { params: { slug: string } }) {
                         <Star className="w-4 h-4 text-arena-purple" />
                       )}
                     </div>
-                    <span className="text-sm text-gray-500 capitalize">{member.role}</span>
+                    
+                    {/* Role dropdown for owners */}
+                    {clan.user_role === 'owner' ? (
+                      <div className="relative">
+                        <button
+                          onClick={(e) => {
+                            e.preventDefault()
+                            setRoleDropdownOpen(roleDropdownOpen === member.user_id ? null : member.user_id)
+                          }}
+                          disabled={updatingRole === member.user_id}
+                          className="flex items-center gap-1 text-sm text-gray-400 hover:text-white transition-colors disabled:opacity-50"
+                        >
+                          {updatingRole === member.user_id ? (
+                            <Loader2 className="w-3 h-3 animate-spin" />
+                          ) : (
+                            <>
+                              <span className="capitalize">{member.role}</span>
+                              <ChevronDown className="w-3 h-3" />
+                            </>
+                          )}
+                        </button>
+                        
+                        {roleDropdownOpen === member.user_id && (
+                          <div className="absolute left-0 top-full mt-1 w-32 bg-arena-dark border border-white/10 rounded-lg shadow-xl py-1 z-20">
+                            {['owner', 'admin', 'member'].map((role) => (
+                              <button
+                                key={role}
+                                onClick={(e) => {
+                                  e.preventDefault()
+                                  if (role !== member.role) {
+                                    handleRoleChange(member.user_id, role)
+                                  } else {
+                                    setRoleDropdownOpen(null)
+                                  }
+                                }}
+                                className={`w-full flex items-center gap-2 px-3 py-2 text-sm text-left transition-colors ${
+                                  role === member.role 
+                                    ? 'text-arena-cyan bg-arena-cyan/10' 
+                                    : 'text-gray-300 hover:text-white hover:bg-white/5'
+                                }`}
+                              >
+                                {role === 'owner' && <Crown className="w-3 h-3 text-yellow-500" />}
+                                {role === 'admin' && <Star className="w-3 h-3 text-arena-purple" />}
+                                {role === 'member' && <Users className="w-3 h-3 text-gray-400" />}
+                                <span className="capitalize">{role}</span>
+                              </button>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    ) : (
+                      <span className="text-sm text-gray-500 capitalize">{member.role}</span>
+                    )}
                   </div>
                 </Link>
                 
@@ -389,8 +593,8 @@ export default function ClanPage({ params }: { params: { slug: string } }) {
                     <p className="text-gray-500">Matches</p>
                   </div>
                   
-                  {/* Remove member button - only for owner, and can't remove owner */}
-                  {clan.user_role === 'owner' && member.role !== 'owner' && (
+                  {/* Remove member button - only for owner */}
+                  {clan.user_role === 'owner' && (
                     <button
                       onClick={() => handleRemoveMember(member.user_id, member.username)}
                       disabled={removingMember === member.user_id}

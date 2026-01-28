@@ -17,6 +17,7 @@ interface ClanDetails {
   slug: string
   description: string | null
   logo_url: string | null
+  telegram_link: string | null
   owner_id: string
   is_public: boolean
   invite_code: string | null
@@ -46,10 +47,11 @@ export async function GET(
   { params }: { params: { slug: string } }
 ) {
   const supabase = createClient()
+  const serviceClient = getServiceClient()
   const { data: { session } } = await supabase.auth.getSession()
   
-  // Get clan
-  const { data: clan, error } = await supabase
+  // Get clan using service client to bypass RLS (clan pages should be viewable)
+  const { data: clan, error } = await serviceClient
     .from('clans')
     .select(`
       *,
@@ -58,14 +60,16 @@ export async function GET(
     .eq('slug', params.slug)
     .single()
   
+  console.log('GET /api/clans/[slug] - slug:', params.slug, 'clan:', clan?.id, 'error:', error?.message)
+  
   if (error || !clan) {
     return NextResponse.json<ApiResponse<null>>({
       error: 'Clan not found'
     }, { status: 404 })
   }
   
-  // Get members (simple query without join)
-  const { data: members, error: membersError } = await supabase
+  // Get members using service client to bypass RLS
+  const { data: members, error: membersError } = await serviceClient
     .from('clan_members')
     .select('user_id, role')
     .eq('clan_id', clan.id)
@@ -79,14 +83,14 @@ export async function GET(
   const memberStats: any[] = []
   for (const member of members || []) {
     // Get profile separately
-    const { data: profile } = await supabase
+    const { data: profile } = await serviceClient
       .from('profiles')
       .select('username, avatar_url')
       .eq('id', member.user_id)
       .single()
     
     // Get formula stats
-    const { data: formulas } = await supabase
+    const { data: formulas } = await serviceClient
       .from('formulas')
       .select('win_rate, total_matches')
       .eq('user_id', member.user_id)
@@ -110,7 +114,7 @@ export async function GET(
   let isMember = false
   let userRole = null
   if (session?.user?.id) {
-    const { data: membership } = await supabase
+    const { data: membership } = await serviceClient
       .from('clan_members')
       .select('role')
       .eq('clan_id', clan.id)
@@ -128,6 +132,7 @@ export async function GET(
     slug: clan.slug,
     description: clan.description,
     logo_url: clan.logo_url,
+    telegram_link: clan.telegram_link || null,
     owner_id: clan.owner_id,
     is_public: clan.is_public,
     invite_code: isMember ? clan.invite_code : null,
@@ -144,6 +149,122 @@ export async function GET(
   return NextResponse.json<ApiResponse<ClanDetails>>({
     data: clanDetails
   })
+}
+
+// PATCH /api/clans/[slug] - Update clan settings (owners only)
+export async function PATCH(
+  request: NextRequest,
+  { params }: { params: { slug: string } }
+) {
+  const supabase = createClient()
+  const { data: { session } } = await supabase.auth.getSession()
+  
+  if (!session?.user?.id) {
+    return NextResponse.json<ApiResponse<null>>({
+      error: 'Unauthorized'
+    }, { status: 401 })
+  }
+  
+  const serviceClient = getServiceClient()
+  
+  // Get clan and verify user is an owner
+  const { data: clan, error: fetchError } = await serviceClient
+    .from('clans')
+    .select('id')
+    .eq('slug', params.slug)
+    .single()
+  
+  if (fetchError || !clan) {
+    return NextResponse.json<ApiResponse<null>>({
+      error: 'Clan not found'
+    }, { status: 404 })
+  }
+  
+  // Check if user is an owner (not just member or admin)
+  const { data: membership } = await serviceClient
+    .from('clan_members')
+    .select('role')
+    .eq('clan_id', clan.id)
+    .eq('user_id', session.user.id)
+    .single()
+  
+  if (!membership || membership.role !== 'owner') {
+    return NextResponse.json<ApiResponse<null>>({
+      error: 'Only clan owners can update clan settings'
+    }, { status: 403 })
+  }
+  
+  try {
+    const body = await request.json()
+    
+    const updateData: Record<string, any> = {}
+    
+    // Only update fields that are provided
+    if (body.name !== undefined) {
+      if (body.name.trim().length < 3) {
+        return NextResponse.json<ApiResponse<null>>({
+          error: 'Clan name must be at least 3 characters'
+        }, { status: 400 })
+      }
+      updateData.name = body.name.trim()
+      // Also update slug if name changes
+      updateData.slug = body.name.trim().toLowerCase()
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/^-|-$/g, '')
+    }
+    
+    if (body.description !== undefined) {
+      updateData.description = body.description?.trim() || null
+    }
+    
+    if (body.logo_url !== undefined) {
+      updateData.logo_url = body.logo_url || null
+    }
+    
+    if (body.telegram_link !== undefined) {
+      // Validate telegram link format if provided
+      if (body.telegram_link && !body.telegram_link.match(/^https?:\/\/(t\.me|telegram\.me)\/.+/)) {
+        return NextResponse.json<ApiResponse<null>>({
+          error: 'Invalid Telegram link. Use format: https://t.me/groupname'
+        }, { status: 400 })
+      }
+      updateData.telegram_link = body.telegram_link || null
+    }
+    
+    if (Object.keys(updateData).length === 0) {
+      return NextResponse.json<ApiResponse<null>>({
+        error: 'No valid fields to update'
+      }, { status: 400 })
+    }
+    
+    updateData.updated_at = new Date().toISOString()
+    
+    const { data: updatedClan, error: updateError } = await serviceClient
+      .from('clans')
+      .update(updateData)
+      .eq('id', clan.id)
+      .select()
+      .single()
+    
+    if (updateError) {
+      if (updateError.code === '23505') {
+        return NextResponse.json<ApiResponse<null>>({
+          error: 'A clan with this name already exists'
+        }, { status: 400 })
+      }
+      throw updateError
+    }
+    
+    return NextResponse.json<ApiResponse<typeof updatedClan>>({
+      data: updatedClan,
+      message: 'Clan updated successfully'
+    })
+    
+  } catch (error: any) {
+    return NextResponse.json<ApiResponse<null>>({
+      error: error.message || 'Failed to update clan'
+    }, { status: 500 })
+  }
 }
 
 // DELETE /api/clans/[slug] - Delete clan (owner only)

@@ -128,6 +128,43 @@ export interface FormulaCopy {
   copied_at: string
 }
 
+export interface Clan {
+  id: string
+  name: string
+  slug: string
+  description?: string | null
+  logo_url?: string | null
+  telegram_link?: string | null
+  owner_id: string
+  is_public: boolean
+  max_members: number
+  member_count: number
+  total_matches: number
+  avg_win_rate: number
+  created_at: string
+  updated_at: string
+}
+
+export interface ClanMember {
+  id: string
+  clan_id: string
+  user_id: string
+  role: 'owner' | 'admin' | 'member'
+  joined_at: string
+}
+
+export interface UpdateClanInput {
+  name?: string
+  description?: string | null
+  logo_url?: string | null
+  telegram_link?: string | null
+}
+
+export interface UpdateMemberRoleInput {
+  user_id: string
+  role: 'owner' | 'admin' | 'member'
+}
+
 export interface LeaderboardEntry {
   rank: number
   formula_id: string
