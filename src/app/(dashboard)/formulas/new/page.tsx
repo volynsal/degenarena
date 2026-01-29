@@ -290,8 +290,11 @@ export default function NewFormulaPage() {
           </div>
         </CardHeader>
         <CardContent>
-          <p className="text-sm text-gray-400 mb-4">
+          <p className="text-sm text-gray-400 mb-2">
             Pre-configured formulas based on proven trading strategies. {userTier === 'free' ? 'Upgrade to Pro to unlock.' : 'Click to auto-fill parameters.'}
+          </p>
+          <p className="text-xs text-gray-500 mb-4">
+            Exit times are suggestions only. You are responsible for your own trading decisions.
           </p>
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
             {FORMULA_PRESETS.map((preset) => {
@@ -340,7 +343,9 @@ export default function NewFormulaPage() {
                     <span className={`text-xs px-1.5 py-0.5 rounded border ${STRATEGY_COLORS[preset.strategy]}`}>
                       {STRATEGY_LABELS[preset.strategy]}
                     </span>
-                    <span className="text-xs text-gray-500">{preset.holdTime}</span>
+                    <span className="text-xs text-gray-500" title="Suggested exit window">
+                      Exit: {preset.holdTime}
+                    </span>
                   </div>
                 </button>
               )
