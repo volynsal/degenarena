@@ -116,8 +116,9 @@ export async function POST(request: NextRequest) {
         preset_id: body.preset_id || null,
         exit_hours: body.exit_hours || null,
         // Safety checks (presets have this enabled by default)
+        // rugcheck_min_score is MAX allowed risk (lower = safer)
         require_rugcheck: body.require_rugcheck ?? (!!body.preset_id),
-        rugcheck_min_score: body.rugcheck_min_score ?? 50,
+        rugcheck_min_score: body.rugcheck_min_score ?? 5000,
       })
       .select()
       .single()

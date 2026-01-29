@@ -97,8 +97,9 @@ export default function NewFormulaPage() {
     volume1hVs6hSpike: 0,
     volume6hVs24hSpike: 0,
     // Safety checks (off by default for custom, on for presets)
+    // Lower score = safer (it's a RISK score), so this is MAX allowed
     requireRugcheck: false,
-    rugcheckMinScore: 50,
+    rugcheckMinScore: 5000,
   })
   
   const handleSave = async (activate = false) => {

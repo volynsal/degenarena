@@ -33,11 +33,11 @@ export interface RugCheckSummary {
 
 const RUGCHECK_API_BASE = 'https://api.rugcheck.xyz/v1'
 
-// Risk thresholds
+// Risk thresholds (LOWER score = SAFER)
 export const RISK_THRESHOLDS = {
-  SAFE: 80,      // Score >= 80 = Good
-  CAUTION: 50,   // Score 50-79 = Caution
-  DANGER: 0,     // Score < 50 = Danger
+  SAFE: 1000,      // Score <= 1000 = Good (very safe)
+  CAUTION: 5000,   // Score <= 5000 = Caution
+  DANGER: 10000,   // Score > 10000 = Danger
 }
 
 class RugCheckService {
@@ -95,7 +95,7 @@ class RugCheckService {
       
       const data = await response.json()
       
-      // Transform to our interface
+      // Transform to our interface (lower score = safer)
       return {
         tokenAddress,
         score: data.score || 0,
@@ -105,7 +105,7 @@ class RugCheckService {
           level: this.mapRiskLevel(r.level),
           score: r.score || 0,
         })),
-        isGood: (data.score || 0) >= RISK_THRESHOLDS.SAFE,
+        isGood: (data.score || 0) <= RISK_THRESHOLDS.SAFE,
         tokenMeta: data.tokenMeta,
       }
     } catch (error) {
@@ -116,11 +116,12 @@ class RugCheckService {
   
   /**
    * Quick check if a token passes safety threshold
+   * LOWER score = SAFER (score is risk level, not safety level)
    * Returns: { passed: boolean, score: number, reason?: string }
    */
   async checkTokenSafety(
     tokenAddress: string, 
-    minScore: number = RISK_THRESHOLDS.CAUTION
+    maxScore: number = RISK_THRESHOLDS.CAUTION
   ): Promise<{ passed: boolean; score: number; reason?: string; risks?: string[] }> {
     const summary = await this.getTokenSummary(tokenAddress)
     
@@ -129,7 +130,8 @@ class RugCheckService {
       return { passed: true, score: -1, reason: 'RugCheck unavailable' }
     }
     
-    const passed = summary.score >= minScore
+    // Lower score = safer, so we pass if score is BELOW the max threshold
+    const passed = summary.score <= maxScore
     const dangerRisks = summary.risks
       ?.filter(r => r.level === 'danger' || r.level === 'error')
       ?.map(r => r.name) || []
@@ -139,18 +141,18 @@ class RugCheckService {
       score: summary.score,
       reason: passed 
         ? undefined 
-        : `RugCheck score ${summary.score} below threshold ${minScore}`,
+        : `RugCheck risk score ${summary.score} exceeds threshold ${maxScore}`,
       risks: dangerRisks.length > 0 ? dangerRisks : undefined,
     }
   }
   
   /**
-   * Format risk score for display
+   * Format risk score for display (lower = safer)
    */
   formatScore(score: number): { label: string; color: string; emoji: string } {
-    if (score >= RISK_THRESHOLDS.SAFE) {
+    if (score <= RISK_THRESHOLDS.SAFE) {
       return { label: 'Good', color: 'text-green-400', emoji: '✅' }
-    } else if (score >= RISK_THRESHOLDS.CAUTION) {
+    } else if (score <= RISK_THRESHOLDS.CAUTION) {
       return { label: 'Caution', color: 'text-yellow-400', emoji: '⚠️' }
     } else {
       return { label: 'Danger', color: 'text-red-400', emoji: '🚨' }

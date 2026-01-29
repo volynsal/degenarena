@@ -178,18 +178,19 @@ export class TokenMonitorService {
             
             if (matches) {
               // If formula requires RugCheck, verify safety before confirming match
+              // Lower RugCheck score = safer (it's a RISK score, not safety score)
               let rugcheckData: { score?: number; risks?: string[] } = {}
               
               if (formula.require_rugcheck) {
-                const minScore = formula.rugcheck_min_score || RISK_THRESHOLDS.CAUTION
+                const maxScore = formula.rugcheck_min_score || RISK_THRESHOLDS.CAUTION
                 const safetyCheck = await rugCheckService.checkTokenSafety(
                   pair.baseToken.address,
-                  minScore
+                  maxScore
                 )
                 
                 if (!safetyCheck.passed && safetyCheck.score >= 0) {
-                  // Token failed RugCheck - skip this match
-                  console.log(`⚠️ Token ${pair.baseToken.symbol} failed RugCheck (score: ${safetyCheck.score}, min: ${minScore})`)
+                  // Token failed RugCheck (risk too high) - skip this match
+                  console.log(`⚠️ Token ${pair.baseToken.symbol} failed RugCheck (risk: ${safetyCheck.score}, max allowed: ${maxScore})`)
                   this.processedTokens.add(cacheKey)
                   continue
                 }
@@ -201,7 +202,7 @@ export class TokenMonitorService {
                 }
                 
                 if (safetyCheck.score >= 0) {
-                  reasons.push(`RugCheck: ${safetyCheck.score}/100`)
+                  reasons.push(`RugCheck: ${safetyCheck.score} risk`)
                 }
               }
               
