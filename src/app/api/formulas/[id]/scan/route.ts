@@ -113,6 +113,7 @@ export async function POST(
               liquidity: token.liquidity?.usd || 0,
               volume24h: token.volume?.h24 || 0,
               dexscreenerUrl: token.url || '',
+              matchedAt: newMatch.matched_at,
             })
           }
         }
