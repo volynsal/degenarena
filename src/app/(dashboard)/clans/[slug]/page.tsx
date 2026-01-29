@@ -499,17 +499,24 @@ export default function ClanPage({ params }: { params: { slug: string } }) {
                     <p className="text-gray-400 mb-3">{clan.description}</p>
                   )}
                   
-                  {/* Telegram link - only visible to clan members */}
-                  {clan.is_member && clan.telegram_link && (
-                    <a 
-                      href={clan.telegram_link}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-arena-purple/20 to-arena-cyan/20 hover:from-arena-purple/30 hover:to-arena-cyan/30 border border-arena-purple/30 rounded-lg text-white text-sm font-medium transition-all mb-3 group"
-                    >
-                      <TelegramIcon className="w-5 h-5 text-arena-cyan group-hover:scale-110 transition-transform" />
-                      <span>Join Telegram Group</span>
-                    </a>
+                  {/* Telegram link - visible to clan members */}
+                  {clan.is_member && (
+                    clan.telegram_link ? (
+                      <a 
+                        href={clan.telegram_link}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-[#0088cc]/20 to-[#0088cc]/10 hover:from-[#0088cc]/30 hover:to-[#0088cc]/20 border border-[#0088cc]/30 rounded-lg text-white text-sm font-medium transition-all mb-3 group"
+                      >
+                        <TelegramIcon className="w-5 h-5 text-[#0088cc] group-hover:scale-110 transition-transform" />
+                        <span>Join Telegram Group</span>
+                      </a>
+                    ) : (
+                      <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/5 border border-white/10 rounded-lg text-gray-500 text-sm mb-3">
+                        <TelegramIcon className="w-5 h-5 opacity-40" />
+                        <span>No Telegram group linked</span>
+                      </div>
+                    )
                   )}
                 </>
               )}
