@@ -32,6 +32,7 @@ export interface DigestMatch {
   volume24h: number
   dexscreenerUrl: string
   matchId: string
+  matchedAt: string
 }
 
 export interface DigestFormula {
@@ -540,12 +541,27 @@ export class AlertService {
   private formatDigestEmailHtml(payload: DigestPayload): string {
     const formatNumber = (n: number) => n.toLocaleString('en-US', { maximumFractionDigits: 2 })
     
+    const formatTimeEST = (isoString: string) => {
+      const date = new Date(isoString)
+      return date.toLocaleString('en-US', {
+        timeZone: 'America/New_York',
+        month: 'short',
+        day: 'numeric',
+        hour: 'numeric',
+        minute: '2-digit',
+        hour12: true
+      }) + ' EST'
+    }
+    
     const formulaSections = payload.formulas.map(formula => {
       const matchRows = formula.matches.map(match => `
         <tr>
           <td style="padding: 12px; border-bottom: 1px solid rgba(255,255,255,0.1);">
             <strong style="color: #a855f7;">${match.tokenSymbol}</strong>
             <div style="color: #888; font-size: 12px;">${match.tokenName}</div>
+          </td>
+          <td style="padding: 12px; border-bottom: 1px solid rgba(255,255,255,0.1); text-align: center; color: #888; font-size: 12px;">
+            ${formatTimeEST(match.matchedAt)}
           </td>
           <td style="padding: 12px; border-bottom: 1px solid rgba(255,255,255,0.1); text-align: right;">
             $${formatNumber(match.liquidity)}
@@ -571,6 +587,7 @@ export class AlertService {
             <thead>
               <tr style="background: rgba(255,255,255,0.05);">
                 <th style="padding: 12px; text-align: left; color: #888; font-size: 12px; font-weight: 500;">Token</th>
+                <th style="padding: 12px; text-align: center; color: #888; font-size: 12px; font-weight: 500;">Found At</th>
                 <th style="padding: 12px; text-align: right; color: #888; font-size: 12px; font-weight: 500;">Liquidity</th>
                 <th style="padding: 12px; text-align: right; color: #888; font-size: 12px; font-weight: 500;">24h Vol</th>
                 <th style="padding: 12px; text-align: center; color: #888; font-size: 12px; font-weight: 500;">Link</th>

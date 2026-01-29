@@ -117,6 +117,7 @@ export async function GET(request: NextRequest) {
         volume24h: match.volume_24h || 0,
         dexscreenerUrl: match.dexscreener_url || '',
         matchId: match.id,
+        matchedAt: match.matched_at,
       })
       
       digest.totalMatches++
