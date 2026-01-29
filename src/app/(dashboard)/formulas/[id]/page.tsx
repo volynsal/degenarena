@@ -20,7 +20,10 @@ import {
   Shield,
   TrendingUp,
   Loader2,
-  Trash2
+  Trash2,
+  Target,
+  BarChart3,
+  Zap
 } from 'lucide-react'
 
 interface FormulaParams {
@@ -38,6 +41,24 @@ interface FormulaParams {
   requireVerifiedContract: boolean
   requireHoneypotCheck: boolean
   requireLiquidityLock: boolean
+  // Enhanced parameters
+  tokenAgeMinMinutes: number
+  buySellRatio1hMin: number
+  txCount1hMin: number
+  txCount24hMin: number
+  fdvMin: number
+  fdvMax: number
+  priceChange1hMin: number
+  priceChange1hMax: number
+  priceChange6hMin: number
+  priceChange6hMax: number
+  priceChange24hMin: number
+  priceChange24hMax: number
+  volume1hVs6hSpike: number
+  volume6hVs24hSpike: number
+  // RugCheck
+  requireRugcheck: boolean
+  rugcheckMinScore: number
 }
 
 export default function EditFormulaPage({ params }: { params: { id: string } }) {
@@ -46,6 +67,7 @@ export default function EditFormulaPage({ params }: { params: { id: string } }) 
   const [isSaving, setIsSaving] = useState(false)
   const [isDeleting, setIsDeleting] = useState(false)
   
+  const [showAdvanced, setShowAdvanced] = useState(false)
   const [formParams, setFormParams] = useState<FormulaParams>({
     name: '',
     description: '',
@@ -61,6 +83,24 @@ export default function EditFormulaPage({ params }: { params: { id: string } }) 
     requireVerifiedContract: true,
     requireHoneypotCheck: true,
     requireLiquidityLock: false,
+    // Enhanced parameters
+    tokenAgeMinMinutes: 0,
+    buySellRatio1hMin: 0,
+    txCount1hMin: 0,
+    txCount24hMin: 0,
+    fdvMin: 0,
+    fdvMax: 0,
+    priceChange1hMin: 0,
+    priceChange1hMax: 0,
+    priceChange6hMin: 0,
+    priceChange6hMax: 0,
+    priceChange24hMin: 0,
+    priceChange24hMax: 0,
+    volume1hVs6hSpike: 0,
+    volume6hVs24hSpike: 0,
+    // RugCheck
+    requireRugcheck: false,
+    rugcheckMinScore: 30,
   })
   
   // Load formula data into form
@@ -81,7 +121,29 @@ export default function EditFormulaPage({ params }: { params: { id: string } }) 
         requireVerifiedContract: formula.require_verified_contract,
         requireHoneypotCheck: formula.require_honeypot_check,
         requireLiquidityLock: formula.require_liquidity_lock,
+        // Enhanced parameters
+        tokenAgeMinMinutes: formula.token_age_min_minutes || 0,
+        buySellRatio1hMin: formula.buy_sell_ratio_1h_min || 0,
+        txCount1hMin: formula.tx_count_1h_min || 0,
+        txCount24hMin: formula.tx_count_24h_min || 0,
+        fdvMin: formula.fdv_min || 0,
+        fdvMax: formula.fdv_max || 0,
+        priceChange1hMin: formula.price_change_1h_min || 0,
+        priceChange1hMax: formula.price_change_1h_max || 0,
+        priceChange6hMin: formula.price_change_6h_min || 0,
+        priceChange6hMax: formula.price_change_6h_max || 0,
+        priceChange24hMin: formula.price_change_24h_min || 0,
+        priceChange24hMax: formula.price_change_24h_max || 0,
+        volume1hVs6hSpike: formula.volume_1h_vs_6h_spike || 0,
+        volume6hVs24hSpike: formula.volume_6h_vs_24h_spike || 0,
+        // RugCheck
+        requireRugcheck: formula.require_rugcheck || false,
+        rugcheckMinScore: formula.rugcheck_min_score || 30,
       })
+      // Show advanced if any advanced params are set
+      if (formula.buy_sell_ratio_1h_min || formula.tx_count_1h_min || formula.price_change_1h_min || formula.volume_1h_vs_6h_spike) {
+        setShowAdvanced(true)
+      }
     }
   }, [formula])
   
@@ -107,6 +169,24 @@ export default function EditFormulaPage({ params }: { params: { id: string } }) 
           require_verified_contract: formParams.requireVerifiedContract,
           require_honeypot_check: formParams.requireHoneypotCheck,
           require_liquidity_lock: formParams.requireLiquidityLock,
+          // Enhanced parameters
+          token_age_min_minutes: formParams.tokenAgeMinMinutes || null,
+          buy_sell_ratio_1h_min: formParams.buySellRatio1hMin || null,
+          tx_count_1h_min: formParams.txCount1hMin || null,
+          tx_count_24h_min: formParams.txCount24hMin || null,
+          fdv_min: formParams.fdvMin || null,
+          fdv_max: formParams.fdvMax || null,
+          price_change_1h_min: formParams.priceChange1hMin || null,
+          price_change_1h_max: formParams.priceChange1hMax || null,
+          price_change_6h_min: formParams.priceChange6hMin || null,
+          price_change_6h_max: formParams.priceChange6hMax || null,
+          price_change_24h_min: formParams.priceChange24hMin || null,
+          price_change_24h_max: formParams.priceChange24hMax || null,
+          volume_1h_vs_6h_spike: formParams.volume1hVs6hSpike || null,
+          volume_6h_vs_24h_spike: formParams.volume6hVs24hSpike || null,
+          // RugCheck
+          require_rugcheck: formParams.requireRugcheck,
+          rugcheck_min_score: formParams.rugcheckMinScore,
         }),
       })
       
@@ -421,36 +501,340 @@ export default function EditFormulaPage({ params }: { params: { id: string } }) 
             <CardTitle>Token Age</CardTitle>
           </div>
         </CardHeader>
-        <CardContent>
-          <div>
-            <label className="block text-sm font-medium text-gray-300 mb-2">
-              Maximum Age (hours)
-            </label>
-            <input
-              type="number"
-              value={formParams.tokenAgeMaxHours}
-              onChange={(e) => updateParam('tokenAgeMaxHours', Number(e.target.value))}
-              className="w-full sm:w-48 bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-white focus:border-arena-purple transition-colors"
-            />
+        <CardContent className="space-y-4">
+          <div className="grid sm:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-300 mb-2">
+                Minimum Age (minutes)
+              </label>
+              <input
+                type="number"
+                value={formParams.tokenAgeMinMinutes || ''}
+                onChange={(e) => updateParam('tokenAgeMinMinutes', Number(e.target.value))}
+                placeholder="e.g., 10"
+                className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-white focus:border-arena-purple transition-colors"
+              />
+              <p className="text-xs text-gray-500 mt-1">Skip first X minutes (avoid bot wars)</p>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-300 mb-2">
+                Maximum Age (hours)
+              </label>
+              <input
+                type="number"
+                value={formParams.tokenAgeMaxHours || ''}
+                onChange={(e) => updateParam('tokenAgeMaxHours', Number(e.target.value))}
+                placeholder="e.g., 24"
+                className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-white focus:border-arena-purple transition-colors"
+              />
+            </div>
           </div>
         </CardContent>
       </Card>
       
-      {/* Security Checks - Coming Soon */}
-      <Card className="opacity-60">
+      {/* Market Cap / FDV */}
+      <Card>
         <CardHeader>
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <Shield className="w-5 h-5 text-gray-500" />
-              <CardTitle className="text-gray-400">Security Checks</CardTitle>
-            </div>
-            <span className="text-xs px-2 py-1 rounded-full bg-white/10 text-gray-400">Coming Soon</span>
+          <div className="flex items-center gap-2">
+            <BarChart3 className="w-5 h-5 text-arena-cyan" />
+            <CardTitle>Market Cap (FDV)</CardTitle>
           </div>
         </CardHeader>
         <CardContent>
-          <p className="text-sm text-gray-500">
-            Honeypot detection, contract verification, and liquidity lock checks. Requires security API integration.
+          <div className="grid sm:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-300 mb-2">
+                Minimum Market Cap
+              </label>
+              <div className="flex items-center gap-2">
+                <span className="text-gray-400">$</span>
+                <input
+                  type="number"
+                  value={formParams.fdvMin || ''}
+                  onChange={(e) => updateParam('fdvMin', Number(e.target.value))}
+                  placeholder="e.g., 50000"
+                  className="flex-1 bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-white focus:border-arena-purple transition-colors"
+                />
+              </div>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-300 mb-2">
+                Maximum Market Cap
+              </label>
+              <div className="flex items-center gap-2">
+                <span className="text-gray-400">$</span>
+                <input
+                  type="number"
+                  value={formParams.fdvMax || ''}
+                  onChange={(e) => updateParam('fdvMax', Number(e.target.value))}
+                  placeholder="e.g., 5000000"
+                  className="flex-1 bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-white focus:border-arena-purple transition-colors"
+                />
+              </div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+      
+      {/* Advanced Filters Toggle */}
+      <button
+        onClick={() => setShowAdvanced(!showAdvanced)}
+        className="w-full flex items-center justify-center gap-2 p-4 rounded-lg border border-white/10 bg-white/5 hover:bg-white/10 transition-colors text-gray-300 hover:text-white"
+      >
+        <Target className="w-5 h-5" />
+        <span>{showAdvanced ? 'Hide' : 'Show'} Advanced Filters</span>
+        <span className="text-xs px-2 py-0.5 rounded-full bg-arena-cyan/20 text-arena-cyan">
+          Pro Strategies
+        </span>
+      </button>
+      
+      {showAdvanced && (
+        <>
+          {/* Buy/Sell & Transactions */}
+          <Card>
+            <CardHeader>
+              <div className="flex items-center gap-2">
+                <TrendingUp className="w-5 h-5 text-arena-cyan" />
+                <CardTitle>Buy Pressure & Activity</CardTitle>
+              </div>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="grid sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-300 mb-2">
+                    Min Buy/Sell Ratio (1h)
+                  </label>
+                  <input
+                    type="number"
+                    step="0.1"
+                    value={formParams.buySellRatio1hMin || ''}
+                    onChange={(e) => updateParam('buySellRatio1hMin', Number(e.target.value))}
+                    placeholder="e.g., 1.5"
+                    className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-white focus:border-arena-purple transition-colors"
+                  />
+                  <p className="text-xs text-gray-500 mt-1">1.5 = 50% more buys than sells</p>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-300 mb-2">
+                    Min Transactions (1h)
+                  </label>
+                  <input
+                    type="number"
+                    value={formParams.txCount1hMin || ''}
+                    onChange={(e) => updateParam('txCount1hMin', Number(e.target.value))}
+                    placeholder="e.g., 50"
+                    className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-white focus:border-arena-purple transition-colors"
+                  />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+          
+          {/* Price Change Filters */}
+          <Card>
+            <CardHeader>
+              <div className="flex items-center gap-2">
+                <TrendingUp className="w-5 h-5 text-arena-purple" />
+                <CardTitle>Price Change Filters</CardTitle>
+              </div>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <div>
+                <label className="block text-sm font-medium text-gray-300 mb-2">
+                  1 Hour Price Change (%)
+                </label>
+                <div className="grid sm:grid-cols-2 gap-4">
+                  <div className="flex items-center gap-2">
+                    <span className="text-gray-400 text-sm">Min:</span>
+                    <input
+                      type="number"
+                      value={formParams.priceChange1hMin || ''}
+                      onChange={(e) => updateParam('priceChange1hMin', Number(e.target.value))}
+                      placeholder="-20"
+                      className="flex-1 bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-white focus:border-arena-purple transition-colors"
+                    />
+                    <span className="text-gray-400">%</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-gray-400 text-sm">Max:</span>
+                    <input
+                      type="number"
+                      value={formParams.priceChange1hMax || ''}
+                      onChange={(e) => updateParam('priceChange1hMax', Number(e.target.value))}
+                      placeholder="100"
+                      className="flex-1 bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-white focus:border-arena-purple transition-colors"
+                    />
+                    <span className="text-gray-400">%</span>
+                  </div>
+                </div>
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-300 mb-2">
+                  24 Hour Price Change (%)
+                </label>
+                <div className="grid sm:grid-cols-2 gap-4">
+                  <div className="flex items-center gap-2">
+                    <span className="text-gray-400 text-sm">Min:</span>
+                    <input
+                      type="number"
+                      value={formParams.priceChange24hMin || ''}
+                      onChange={(e) => updateParam('priceChange24hMin', Number(e.target.value))}
+                      placeholder="-50"
+                      className="flex-1 bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-white focus:border-arena-purple transition-colors"
+                    />
+                    <span className="text-gray-400">%</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-gray-400 text-sm">Max:</span>
+                    <input
+                      type="number"
+                      value={formParams.priceChange24hMax || ''}
+                      onChange={(e) => updateParam('priceChange24hMax', Number(e.target.value))}
+                      placeholder="200"
+                      className="flex-1 bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-white focus:border-arena-purple transition-colors"
+                    />
+                    <span className="text-gray-400">%</span>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+          
+          {/* Volume Spike Filters */}
+          <Card>
+            <CardHeader>
+              <div className="flex items-center gap-2">
+                <Zap className="w-5 h-5 text-yellow-400" />
+                <CardTitle>Volume Spike Detection</CardTitle>
+              </div>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="grid sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-300 mb-2">
+                    1h vs 6h Volume Spike
+                  </label>
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="number"
+                      step="0.1"
+                      value={formParams.volume1hVs6hSpike || ''}
+                      onChange={(e) => updateParam('volume1hVs6hSpike', Number(e.target.value))}
+                      placeholder="e.g., 3.0"
+                      className="flex-1 bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-white focus:border-arena-purple transition-colors"
+                    />
+                    <span className="text-gray-400">x</span>
+                  </div>
+                  <p className="text-xs text-gray-500 mt-1">3.0 = current hour has 3x normal volume</p>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-300 mb-2">
+                    6h vs 24h Volume Ratio
+                  </label>
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="number"
+                      step="0.1"
+                      value={formParams.volume6hVs24hSpike || ''}
+                      onChange={(e) => updateParam('volume6hVs24hSpike', Number(e.target.value))}
+                      placeholder="e.g., 0.7"
+                      className="flex-1 bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-white focus:border-arena-purple transition-colors"
+                    />
+                    <span className="text-gray-400">x</span>
+                  </div>
+                  <p className="text-xs text-gray-500 mt-1">Below 1.0 = volume decreasing</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </>
+      )}
+      
+      {/* RugCheck.xyz Safety */}
+      <Card>
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Shield className="w-5 h-5 text-arena-cyan" />
+              <CardTitle>RugCheck.xyz Safety</CardTitle>
+            </div>
+            {formParams.requireRugcheck && (
+              <span className="text-xs px-2 py-1 rounded-full bg-green-500/20 text-green-400 border border-green-500/30">
+                Enabled
+              </span>
+            )}
+          </div>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <p className="text-sm text-gray-400">
+            Filter tokens using RugCheck.xyz safety analysis. Lower scores = safer tokens.
           </p>
+          
+          <div className="flex items-center justify-between p-4 rounded-lg bg-white/5">
+            <div>
+              <p className="text-white font-medium">Enable RugCheck</p>
+              <p className="text-sm text-gray-400">
+                {formParams.requireRugcheck 
+                  ? 'Tokens must pass safety analysis' 
+                  : 'No safety filtering'}
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={() => updateParam('requireRugcheck', !formParams.requireRugcheck)}
+              className={`w-12 h-7 rounded-full p-1 transition-colors ${
+                formParams.requireRugcheck ? 'bg-arena-cyan' : 'bg-white/20'
+              }`}
+            >
+              <div className={`w-5 h-5 rounded-full bg-white transition-transform ${
+                formParams.requireRugcheck ? 'translate-x-5' : 'translate-x-0'
+              }`} />
+            </button>
+          </div>
+          
+          {formParams.requireRugcheck && (
+            <div className="space-y-4 pt-2">
+              <div>
+                <label className="block text-sm font-medium text-gray-300 mb-2">
+                  Maximum Risk Score (0-50)
+                </label>
+                <div className="flex items-center gap-4">
+                  <input
+                    type="range"
+                    min="10"
+                    max="50"
+                    step="5"
+                    value={formParams.rugcheckMinScore}
+                    onChange={(e) => updateParam('rugcheckMinScore', Number(e.target.value))}
+                    className="flex-1 h-2 bg-white/10 rounded-lg appearance-none cursor-pointer accent-arena-cyan"
+                  />
+                  <span className={`text-lg font-bold min-w-[3rem] text-center ${
+                    formParams.rugcheckMinScore <= 15 ? 'text-green-400' :
+                    formParams.rugcheckMinScore <= 30 ? 'text-yellow-400' :
+                    'text-red-400'
+                  }`}>
+                    {formParams.rugcheckMinScore}
+                  </span>
+                </div>
+                <div className="flex justify-between text-xs text-gray-500 mt-1">
+                  <span>Strict (≤15)</span>
+                  <span>Standard (≤30)</span>
+                  <span>Lenient (≤50)</span>
+                </div>
+              </div>
+              
+              <div className="p-3 rounded-lg bg-red-500/10 border border-red-500/20">
+                <p className="text-sm text-red-400 font-medium mb-1">Universal Red Flags (Auto-Reject)</p>
+                <ul className="text-xs text-red-300 space-y-0.5">
+                  <li>• Creator rug history</li>
+                  <li>• LP not locked</li>
+                  <li>• Creator holds &gt;10%</li>
+                  <li>• Risk score &gt;50</li>
+                </ul>
+              </div>
+            </div>
+          )}
         </CardContent>
       </Card>
       

@@ -819,21 +819,92 @@ export default function NewFormulaPage() {
         </>
       )}
       
-      {/* Security Checks - Coming Soon */}
-      <Card className="opacity-60">
+      {/* RugCheck.xyz Safety Checks */}
+      <Card>
         <CardHeader>
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <Shield className="w-5 h-5 text-gray-500" />
-              <CardTitle className="text-gray-400">Security Checks</CardTitle>
+              <Shield className="w-5 h-5 text-arena-cyan" />
+              <CardTitle>RugCheck.xyz Safety</CardTitle>
             </div>
-            <span className="text-xs px-2 py-1 rounded-full bg-white/10 text-gray-400">Coming Soon</span>
+            {params.requireRugcheck && (
+              <span className="text-xs px-2 py-1 rounded-full bg-green-500/20 text-green-400 border border-green-500/30">
+                Enabled
+              </span>
+            )}
           </div>
         </CardHeader>
-        <CardContent>
-          <p className="text-sm text-gray-500">
-            Honeypot detection, contract verification, and liquidity lock checks. Requires security API integration.
+        <CardContent className="space-y-4">
+          <p className="text-sm text-gray-400">
+            Filter tokens using RugCheck.xyz safety analysis. Lower scores = safer tokens.
           </p>
+          
+          {/* Enable RugCheck Toggle */}
+          <div className="flex items-center justify-between p-4 rounded-lg bg-white/5">
+            <div>
+              <p className="text-white font-medium">Enable RugCheck</p>
+              <p className="text-sm text-gray-400">
+                {params.requireRugcheck 
+                  ? 'Tokens must pass RugCheck safety analysis' 
+                  : 'No safety filtering (not recommended)'}
+              </p>
+            </div>
+            <button
+              onClick={() => updateParam('requireRugcheck', !params.requireRugcheck)}
+              className={`w-12 h-7 rounded-full p-1 transition-colors ${
+                params.requireRugcheck ? 'bg-arena-cyan' : 'bg-white/20'
+              }`}
+            >
+              <div className={`w-5 h-5 rounded-full bg-white transition-transform ${
+                params.requireRugcheck ? 'translate-x-5' : 'translate-x-0'
+              }`} />
+            </button>
+          </div>
+          
+          {params.requireRugcheck && (
+            <div className="space-y-4 pt-2">
+              {/* Risk Score Threshold */}
+              <div>
+                <label className="block text-sm font-medium text-gray-300 mb-2">
+                  Maximum Risk Score (0-50)
+                </label>
+                <div className="flex items-center gap-4">
+                  <input
+                    type="range"
+                    min="10"
+                    max="50"
+                    step="5"
+                    value={params.rugcheckMinScore}
+                    onChange={(e) => updateParam('rugcheckMinScore', Number(e.target.value))}
+                    className="flex-1 h-2 bg-white/10 rounded-lg appearance-none cursor-pointer accent-arena-cyan"
+                  />
+                  <span className={`text-lg font-bold min-w-[3rem] text-center ${
+                    params.rugcheckMinScore <= 15 ? 'text-green-400' :
+                    params.rugcheckMinScore <= 30 ? 'text-yellow-400' :
+                    'text-red-400'
+                  }`}>
+                    {params.rugcheckMinScore}
+                  </span>
+                </div>
+                <div className="flex justify-between text-xs text-gray-500 mt-1">
+                  <span>Strict (≤15)</span>
+                  <span>Standard (≤30)</span>
+                  <span>Lenient (≤50)</span>
+                </div>
+              </div>
+              
+              {/* Red Flags Info */}
+              <div className="p-3 rounded-lg bg-red-500/10 border border-red-500/20">
+                <p className="text-sm text-red-400 font-medium mb-1">Universal Red Flags (Auto-Reject)</p>
+                <ul className="text-xs text-red-300 space-y-0.5">
+                  <li>• Creator rug history</li>
+                  <li>• LP not locked</li>
+                  <li>• Creator holds &gt;10%</li>
+                  <li>• Risk score &gt;50</li>
+                </ul>
+              </div>
+            </div>
+          )}
         </CardContent>
       </Card>
       
