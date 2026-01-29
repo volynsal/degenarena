@@ -7,6 +7,7 @@ import { AuthProvider } from '@/components/providers/AuthProvider'
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
+  metadataBase: new URL('https://degenarena-azure.vercel.app'),
   title: 'DegenArena HQ - Build, Battle, Prove Your Alpha',
   description: 'The competitive platform where you build memecoin formulas, battle other traders, and prove whose strategy actually works. No more Twitter screenshots. Just cold, hard data.',
   keywords: ['memecoin', 'crypto', 'trading', 'solana', 'defi', 'alpha'],
@@ -25,12 +26,16 @@ export const metadata: Metadata = {
   openGraph: {
     title: 'DegenArena HQ - Build, Battle, Prove Your Alpha',
     description: 'The competitive platform where you build memecoin formulas and prove whose strategy actually works.',
-    images: ['/og-image.png'],
+    siteName: 'DegenArena HQ',
+    type: 'website',
+    locale: 'en_US',
   },
   twitter: {
     card: 'summary_large_image',
     site: '@Degen_Arena_',
     creator: '@Degen_Arena_',
+    title: 'DegenArena HQ - Build, Battle, Prove Your Alpha',
+    description: 'The competitive platform where you build memecoin formulas and prove whose strategy actually works.',
   },
 }
 
