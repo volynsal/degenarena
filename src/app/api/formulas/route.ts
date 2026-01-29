@@ -115,6 +115,9 @@ export async function POST(request: NextRequest) {
         // Preset tracking
         preset_id: body.preset_id || null,
         exit_hours: body.exit_hours || null,
+        // Safety checks (presets have this enabled by default)
+        require_rugcheck: body.require_rugcheck ?? (!!body.preset_id),
+        rugcheck_min_score: body.rugcheck_min_score ?? 50,
       })
       .select()
       .single()

@@ -59,6 +59,10 @@ export interface Formula {
   preset_id?: string | null
   exit_hours?: number | null
   
+  // Safety checks
+  require_rugcheck?: boolean
+  rugcheck_min_score?: number
+  
   // Stats (denormalized)
   total_matches: number
   wins: number
@@ -98,6 +102,10 @@ export interface TokenMatch {
   price_high_exit?: number | null
   return_max_24h?: number | null
   return_max_exit?: number | null
+  
+  // RugCheck safety data
+  rugcheck_score?: number | null
+  rugcheck_risks?: string[] | null
   
   // Token metadata at match time
   liquidity?: number | null
@@ -343,6 +351,9 @@ export interface CreateFormulaInput {
   // Preset tracking
   preset_id?: string
   exit_hours?: number
+  // Safety checks
+  require_rugcheck?: boolean
+  rugcheck_min_score?: number
 }
 
 export interface UpdateFormulaInput extends Partial<CreateFormulaInput> {

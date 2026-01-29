@@ -1,6 +1,7 @@
 import { createClient } from '@supabase/supabase-js'
 import { DexScreenerService, type DexScreenerPair } from './dexscreener'
 import { alertService, type AlertPayload } from './alerts'
+import { rugCheckService, RISK_THRESHOLDS } from './rugcheck'
 import type { Formula } from '@/types/database'
 
 // Service role client for server-side operations
@@ -58,14 +59,20 @@ export class TokenMonitorService {
   /**
    * Save a new token match to the database
    * @param sendImmediateAlert - If true, sends alert immediately. If false, waits for digest cron.
+   * @param rugcheckData - Optional RugCheck safety data to store with match
    */
   async saveMatch(
     pair: DexScreenerPair,
     formula: Formula,
     reasons: string[],
-    sendImmediateAlert: boolean = false
+    sendImmediateAlert: boolean = false,
+    rugcheckData?: { score?: number; risks?: string[] }
   ): Promise<string | null> {
-    const matchData = dexscreener.pairToTokenMatch(pair, formula.id)
+    const matchData = {
+      ...dexscreener.pairToTokenMatch(pair, formula.id),
+      rugcheck_score: rugcheckData?.score || null,
+      rugcheck_risks: rugcheckData?.risks || null,
+    }
     
     const { data, error } = await supabaseAdmin
       .from('token_matches')
@@ -170,8 +177,36 @@ export class TokenMonitorService {
             const { matches, reasons } = dexscreener.checkFormulaMatch(pair, formula)
             
             if (matches) {
+              // If formula requires RugCheck, verify safety before confirming match
+              let rugcheckData: { score?: number; risks?: string[] } = {}
+              
+              if (formula.require_rugcheck) {
+                const minScore = formula.rugcheck_min_score || RISK_THRESHOLDS.CAUTION
+                const safetyCheck = await rugCheckService.checkTokenSafety(
+                  pair.baseToken.address,
+                  minScore
+                )
+                
+                if (!safetyCheck.passed && safetyCheck.score >= 0) {
+                  // Token failed RugCheck - skip this match
+                  console.log(`⚠️ Token ${pair.baseToken.symbol} failed RugCheck (score: ${safetyCheck.score}, min: ${minScore})`)
+                  this.processedTokens.add(cacheKey)
+                  continue
+                }
+                
+                // Store RugCheck data with the match
+                rugcheckData = {
+                  score: safetyCheck.score >= 0 ? safetyCheck.score : undefined,
+                  risks: safetyCheck.risks,
+                }
+                
+                if (safetyCheck.score >= 0) {
+                  reasons.push(`RugCheck: ${safetyCheck.score}/100`)
+                }
+              }
+              
               // Save the match and send immediate alert
-              await this.saveMatch(pair, formula, reasons, true)
+              await this.saveMatch(pair, formula, reasons, true, rugcheckData)
               matchedTokens.push({ pair, reasons })
               
               // Mark as processed

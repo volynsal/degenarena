@@ -56,6 +56,9 @@ interface FormulaParams {
   priceChange24hMax: number
   volume1hVs6hSpike: number
   volume6hVs24hSpike: number
+  // Safety checks
+  requireRugcheck: boolean
+  rugcheckMinScore: number
 }
 
 export default function NewFormulaPage() {
@@ -93,6 +96,9 @@ export default function NewFormulaPage() {
     priceChange24hMax: 0,
     volume1hVs6hSpike: 0,
     volume6hVs24hSpike: 0,
+    // Safety checks (off by default for custom, on for presets)
+    requireRugcheck: false,
+    rugcheckMinScore: 50,
   })
   
   const handleSave = async (activate = false) => {
@@ -157,6 +163,9 @@ export default function NewFormulaPage() {
           // Preset tracking (preset formulas will be private automatically)
           preset_id: selectedPreset || null,
           exit_hours: exitHours,
+          // Safety checks
+          require_rugcheck: params.requireRugcheck,
+          rugcheck_min_score: params.rugcheckMinScore,
         }),
       })
       
@@ -222,6 +231,9 @@ export default function NewFormulaPage() {
       priceChange24hMax: p.price_change_24h_max ?? prev.priceChange24hMax,
       volume1hVs6hSpike: p.volume_1h_vs_6h_spike ?? prev.volume1hVs6hSpike,
       volume6hVs24hSpike: p.volume_6h_vs_24h_spike ?? prev.volume6hVs24hSpike,
+      // Safety checks (presets have RugCheck enabled by default)
+      requireRugcheck: preset.requireRugcheck ?? true,
+      rugcheckMinScore: preset.rugcheckMinScore ?? 50,
     }))
     // Show advanced filters if preset uses them
     if (p.buy_sell_ratio_1h_min || p.tx_count_1h_min || p.price_change_1h_min || p.volume_1h_vs_6h_spike) {
