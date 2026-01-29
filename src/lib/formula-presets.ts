@@ -28,7 +28,7 @@ export const FORMULA_PRESETS: FormulaPreset[] = [
     riskLevel: 'medium',
     holdTime: '1-24 hours',
     requireRugcheck: true,
-    rugcheckMinScore: 5000, // Max risk score allowed (lower = safer)
+    rugcheckMinScore: 25, // Conservative - "Safe" version demands higher standards
     parameters: {
       // Wait for bots to fight, enter after 10 minutes
       token_age_min_minutes: 10,
@@ -55,7 +55,7 @@ export const FORMULA_PRESETS: FormulaPreset[] = [
     riskLevel: 'degen',
     holdTime: '15 min - 4 hours',
     requireRugcheck: true,
-    rugcheckMinScore: 10000, // Higher risk tolerance for degen plays
+    rugcheckMinScore: 40, // Aggressive - speed matters, chonkachu had 16 and delivered 300x
     parameters: {
       // Enter earlier, more risk
       token_age_min_minutes: 5,
@@ -84,7 +84,7 @@ export const FORMULA_PRESETS: FormulaPreset[] = [
     riskLevel: 'medium',
     holdTime: '2-12 hours',
     requireRugcheck: true,
-    rugcheckMinScore: 5000, // Standard protection
+    rugcheckMinScore: 30, // Moderate - standard medium-risk threshold
     parameters: {
       // Unusual volume - 3x normal
       volume_1h_vs_6h_spike: 3.0,
@@ -111,7 +111,7 @@ export const FORMULA_PRESETS: FormulaPreset[] = [
     riskLevel: 'high',
     holdTime: '30 min - 6 hours',
     requireRugcheck: true,
-    rugcheckMinScore: 7000, // Higher tolerance for fast plays
+    rugcheckMinScore: 35, // Aggressive - fast-moving opportunities
     parameters: {
       // Massive volume spike - 5x normal
       volume_1h_vs_6h_spike: 5.0,
@@ -138,7 +138,7 @@ export const FORMULA_PRESETS: FormulaPreset[] = [
     riskLevel: 'low',
     holdTime: '1-7 days',
     requireRugcheck: true,
-    rugcheckMinScore: 3000, // Stricter for longer holds
+    rugcheckMinScore: 15, // Conservative - longest hold, highest safety needed
     parameters: {
       // Not dumping, not pumping
       price_change_24h_min: -10,
@@ -164,7 +164,7 @@ export const FORMULA_PRESETS: FormulaPreset[] = [
     riskLevel: 'medium',
     holdTime: '2-14 days',
     requireRugcheck: true,
-    rugcheckMinScore: 4000, // Medium protection
+    rugcheckMinScore: 30, // Moderate - quality oversold tokens should have decent fundamentals
     parameters: {
       // Down but stabilizing
       price_change_24h_min: -5,
@@ -191,7 +191,7 @@ export const FORMULA_PRESETS: FormulaPreset[] = [
     riskLevel: 'medium',
     holdTime: '1-4 weeks',
     requireRugcheck: true,
-    rugcheckMinScore: 2000, // Strictest - exchange quality
+    rugcheckMinScore: 20, // Conservative - institutional-grade safety for CEX listings
     parameters: {
       // Established tokens - not new launches
       token_age_max_hours: 720, // 30+ days old

@@ -7,10 +7,10 @@
 -- =============================================
 ALTER TABLE formulas
 ADD COLUMN IF NOT EXISTS require_rugcheck BOOLEAN DEFAULT FALSE,
-ADD COLUMN IF NOT EXISTS rugcheck_min_score INTEGER DEFAULT 5000;
+ADD COLUMN IF NOT EXISTS rugcheck_min_score INTEGER DEFAULT 30;
 
 COMMENT ON COLUMN formulas.require_rugcheck IS 'Whether to check RugCheck.xyz before confirming match';
-COMMENT ON COLUMN formulas.rugcheck_min_score IS 'Maximum RugCheck risk score allowed (LOWER = safer, this is a MAX threshold)';
+COMMENT ON COLUMN formulas.rugcheck_min_score IS 'Maximum RugCheck risk score allowed (LOWER = safer). Universal max is 50.';
 
 -- =============================================
 -- ADD RUGCHECK DATA TO TOKEN_MATCHES
@@ -26,5 +26,5 @@ COMMENT ON COLUMN token_matches.rugcheck_risks IS 'Array of danger-level risks i
 -- SET RUGCHECK ENABLED FOR EXISTING PRESET FORMULAS
 -- =============================================
 UPDATE formulas
-SET require_rugcheck = TRUE, rugcheck_min_score = 5000
+SET require_rugcheck = TRUE, rugcheck_min_score = 30
 WHERE preset_id IS NOT NULL;

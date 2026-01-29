@@ -35,10 +35,23 @@ const RUGCHECK_API_BASE = 'https://api.rugcheck.xyz/v1'
 
 // Risk thresholds (LOWER score = SAFER)
 export const RISK_THRESHOLDS = {
-  SAFE: 1000,      // Score <= 1000 = Good (very safe)
-  CAUTION: 5000,   // Score <= 5000 = Caution
-  DANGER: 10000,   // Score > 10000 = Danger
+  SAFE: 15,        // Score <= 15 = Excellent (institutional grade)
+  CAUTION: 30,     // Score <= 30 = Good (standard threshold)
+  DANGER: 50,      // Score > 50 = Auto-reject all presets
 }
+
+// Universal red flags that auto-reject regardless of score
+export const RED_FLAG_RISKS = [
+  'Creator Rug History',
+  'Rug History',
+  'Creator Rugged',
+  'LP Not Locked',
+  'Liquidity Not Locked',
+  'No LP Lock',
+  'Creator Holding',  // Will check percentage separately
+  'High Creator Holdings',
+  'Large Creator Balance',
+]
 
 class RugCheckService {
   private apiKey?: string
@@ -117,7 +130,14 @@ class RugCheckService {
   /**
    * Quick check if a token passes safety threshold
    * LOWER score = SAFER (score is risk level, not safety level)
-   * Returns: { passed: boolean, score: number, reason?: string }
+   * 
+   * UNIVERSAL RED FLAGS (auto-reject regardless of score):
+   * - Creator rug history
+   * - LP not locked  
+   * - Creator holds >10%
+   * - RugCheck score >50
+   * 
+   * Returns: { passed: boolean, score: number, reason?: string, risks?: string[] }
    */
   async checkTokenSafety(
     tokenAddress: string, 
@@ -130,18 +150,73 @@ class RugCheckService {
       return { passed: true, score: -1, reason: 'RugCheck unavailable' }
     }
     
-    // Lower score = safer, so we pass if score is BELOW the max threshold
+    const allRisks = summary.risks || []
+    const dangerRisks = allRisks
+      .filter(r => r.level === 'danger' || r.level === 'error' || r.level === 'warn')
+      .map(r => r.name)
+    
+    // UNIVERSAL RED FLAG CHECK - auto-reject regardless of score
+    // Check for creator rug history
+    const hasRugHistory = allRisks.some(r => 
+      r.name.toLowerCase().includes('rug') || 
+      r.name.toLowerCase().includes('rugged')
+    )
+    if (hasRugHistory) {
+      return {
+        passed: false,
+        score: summary.score,
+        reason: 'RED FLAG: Creator has rug history',
+        risks: dangerRisks,
+      }
+    }
+    
+    // Check for LP not locked
+    const lpNotLocked = allRisks.some(r =>
+      (r.name.toLowerCase().includes('lp') || r.name.toLowerCase().includes('liquidity')) &&
+      (r.name.toLowerCase().includes('not locked') || r.name.toLowerCase().includes('unlocked'))
+    )
+    if (lpNotLocked) {
+      return {
+        passed: false,
+        score: summary.score,
+        reason: 'RED FLAG: LP not locked',
+        risks: dangerRisks,
+      }
+    }
+    
+    // Check for high creator holdings (>10%)
+    const highCreatorHoldings = allRisks.some(r =>
+      r.name.toLowerCase().includes('creator') && 
+      (r.name.toLowerCase().includes('holding') || r.name.toLowerCase().includes('balance'))
+    )
+    if (highCreatorHoldings) {
+      return {
+        passed: false,
+        score: summary.score,
+        reason: 'RED FLAG: Creator holds >10%',
+        risks: dangerRisks,
+      }
+    }
+    
+    // Absolute maximum score - reject anything over 50 regardless of preset
+    if (summary.score > RISK_THRESHOLDS.DANGER) {
+      return {
+        passed: false,
+        score: summary.score,
+        reason: `RED FLAG: RugCheck score ${summary.score} exceeds absolute max (50)`,
+        risks: dangerRisks,
+      }
+    }
+    
+    // Standard threshold check
     const passed = summary.score <= maxScore
-    const dangerRisks = summary.risks
-      ?.filter(r => r.level === 'danger' || r.level === 'error')
-      ?.map(r => r.name) || []
     
     return {
       passed,
       score: summary.score,
       reason: passed 
         ? undefined 
-        : `RugCheck risk score ${summary.score} exceeds threshold ${maxScore}`,
+        : `RugCheck score ${summary.score} exceeds preset threshold ${maxScore}`,
       risks: dangerRisks.length > 0 ? dangerRisks : undefined,
     }
   }
