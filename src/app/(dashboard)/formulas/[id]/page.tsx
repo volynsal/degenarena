@@ -23,8 +23,11 @@ import {
   Trash2,
   Target,
   BarChart3,
-  Zap
+  Zap,
+  Lock
 } from 'lucide-react'
+import type { SubscriptionTier } from '@/types/database'
+import { FORMULA_PRESETS, RISK_COLORS, STRATEGY_COLORS, STRATEGY_LABELS, type FormulaPreset } from '@/lib/formula-presets'
 
 interface FormulaParams {
   name: string
@@ -66,6 +69,8 @@ export default function EditFormulaPage({ params }: { params: { id: string } }) 
   const { formula, isLoading, error } = useFormula(params.id)
   const [isSaving, setIsSaving] = useState(false)
   const [isDeleting, setIsDeleting] = useState(false)
+  const [selectedPreset, setSelectedPreset] = useState<string | null>(null)
+  const [userTier, setUserTier] = useState<SubscriptionTier>('free')
   
   const [showAdvanced, setShowAdvanced] = useState(false)
   const [formParams, setFormParams] = useState<FormulaParams>({
@@ -144,8 +149,81 @@ export default function EditFormulaPage({ params }: { params: { id: string } }) 
       if (formula.buy_sell_ratio_1h_min || formula.tx_count_1h_min || formula.price_change_1h_min || formula.volume_1h_vs_6h_spike) {
         setShowAdvanced(true)
       }
+      // Set selected preset if formula has one
+      if (formula.preset_id) {
+        setSelectedPreset(formula.preset_id)
+      }
     }
   }, [formula])
+  
+  // Fetch user tier
+  useEffect(() => {
+    const fetchUserTier = async () => {
+      try {
+        const res = await fetch('/api/auth/me')
+        if (res.ok) {
+          const data = await res.json()
+          if (data.data?.subscription_tier) {
+            setUserTier(data.data.subscription_tier)
+          }
+        }
+      } catch (err) {
+        console.error('Failed to fetch user tier:', err)
+      }
+    }
+    fetchUserTier()
+  }, [])
+  
+  // Apply preset values to form
+  const applyPreset = (preset: FormulaPreset) => {
+    const p = preset.parameters
+    setFormParams(prev => ({
+      ...prev,
+      name: preset.name,
+      description: preset.description,
+      liquidityMin: p.liquidity_min ?? prev.liquidityMin,
+      liquidityMax: p.liquidity_max ?? prev.liquidityMax,
+      volume24hMin: p.volume_24h_min ?? prev.volume24hMin,
+      volume24hSpike: p.volume_24h_spike ?? prev.volume24hSpike,
+      tokenAgeMaxHours: p.token_age_max_hours ?? prev.tokenAgeMaxHours,
+      tokenAgeMinMinutes: p.token_age_min_minutes ?? prev.tokenAgeMinMinutes,
+      buySellRatio1hMin: p.buy_sell_ratio_1h_min ?? prev.buySellRatio1hMin,
+      txCount1hMin: p.tx_count_1h_min ?? prev.txCount1hMin,
+      txCount24hMin: p.tx_count_24h_min ?? prev.txCount24hMin,
+      fdvMin: p.fdv_min ?? prev.fdvMin,
+      fdvMax: p.fdv_max ?? prev.fdvMax,
+      priceChange1hMin: p.price_change_1h_min ?? prev.priceChange1hMin,
+      priceChange1hMax: p.price_change_1h_max ?? prev.priceChange1hMax,
+      priceChange6hMin: p.price_change_6h_min ?? prev.priceChange6hMin,
+      priceChange6hMax: p.price_change_6h_max ?? prev.priceChange6hMax,
+      priceChange24hMin: p.price_change_24h_min ?? prev.priceChange24hMin,
+      priceChange24hMax: p.price_change_24h_max ?? prev.priceChange24hMax,
+      volume1hVs6hSpike: p.volume_1h_vs_6h_spike ?? prev.volume1hVs6hSpike,
+      volume6hVs24hSpike: p.volume_6h_vs_24h_spike ?? prev.volume6hVs24hSpike,
+      requireRugcheck: preset.requireRugcheck ?? true,
+      rugcheckMinScore: preset.rugcheckMinScore ?? 30,
+    }))
+    if (p.buy_sell_ratio_1h_min || p.tx_count_1h_min || p.price_change_1h_min || p.volume_1h_vs_6h_spike) {
+      setShowAdvanced(true)
+    }
+  }
+  
+  const handlePresetClick = (preset: FormulaPreset) => {
+    if (userTier === 'free') {
+      alert('Upgrade to Pro to use strategy presets!')
+      return
+    }
+    if (userTier === 'pro' && preset.tier === 'elite') {
+      alert('Upgrade to Elite to use this preset!')
+      return
+    }
+    if (selectedPreset === preset.id) {
+      setSelectedPreset(null)
+    } else {
+      setSelectedPreset(preset.id)
+      applyPreset(preset)
+    }
+  }
   
   const handleSave = async () => {
     setIsSaving(true)
@@ -307,6 +385,82 @@ export default function EditFormulaPage({ params }: { params: { id: string } }) 
           )}
         </div>
       </div>
+      
+      {/* Strategy Presets */}
+      <Card>
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Zap className="w-5 h-5 text-arena-purple" />
+              <CardTitle>Strategy Presets</CardTitle>
+            </div>
+            <span className="text-xs px-2 py-1 rounded-full bg-arena-purple/20 text-arena-purple border border-arena-purple/30">
+              Pro Feature
+            </span>
+          </div>
+        </CardHeader>
+        <CardContent>
+          <p className="text-sm text-gray-400 mb-2">
+            Apply pre-configured parameters from proven strategies. {userTier === 'free' ? 'Upgrade to Pro to unlock.' : 'Click to auto-fill parameters.'}
+          </p>
+          <p className="text-xs text-gray-500 mb-4">
+            Exit times are suggestions only. You are responsible for your own trading decisions.
+          </p>
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
+            {FORMULA_PRESETS.map((preset) => {
+              const isLocked = userTier === 'free' || (userTier === 'pro' && preset.tier === 'elite')
+              const isSelected = selectedPreset === preset.id
+              
+              return (
+                <button
+                  key={preset.id}
+                  onClick={() => handlePresetClick(preset)}
+                  className={`relative p-4 rounded-lg border text-left transition-all ${
+                    isLocked 
+                      ? 'border-white/10 bg-white/5 opacity-60 cursor-not-allowed' 
+                      : isSelected
+                        ? 'border-arena-purple bg-arena-purple/20 ring-2 ring-arena-purple/50 cursor-pointer'
+                        : 'border-white/20 bg-white/5 hover:border-arena-purple/50 hover:bg-white/10 cursor-pointer'
+                  }`}
+                >
+                  {isLocked && (
+                    <div className="absolute inset-0 flex items-center justify-center bg-black/20 rounded-lg">
+                      <div className="flex flex-col items-center gap-1">
+                        <Lock className="w-5 h-5 text-gray-400" />
+                        <span className="text-xs text-gray-400">{preset.tier === 'elite' ? 'Elite' : 'Pro'}</span>
+                      </div>
+                    </div>
+                  )}
+                  
+                  {isSelected && !isLocked && (
+                    <div className="absolute top-2 right-2">
+                      <span className="text-xs px-2 py-0.5 rounded-full bg-arena-purple text-white font-medium">
+                        Active
+                      </span>
+                    </div>
+                  )}
+                  
+                  <div className="flex items-start justify-between mb-2">
+                    <h4 className="text-sm font-medium text-white">{preset.name}</h4>
+                    <span className={`text-xs px-1.5 py-0.5 rounded border ${RISK_COLORS[preset.riskLevel]}`}>
+                      {preset.riskLevel}
+                    </span>
+                  </div>
+                  <p className="text-xs text-gray-500 mb-2 line-clamp-2">{preset.description}</p>
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <span className={`text-xs px-1.5 py-0.5 rounded border ${STRATEGY_COLORS[preset.strategy]}`}>
+                      {STRATEGY_LABELS[preset.strategy]}
+                    </span>
+                    <span className="text-xs text-gray-500" title="Suggested exit window">
+                      Exit: {preset.holdTime}
+                    </span>
+                  </div>
+                </button>
+              )
+            })}
+          </div>
+        </CardContent>
+      </Card>
       
       {/* Basic Info */}
       <Card>
