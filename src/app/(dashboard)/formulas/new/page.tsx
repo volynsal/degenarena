@@ -62,6 +62,7 @@ export default function NewFormulaPage() {
   const router = useRouter()
   const [isSaving, setIsSaving] = useState(false)
   const [showAdvanced, setShowAdvanced] = useState(false)
+  const [selectedPreset, setSelectedPreset] = useState<string | null>(null)
   const [params, setParams] = useState<FormulaParams>({
     name: '',
     description: '',
@@ -239,7 +240,13 @@ export default function NewFormulaPage() {
       alert('Upgrade to Elite to use this preset!')
       return
     }
-    applyPreset(preset)
+    // Toggle selection - clicking same preset deselects it
+    if (selectedPreset === preset.id) {
+      setSelectedPreset(null)
+    } else {
+      setSelectedPreset(preset.id)
+      applyPreset(preset)
+    }
   }
   
   return (
@@ -289,6 +296,7 @@ export default function NewFormulaPage() {
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
             {FORMULA_PRESETS.map((preset) => {
               const isLocked = userTier === 'free' || (userTier === 'pro' && preset.tier === 'elite')
+              const isSelected = selectedPreset === preset.id
               
               return (
                 <button
@@ -297,7 +305,9 @@ export default function NewFormulaPage() {
                   className={`relative p-4 rounded-lg border text-left transition-all ${
                     isLocked 
                       ? 'border-white/10 bg-white/5 opacity-60 cursor-not-allowed' 
-                      : 'border-white/20 bg-white/5 hover:border-arena-purple/50 hover:bg-white/10 cursor-pointer'
+                      : isSelected
+                        ? 'border-arena-purple bg-arena-purple/20 ring-2 ring-arena-purple/50 cursor-pointer'
+                        : 'border-white/20 bg-white/5 hover:border-arena-purple/50 hover:bg-white/10 cursor-pointer'
                   }`}
                 >
                   {/* Lock overlay for locked presets */}
@@ -307,6 +317,15 @@ export default function NewFormulaPage() {
                         <Lock className="w-5 h-5 text-gray-400" />
                         <span className="text-xs text-gray-400">{preset.tier === 'elite' ? 'Elite' : 'Pro'}</span>
                       </div>
+                    </div>
+                  )}
+                  
+                  {/* Selected indicator */}
+                  {isSelected && !isLocked && (
+                    <div className="absolute top-2 right-2">
+                      <span className="text-xs px-2 py-0.5 rounded-full bg-arena-purple text-white font-medium">
+                        Active
+                      </span>
                     </div>
                   )}
                   
