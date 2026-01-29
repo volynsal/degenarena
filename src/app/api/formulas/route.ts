@@ -127,8 +127,9 @@ export async function POST(request: NextRequest) {
     
     // Send formula activation notification if the formula is active
     if (data.is_active) {
+      console.log('📢 Sending activation notification for formula:', data.name, 'user:', session.user.id)
       try {
-        await alertService.sendFormulaActivationNotification(
+        const notificationSent = await alertService.sendFormulaActivationNotification(
           session.user.id,
           {
             id: data.id,
@@ -139,6 +140,7 @@ export async function POST(request: NextRequest) {
             token_age_max_hours: data.token_age_max_hours,
           }
         )
+        console.log('📢 Notification result:', notificationSent ? 'SENT' : 'NOT SENT')
       } catch (notificationError) {
         console.error('Error sending activation notification:', notificationError)
         // Don't fail the request if notification fails

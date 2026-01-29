@@ -48,6 +48,9 @@ CREATE TRIGGER enforce_preset_private
 -- =============================================
 -- FIX BADGE CHECK FUNCTION (resolve ambiguous column)
 -- =============================================
+-- Must drop first because return type changed
+DROP FUNCTION IF EXISTS check_and_award_badges(UUID);
+
 CREATE OR REPLACE FUNCTION check_and_award_badges(p_user_id UUID)
 RETURNS TABLE(awarded_badge_id TEXT, awarded_badge_name TEXT, newly_awarded BOOLEAN) AS $$
 DECLARE

@@ -151,17 +151,23 @@ export class AlertService {
     userId: string,
     formula: { id: string; name: string; liquidity_min?: number | null; liquidity_max?: number | null; volume_24h_min?: number | null; token_age_max_hours?: number | null }
   ): Promise<boolean> {
+    console.log('🔔 sendFormulaActivationNotification called for user:', userId, 'formula:', formula.name)
+    
     const settings = await this.getAlertSettings(userId)
+    console.log('🔔 Alert settings:', settings ? { telegram_enabled: settings.telegram_enabled, has_chat_id: !!settings.telegram_chat_id } : 'NO SETTINGS')
+    
     if (!settings?.telegram_enabled || !settings?.telegram_chat_id) {
-      console.log('Telegram not configured for user:', userId)
+      console.log('🔔 Telegram not configured for user:', userId)
       return false
     }
     
     const botToken = process.env.TELEGRAM_BOT_TOKEN
     if (!botToken) {
-      console.error('Telegram bot token not configured')
+      console.error('🔔 Telegram bot token not configured')
       return false
     }
+    
+    console.log('🔔 Sending Telegram message to chat:', settings.telegram_chat_id)
     
     // Format the message
     const params = []
