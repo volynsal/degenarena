@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { NextRequest, NextResponse } from 'next/server'
 import type { CreateFormulaInput, Formula, ApiResponse, PaginatedResponse } from '@/types/database'
+import { alertService } from '@/lib/services/alerts'
 
 // GET /api/formulas - Get user's formulas or public formulas
 export async function GET(request: NextRequest) {
@@ -115,6 +116,26 @@ export async function POST(request: NextRequest) {
       return NextResponse.json<ApiResponse<null>>({ 
         error: error.message 
       }, { status: 500 })
+    }
+    
+    // Send formula activation notification if the formula is active
+    if (data.is_active) {
+      try {
+        await alertService.sendFormulaActivationNotification(
+          session.user.id,
+          {
+            id: data.id,
+            name: data.name,
+            liquidity_min: data.liquidity_min,
+            liquidity_max: data.liquidity_max,
+            volume_24h_min: data.volume_24h_min,
+            token_age_max_hours: data.token_age_max_hours,
+          }
+        )
+      } catch (notificationError) {
+        console.error('Error sending activation notification:', notificationError)
+        // Don't fail the request if notification fails
+      }
     }
     
     return NextResponse.json<ApiResponse<Formula>>({ 

@@ -170,8 +170,8 @@ export class TokenMonitorService {
             const { matches, reasons } = dexscreener.checkFormulaMatch(pair, formula)
             
             if (matches) {
-              // Save the match
-              await this.saveMatch(pair, formula, reasons)
+              // Save the match and send immediate alert
+              await this.saveMatch(pair, formula, reasons, true)
               matchedTokens.push({ pair, reasons })
               
               // Mark as processed

@@ -91,5 +91,6 @@ export function useRecentMatches(limit = 10) {
     isLoading,
     error,
     refresh: fetchRecentMatches,
+    mutate: fetchRecentMatches,
   }
 }

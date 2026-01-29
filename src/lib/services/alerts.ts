@@ -145,6 +145,69 @@ export class AlertService {
   }
   
   /**
+   * Send formula activation notification via Telegram
+   */
+  async sendFormulaActivationNotification(
+    userId: string,
+    formula: { id: string; name: string; liquidity_min?: number | null; liquidity_max?: number | null; volume_24h_min?: number | null; token_age_max_hours?: number | null }
+  ): Promise<boolean> {
+    const settings = await this.getAlertSettings(userId)
+    if (!settings?.telegram_enabled || !settings?.telegram_chat_id) {
+      console.log('Telegram not configured for user:', userId)
+      return false
+    }
+    
+    const botToken = process.env.TELEGRAM_BOT_TOKEN
+    if (!botToken) {
+      console.error('Telegram bot token not configured')
+      return false
+    }
+    
+    // Format the message
+    const params = []
+    if (formula.liquidity_min) params.push(`💰 Liq Min: $${formula.liquidity_min.toLocaleString()}`)
+    if (formula.liquidity_max) params.push(`💰 Liq Max: $${formula.liquidity_max.toLocaleString()}`)
+    if (formula.volume_24h_min) params.push(`📊 Vol 24h: $${formula.volume_24h_min.toLocaleString()}+`)
+    if (formula.token_age_max_hours) params.push(`⏱ Age: <${formula.token_age_max_hours}h`)
+    
+    const message = `✅ <b>Formula Activated!</b>
+
+<b>${formula.name}</b>
+
+${params.length > 0 ? params.join('\n') : 'Default parameters'}
+
+🔍 Now scanning for matching tokens...
+You'll receive alerts when matches are found.`
+    
+    try {
+      const response = await fetch(
+        `https://api.telegram.org/bot${botToken}/sendMessage`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            chat_id: settings.telegram_chat_id,
+            text: message,
+            parse_mode: 'HTML',
+          }),
+        }
+      )
+      
+      if (!response.ok) {
+        const error = await response.json()
+        console.error('Telegram API error:', error)
+        return false
+      }
+      
+      console.log(`📨 Formula activation notification sent for "${formula.name}"`)
+      return true
+    } catch (error) {
+      console.error('Error sending formula activation notification:', error)
+      return false
+    }
+  }
+  
+  /**
    * Send alert via Discord webhook
    */
   async sendDiscordAlert(webhookUrl: string, payload: AlertPayload): Promise<boolean> {
