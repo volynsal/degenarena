@@ -68,10 +68,17 @@ export class TokenMonitorService {
     sendImmediateAlert: boolean = false,
     rugcheckData?: { score?: number; risks?: string[] }
   ): Promise<string | null> {
+    const priceAtMatch = parseFloat(pair.priceUsd) || 0
+    
     const matchData = {
       ...dexscreener.pairToTokenMatch(pair, formula.id),
       rugcheck_score: rugcheckData?.score || null,
       rugcheck_risks: rugcheckData?.risks || null,
+      // Initialize max price tracking at entry price
+      price_high_24h: priceAtMatch,
+      price_high_exit: priceAtMatch,
+      return_max_24h: 0, // Will be updated as price changes
+      return_max_exit: 0,
     }
     
     const { data, error } = await supabaseAdmin

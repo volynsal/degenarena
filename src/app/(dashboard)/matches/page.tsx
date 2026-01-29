@@ -152,37 +152,65 @@ export default function AllMatchesPage() {
                     </div>
                   </div>
                   
-                  {/* Status indicator */}
+                  {/* Status indicator with best return */}
                   <div className="text-right">
-                    {match.is_win !== null && match.is_win !== undefined ? (
-                      <div className={`inline-flex items-center gap-1 px-3 py-1 rounded-full ${
-                        match.is_win 
-                          ? 'bg-arena-cyan/20 text-arena-cyan' 
-                          : 'bg-red-500/20 text-red-400'
-                      }`}>
-                        {match.is_win ? (
-                          <TrendingUp className="w-4 h-4" />
-                        ) : (
-                          <TrendingDown className="w-4 h-4" />
-                        )}
-                        {match.is_win ? 'Win' : 'Loss'}
-                      </div>
-                    ) : (
-                      <span className="text-yellow-400 text-sm px-3 py-1 bg-yellow-400/10 rounded-full">
-                        Pending
-                      </span>
-                    )}
+                    {(() => {
+                      // Get best available return (max returns take priority)
+                      const bestReturn = match.return_max_exit ?? match.return_max_24h ?? match.return_24h ?? match.return_1h;
+                      const hasReturn = bestReturn !== null && bestReturn !== undefined;
+                      const isPositive = hasReturn && bestReturn > 0;
+                      
+                      if (hasReturn) {
+                        return (
+                          <div className={`inline-flex flex-col items-end gap-1`}>
+                            <div className={`inline-flex items-center gap-1 px-3 py-1 rounded-full ${
+                              isPositive 
+                                ? 'bg-arena-cyan/20 text-arena-cyan' 
+                                : 'bg-red-500/20 text-red-400'
+                            }`}>
+                              {isPositive ? (
+                                <TrendingUp className="w-4 h-4" />
+                              ) : (
+                                <TrendingDown className="w-4 h-4" />
+                              )}
+                              {bestReturn >= 0 ? '+' : ''}{bestReturn.toFixed(1)}%
+                            </div>
+                            <span className="text-xs text-gray-500">
+                              {match.return_max_exit ? 'Exit High' : match.return_max_24h ? '24h High' : match.return_24h ? '24h' : '1h'}
+                            </span>
+                          </div>
+                        );
+                      }
+                      
+                      return (
+                        <span className="text-yellow-400 text-sm px-3 py-1 bg-yellow-400/10 rounded-full">
+                          Tracking...
+                        </span>
+                      );
+                    })()}
                   </div>
                 </div>
                 
                 {/* Stats grid */}
                 <div className="mt-6 grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 gap-4">
                   <div>
-                    <p className="text-xs text-gray-500">Price at Match</p>
+                    <p className="text-xs text-gray-500">Entry Price</p>
                     <p className="text-white font-mono">${match.price_at_match?.toFixed(8) || '—'}</p>
                   </div>
                   <div>
-                    <p className="text-xs text-gray-500">1h Return</p>
+                    <p className="text-xs text-gray-500">24h High</p>
+                    <p className={`font-mono ${
+                      match.return_max_24h !== null && match.return_max_24h !== undefined
+                        ? match.return_max_24h >= 0 ? 'text-arena-cyan' : 'text-red-400'
+                        : 'text-gray-500'
+                    }`}>
+                      {match.return_max_24h !== null && match.return_max_24h !== undefined
+                        ? `${match.return_max_24h >= 0 ? '+' : ''}${match.return_max_24h.toFixed(1)}%`
+                        : 'Tracking...'}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-gray-500">1h Snapshot</p>
                     <p className={`font-mono ${
                       match.return_1h !== null && match.return_1h !== undefined
                         ? match.return_1h >= 0 ? 'text-arena-cyan' : 'text-red-400'
@@ -194,7 +222,7 @@ export default function AllMatchesPage() {
                     </p>
                   </div>
                   <div>
-                    <p className="text-xs text-gray-500">24h Return</p>
+                    <p className="text-xs text-gray-500">24h Snapshot</p>
                     <p className={`font-mono ${
                       match.return_24h !== null && match.return_24h !== undefined
                         ? match.return_24h >= 0 ? 'text-arena-cyan' : 'text-red-400'
