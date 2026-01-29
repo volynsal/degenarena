@@ -139,15 +139,50 @@ export class DexScreenerService {
   
   /**
    * Get pairs on a specific chain, sorted by various metrics
+   * Uses boosted tokens as source since search API is unreliable
    */
   async getPairsByChain(
     chain: string,
     sortBy: 'volume' | 'liquidity' | 'txns' = 'volume'
   ): Promise<DexScreenerPair[]> {
-    // DexScreener's search endpoint with chain filter
-    const response = await this.fetch(`/dex/search?q=chain:${chain}`)
+    const pairs: DexScreenerPair[] = []
     
-    const pairs = response.pairs || []
+    try {
+      // Get boosted/trending tokens first
+      const boostResponse = await fetch('https://api.dexscreener.com/token-boosts/latest/v1', {
+        headers: { 'Accept': 'application/json' },
+        next: { revalidate: 60 },
+      })
+      
+      if (boostResponse.ok) {
+        const boostedTokens = await boostResponse.json()
+        
+        // Filter to requested chain and get unique token addresses
+        const chainTokens = boostedTokens
+          .filter((t: { chainId: string }) => t.chainId === chain)
+          .slice(0, 50) // Limit to avoid too many API calls
+        
+        // Fetch full pair data for each token (in batches)
+        const tokenAddresses = chainTokens.map((t: { tokenAddress: string }) => t.tokenAddress)
+        
+        // Batch fetch - DexScreener allows comma-separated addresses
+        for (let i = 0; i < tokenAddresses.length; i += 10) {
+          const batch = tokenAddresses.slice(i, i + 10)
+          const batchAddresses = batch.join(',')
+          
+          try {
+            const pairResponse = await this.fetch(`/dex/tokens/${batchAddresses}`)
+            if (pairResponse.pairs) {
+              pairs.push(...pairResponse.pairs)
+            }
+          } catch (e) {
+            console.error('Error fetching batch:', e)
+          }
+        }
+      }
+    } catch (e) {
+      console.error('Error in getPairsByChain:', e)
+    }
     
     // Sort locally based on preference
     return pairs.sort((a, b) => {
