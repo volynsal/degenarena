@@ -165,38 +165,36 @@ export default function LoginPage() {
             </p>
           </div>
           
-          {/* Features preview */}
-          <div className="mt-8 text-center">
-            <p className="text-sm text-gray-500 mb-3">What you&apos;ll get access to:</p>
+          {/* Coming Soon Banner + Features */}
+          <div className="mt-6 text-center space-y-4">
+            {/* Coming Soon - Prominent */}
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-arena-purple/20 to-arena-cyan/20 border border-arena-purple/30">
+              <Zap className="w-4 h-4 text-arena-cyan animate-pulse" />
+              <span className="text-sm">
+                <span className="text-gray-400">Coming Soon:</span>{' '}
+                <span className="font-semibold bg-gradient-to-r from-arena-purple to-arena-cyan bg-clip-text text-transparent">
+                  Sniper Agent
+                </span>
+                <span className="text-gray-500 text-xs ml-1">— AI that trades for you</span>
+              </span>
+            </div>
+            
+            {/* Feature highlights */}
             <div className="flex flex-wrap justify-center gap-2">
               {[
-                'Formula Builder',
-                'Telegram Alerts',
-                'Competitions',
-                'Clan Battles',
-                'Leaderboards',
-                'Strategy Presets'
+                'Build Token Filters',
+                'Instant Alerts',
+                '24hr Flip Battles',
+                'Clan Wars',
+                'Pro Presets'
               ].map((feature) => (
                 <span
                   key={feature}
-                  className="px-3 py-1.5 rounded-full bg-white/5 text-gray-400 text-xs border border-white/10"
+                  className="px-3 py-1 rounded-full bg-white/5 text-gray-400 text-xs border border-white/10"
                 >
                   {feature}
                 </span>
               ))}
-            </div>
-            
-            {/* Coming Soon */}
-            <div className="mt-4 pt-4 border-t border-white/5">
-              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-arena-purple/20 to-arena-cyan/20 border border-arena-purple/30">
-                <Zap className="w-4 h-4 text-arena-cyan" />
-                <span className="text-sm">
-                  <span className="text-gray-400">Coming Soon:</span>{' '}
-                  <span className="font-medium bg-gradient-to-r from-arena-purple to-arena-cyan bg-clip-text text-transparent">
-                    Sniper Agent
-                  </span>
-                </span>
-              </div>
             </div>
           </div>
         </div>
