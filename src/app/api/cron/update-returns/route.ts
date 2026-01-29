@@ -9,7 +9,8 @@ const supabaseAdmin = createClient(
 )
 
 // This endpoint updates price returns for matches at 1h, 24h, and 7d intervals
-// Should be called every hour by a cron job
+// Also tracks max prices for calculating accurate returns
+// Should be called every 15-30 minutes by a cron job for accurate max price tracking
 
 export async function GET(request: NextRequest) {
   // Verify cron secret
@@ -32,8 +33,64 @@ export async function GET(request: NextRequest) {
       oneHour: 0,
       twentyFourHour: 0,
       sevenDay: 0,
+      maxPriceUpdates: 0,
       errors: 0,
     }
+    
+    // =============================================
+    // TRACK MAX PRICES (for all matches < 24h old)
+    // =============================================
+    const { data: recentMatches } = await supabaseAdmin
+      .from('token_matches')
+      .select('id, token_address, price_at_match, price_high_24h, price_high_exit, matched_at, formula:formulas(exit_hours)')
+      .gte('matched_at', twentyFourHoursAgo)
+      .limit(100)
+    
+    for (const match of recentMatches || []) {
+      try {
+        const currentPrice = await tokenMonitor.getTokenPrice(match.token_address)
+        if (!currentPrice) continue
+        
+        const updateData: Record<string, number> = {}
+        
+        // Track 24h high (for all matches)
+        const currentHigh24h = match.price_high_24h || match.price_at_match
+        if (currentPrice > currentHigh24h) {
+          updateData.price_high_24h = currentPrice
+          updateData.return_max_24h = ((currentPrice - match.price_at_match) / match.price_at_match) * 100
+        }
+        
+        // Track exit window high (for preset formulas)
+        const exitHours = (match.formula as any)?.exit_hours
+        if (exitHours) {
+          // Only track during exit window
+          const matchedAt = new Date(match.matched_at || now).getTime()
+          const exitWindowEnd = matchedAt + (exitHours * 60 * 60 * 1000)
+          
+          if (now <= exitWindowEnd) {
+            const currentHighExit = match.price_high_exit || match.price_at_match
+            if (currentPrice > currentHighExit) {
+              updateData.price_high_exit = currentPrice
+              updateData.return_max_exit = ((currentPrice - match.price_at_match) / match.price_at_match) * 100
+            }
+          }
+        }
+        
+        if (Object.keys(updateData).length > 0) {
+          await supabaseAdmin
+            .from('token_matches')
+            .update({ ...updateData, last_price_check: new Date().toISOString() })
+            .eq('id', match.id)
+          updates.maxPriceUpdates++
+        }
+      } catch (e) {
+        updates.errors++
+      }
+    }
+    
+    // =============================================
+    // SNAPSHOT PRICES AT SPECIFIC INTERVALS
+    // =============================================
     
     // Get matches needing 1h update (matched ~1 hour ago, no 1h price yet)
     const { data: matches1h } = await supabaseAdmin

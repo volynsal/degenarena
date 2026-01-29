@@ -103,6 +103,22 @@ export default function NewFormulaPage() {
     
     setIsSaving(true)
     
+    // Get preset info for exit hours calculation
+    const activePreset = selectedPreset ? FORMULA_PRESETS.find(p => p.id === selectedPreset) : null
+    
+    // Parse holdTime to get max exit hours (e.g., "1-24 hours" -> 24)
+    let exitHours: number | null = null
+    if (activePreset?.holdTime) {
+      const match = activePreset.holdTime.match(/(\d+)\s*(?:hours?|h)/i)
+      if (match) {
+        // Get the larger number if it's a range
+        const numbers = activePreset.holdTime.match(/\d+/g)
+        if (numbers && numbers.length > 0) {
+          exitHours = Math.max(...numbers.map(Number))
+        }
+      }
+    }
+    
     try {
       const res = await fetch('/api/formulas', {
         method: 'POST',
@@ -138,6 +154,9 @@ export default function NewFormulaPage() {
           price_change_24h_max: params.priceChange24hMax || null,
           volume_1h_vs_6h_spike: params.volume1hVs6hSpike || null,
           volume_6h_vs_24h_spike: params.volume6hVs24hSpike || null,
+          // Preset tracking (preset formulas will be private automatically)
+          preset_id: selectedPreset || null,
+          exit_hours: exitHours,
         }),
       })
       

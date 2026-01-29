@@ -73,6 +73,10 @@ export async function POST(request: NextRequest) {
       }, { status: 400 })
     }
     
+    // Preset formulas cannot be made public (badges are enough to show expertise)
+    const isPreset = !!body.preset_id
+    const isPublic = isPreset ? false : (body.is_public ?? false)
+    
     // Create formula
     const { data, error } = await supabase
       .from('formulas')
@@ -80,7 +84,7 @@ export async function POST(request: NextRequest) {
         user_id: session.user.id,
         name: body.name.trim(),
         description: body.description?.trim() || null,
-        is_public: body.is_public ?? false,
+        is_public: isPublic,
         is_active: body.is_active ?? true,
         // Basic parameters
         liquidity_min: body.liquidity_min,
@@ -108,6 +112,9 @@ export async function POST(request: NextRequest) {
         price_change_24h_max: body.price_change_24h_max,
         volume_1h_vs_6h_spike: body.volume_1h_vs_6h_spike,
         volume_6h_vs_24h_spike: body.volume_6h_vs_24h_spike,
+        // Preset tracking
+        preset_id: body.preset_id || null,
+        exit_hours: body.exit_hours || null,
       })
       .select()
       .single()
