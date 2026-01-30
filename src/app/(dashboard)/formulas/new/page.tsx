@@ -59,6 +59,9 @@ interface FormulaParams {
   // Safety checks
   requireRugcheck: boolean
   rugcheckMinScore: number
+  // Social momentum
+  requireGalaxyScore: boolean
+  galaxyScoreMin: number
 }
 
 export default function NewFormulaPage() {
@@ -101,6 +104,9 @@ export default function NewFormulaPage() {
     // Universal max is 50 (auto-reject above that)
     requireRugcheck: false,
     rugcheckMinScore: 30,
+    // Social momentum (off by default for custom, on for relevant presets)
+    requireGalaxyScore: false,
+    galaxyScoreMin: 50,
   })
   
   const handleSave = async (activate = false) => {
@@ -168,6 +174,9 @@ export default function NewFormulaPage() {
           // Safety checks
           require_rugcheck: params.requireRugcheck,
           rugcheck_min_score: params.rugcheckMinScore,
+          // Social momentum
+          require_galaxy_score: params.requireGalaxyScore,
+          galaxy_score_min: params.galaxyScoreMin,
         }),
       })
       
@@ -236,6 +245,9 @@ export default function NewFormulaPage() {
       // Safety checks (presets have RugCheck enabled by default)
       requireRugcheck: preset.requireRugcheck ?? true,
       rugcheckMinScore: preset.rugcheckMinScore ?? 50,
+      // Social momentum (only some presets use this)
+      requireGalaxyScore: preset.requireGalaxyScore ?? false,
+      galaxyScoreMin: preset.galaxyScoreMin ?? 50,
     }))
     // Show advanced filters if preset uses them
     if (p.buy_sell_ratio_1h_min || p.tx_count_1h_min || p.price_change_1h_min || p.volume_1h_vs_6h_spike) {
@@ -902,6 +914,98 @@ export default function NewFormulaPage() {
                   <li>• Creator holds &gt;10%</li>
                   <li>• Risk score &gt;50</li>
                 </ul>
+              </div>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+      
+      {/* LunarCrush Galaxy Score */}
+      <Card>
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <TrendingUp className="w-5 h-5 text-arena-purple" />
+              <CardTitle>Social Momentum (LunarCrush)</CardTitle>
+            </div>
+            {params.requireGalaxyScore && (
+              <span className="text-xs px-2 py-1 rounded-full bg-arena-purple/20 text-arena-purple border border-arena-purple/30">
+                Enabled
+              </span>
+            )}
+          </div>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <p className="text-sm text-gray-400">
+            Filter tokens using LunarCrush Galaxy Score — a social momentum indicator combining mentions, sentiment, and engagement.
+          </p>
+          
+          {/* Enable Galaxy Score Toggle */}
+          <div className="flex items-center justify-between p-4 rounded-lg bg-white/5">
+            <div>
+              <p className="text-white font-medium">Require Social Momentum</p>
+              <p className="text-sm text-gray-400">
+                {params.requireGalaxyScore 
+                  ? 'Tokens must meet Galaxy Score threshold' 
+                  : 'No social filtering'}
+              </p>
+            </div>
+            <button
+              onClick={() => updateParam('requireGalaxyScore', !params.requireGalaxyScore)}
+              className={`w-12 h-7 rounded-full p-1 transition-colors ${
+                params.requireGalaxyScore ? 'bg-arena-purple' : 'bg-white/20'
+              }`}
+            >
+              <div className={`w-5 h-5 rounded-full bg-white transition-transform ${
+                params.requireGalaxyScore ? 'translate-x-5' : 'translate-x-0'
+              }`} />
+            </button>
+          </div>
+          
+          {params.requireGalaxyScore && (
+            <div className="space-y-4 pt-2">
+              {/* Galaxy Score Threshold */}
+              <div>
+                <label className="block text-sm font-medium text-gray-300 mb-2">
+                  Minimum Galaxy Score (0-100)
+                </label>
+                <div className="flex items-center gap-4">
+                  <input
+                    type="range"
+                    min="20"
+                    max="80"
+                    step="5"
+                    value={params.galaxyScoreMin}
+                    onChange={(e) => updateParam('galaxyScoreMin', Number(e.target.value))}
+                    className="flex-1 h-2 bg-white/10 rounded-lg appearance-none cursor-pointer accent-arena-purple"
+                  />
+                  <span className={`text-lg font-bold min-w-[3rem] text-center ${
+                    params.galaxyScoreMin >= 60 ? 'text-arena-purple' :
+                    params.galaxyScoreMin >= 40 ? 'text-yellow-400' :
+                    'text-gray-400'
+                  }`}>
+                    {params.galaxyScoreMin}
+                  </span>
+                </div>
+                <div className="flex justify-between text-xs text-gray-500 mt-1">
+                  <span>Low (20-40)</span>
+                  <span>Moderate (40-60)</span>
+                  <span>Strong (60+)</span>
+                </div>
+              </div>
+              
+              {/* Info about Galaxy Score */}
+              <div className="p-3 rounded-lg bg-arena-purple/10 border border-arena-purple/20">
+                <p className="text-sm text-arena-purple font-medium mb-1">What Galaxy Score measures:</p>
+                <ul className="text-xs text-gray-400 space-y-0.5">
+                  <li>• Social mentions &amp; engagement</li>
+                  <li>• Sentiment (positive vs negative)</li>
+                  <li>• Unique contributors</li>
+                  <li>• Social dominance in crypto</li>
+                </ul>
+                <p className="text-xs text-gray-500 mt-2">
+                  Note: New/small tokens may not be tracked by LunarCrush yet.
+                </p>
               </div>
             </div>
           )}

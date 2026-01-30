@@ -2,6 +2,7 @@ import { createClient } from '@supabase/supabase-js'
 import { DexScreenerService, type DexScreenerPair } from './dexscreener'
 import { alertService, type AlertPayload } from './alerts'
 import { rugCheckService, RISK_THRESHOLDS } from './rugcheck'
+import { lunarCrushService } from './lunarcrush'
 import type { Formula } from '@/types/database'
 
 // Service role client for server-side operations
@@ -60,13 +61,15 @@ export class TokenMonitorService {
    * Save a new token match to the database
    * @param sendImmediateAlert - If true, sends alert immediately. If false, waits for digest cron.
    * @param rugcheckData - Optional RugCheck safety data to store with match
+   * @param galaxyScoreData - Optional LunarCrush Galaxy Score data to store with match
    */
   async saveMatch(
     pair: DexScreenerPair,
     formula: Formula,
     reasons: string[],
     sendImmediateAlert: boolean = false,
-    rugcheckData?: { score?: number; risks?: string[] }
+    rugcheckData?: { score?: number; risks?: string[] },
+    galaxyScoreData?: { score?: number; change24h?: number }
   ): Promise<string | null> {
     const priceAtMatch = parseFloat(pair.priceUsd) || 0
     
@@ -74,6 +77,8 @@ export class TokenMonitorService {
       ...dexscreener.pairToTokenMatch(pair, formula.id),
       rugcheck_score: rugcheckData?.score || null,
       rugcheck_risks: rugcheckData?.risks || null,
+      galaxy_score: galaxyScoreData?.score || null,
+      galaxy_score_change_24h: galaxyScoreData?.change24h || null,
       // Initialize max price tracking at entry price
       price_high_24h: priceAtMatch,
       price_high_exit: priceAtMatch,
@@ -213,8 +218,36 @@ export class TokenMonitorService {
                 }
               }
               
+              // If formula requires Galaxy Score, verify social momentum
+              let galaxyScoreData: { score?: number; change24h?: number } = {}
+              
+              if (formula.require_galaxy_score) {
+                const minScore = formula.galaxy_score_min || 50
+                const socialCheck = await lunarCrushService.checkSocialMomentum(
+                  pair.baseToken.symbol,
+                  minScore
+                )
+                
+                if (!socialCheck.passed && socialCheck.score >= 0) {
+                  // Token failed Galaxy Score threshold - skip this match
+                  console.log(`⚠️ Token ${pair.baseToken.symbol} failed Galaxy Score (score: ${socialCheck.score}, min required: ${minScore})`)
+                  this.processedTokens.add(cacheKey)
+                  continue
+                }
+                
+                // Store Galaxy Score data with the match
+                galaxyScoreData = {
+                  score: socialCheck.score >= 0 ? socialCheck.score : undefined,
+                  change24h: socialCheck.change24h,
+                }
+                
+                if (socialCheck.score >= 0) {
+                  reasons.push(`Galaxy Score: ${socialCheck.score}`)
+                }
+              }
+              
               // Save the match and send immediate alert
-              await this.saveMatch(pair, formula, reasons, true, rugcheckData)
+              await this.saveMatch(pair, formula, reasons, true, rugcheckData, galaxyScoreData)
               matchedTokens.push({ pair, reasons })
               
               // Mark as processed

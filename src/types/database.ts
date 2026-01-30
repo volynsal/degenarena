@@ -63,6 +63,10 @@ export interface Formula {
   require_rugcheck?: boolean
   rugcheck_min_score?: number
   
+  // Social momentum (LunarCrush)
+  require_galaxy_score?: boolean
+  galaxy_score_min?: number
+  
   // Stats (denormalized)
   total_matches: number
   wins: number
@@ -106,6 +110,10 @@ export interface TokenMatch {
   // RugCheck safety data
   rugcheck_score?: number | null
   rugcheck_risks?: string[] | null
+  
+  // LunarCrush Galaxy Score data
+  galaxy_score?: number | null
+  galaxy_score_change_24h?: number | null
   
   // Token metadata at match time
   liquidity?: number | null
@@ -354,6 +362,9 @@ export interface CreateFormulaInput {
   // Safety checks
   require_rugcheck?: boolean
   rugcheck_min_score?: number
+  // Social momentum (LunarCrush)
+  require_galaxy_score?: boolean
+  galaxy_score_min?: number
 }
 
 export interface UpdateFormulaInput extends Partial<CreateFormulaInput> {

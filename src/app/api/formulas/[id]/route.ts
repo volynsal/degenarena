@@ -67,6 +67,7 @@ export async function PATCH(
     // Update formula
     const updateData: Record<string, unknown> = {}
     
+    // Basic fields
     if (body.name !== undefined) updateData.name = body.name.trim()
     if (body.description !== undefined) updateData.description = body.description?.trim() || null
     if (body.is_public !== undefined) updateData.is_public = body.is_public
@@ -81,6 +82,30 @@ export async function PATCH(
     if (body.require_verified_contract !== undefined) updateData.require_verified_contract = body.require_verified_contract
     if (body.require_honeypot_check !== undefined) updateData.require_honeypot_check = body.require_honeypot_check
     if (body.require_liquidity_lock !== undefined) updateData.require_liquidity_lock = body.require_liquidity_lock
+    
+    // Enhanced parameters
+    if (body.token_age_min_minutes !== undefined) updateData.token_age_min_minutes = body.token_age_min_minutes
+    if (body.buy_sell_ratio_1h_min !== undefined) updateData.buy_sell_ratio_1h_min = body.buy_sell_ratio_1h_min
+    if (body.tx_count_1h_min !== undefined) updateData.tx_count_1h_min = body.tx_count_1h_min
+    if (body.tx_count_24h_min !== undefined) updateData.tx_count_24h_min = body.tx_count_24h_min
+    if (body.fdv_min !== undefined) updateData.fdv_min = body.fdv_min
+    if (body.fdv_max !== undefined) updateData.fdv_max = body.fdv_max
+    if (body.price_change_1h_min !== undefined) updateData.price_change_1h_min = body.price_change_1h_min
+    if (body.price_change_1h_max !== undefined) updateData.price_change_1h_max = body.price_change_1h_max
+    if (body.price_change_6h_min !== undefined) updateData.price_change_6h_min = body.price_change_6h_min
+    if (body.price_change_6h_max !== undefined) updateData.price_change_6h_max = body.price_change_6h_max
+    if (body.price_change_24h_min !== undefined) updateData.price_change_24h_min = body.price_change_24h_min
+    if (body.price_change_24h_max !== undefined) updateData.price_change_24h_max = body.price_change_24h_max
+    if (body.volume_1h_vs_6h_spike !== undefined) updateData.volume_1h_vs_6h_spike = body.volume_1h_vs_6h_spike
+    if (body.volume_6h_vs_24h_spike !== undefined) updateData.volume_6h_vs_24h_spike = body.volume_6h_vs_24h_spike
+    
+    // RugCheck safety
+    if (body.require_rugcheck !== undefined) updateData.require_rugcheck = body.require_rugcheck
+    if (body.rugcheck_min_score !== undefined) updateData.rugcheck_min_score = body.rugcheck_min_score
+    
+    // Social momentum (Galaxy Score)
+    if (body.require_galaxy_score !== undefined) updateData.require_galaxy_score = body.require_galaxy_score
+    if (body.galaxy_score_min !== undefined) updateData.galaxy_score_min = body.galaxy_score_min
     
     const { data, error } = await supabase
       .from('formulas')

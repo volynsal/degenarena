@@ -119,6 +119,9 @@ export async function POST(request: NextRequest) {
         // rugcheck_min_score is MAX allowed risk (lower = safer, universal max is 50)
         require_rugcheck: body.require_rugcheck ?? (!!body.preset_id),
         rugcheck_min_score: body.rugcheck_min_score ?? 30,
+        // Social momentum (LunarCrush Galaxy Score)
+        require_galaxy_score: body.require_galaxy_score ?? false,
+        galaxy_score_min: body.galaxy_score_min ?? 50,
       })
       .select()
       .single()

@@ -15,6 +15,9 @@ export interface FormulaPreset {
   // Safety settings (presets have RugCheck enabled by default)
   requireRugcheck?: boolean
   rugcheckMinScore?: number
+  // Social momentum (LunarCrush Galaxy Score)
+  requireGalaxyScore?: boolean
+  galaxyScoreMin?: number
 }
 
 export const FORMULA_PRESETS: FormulaPreset[] = [
@@ -85,6 +88,8 @@ export const FORMULA_PRESETS: FormulaPreset[] = [
     holdTime: '2-12 hours',
     requireRugcheck: true,
     rugcheckMinScore: 30, // Moderate - standard medium-risk threshold
+    requireGalaxyScore: true,
+    galaxyScoreMin: 55, // Social confirms momentum
     parameters: {
       // Unusual volume - 3x normal
       volume_1h_vs_6h_spike: 3.0,
@@ -112,6 +117,8 @@ export const FORMULA_PRESETS: FormulaPreset[] = [
     holdTime: '30 min - 6 hours',
     requireRugcheck: true,
     rugcheckMinScore: 35, // Aggressive - fast-moving opportunities
+    requireGalaxyScore: true,
+    galaxyScoreMin: 45, // Validates organic volume
     parameters: {
       // Massive volume spike - 5x normal
       volume_1h_vs_6h_spike: 5.0,
@@ -192,6 +199,8 @@ export const FORMULA_PRESETS: FormulaPreset[] = [
     holdTime: '1-4 weeks',
     requireRugcheck: true,
     rugcheckMinScore: 20, // Conservative - institutional-grade safety for CEX listings
+    requireGalaxyScore: true,
+    galaxyScoreMin: 65, // Exchanges want strong community
     parameters: {
       // Established tokens - not new launches
       token_age_max_hours: 720, // 30+ days old
