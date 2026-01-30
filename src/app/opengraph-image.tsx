@@ -10,6 +10,12 @@ export const size = {
 export const contentType = 'image/png'
 
 export default async function Image() {
+  // Fetch the background image and logo
+  const [bgImage, logoImage] = await Promise.all([
+    fetch(new URL('/footer-bg.png', 'https://degenarena-azure.vercel.app')).then(res => res.arrayBuffer()),
+    fetch(new URL('/logo.png', 'https://degenarena-azure.vercel.app')).then(res => res.arrayBuffer()),
+  ])
+
   return new ImageResponse(
     (
       <div
@@ -18,151 +24,123 @@ export default async function Image() {
           width: '100%',
           display: 'flex',
           flexDirection: 'column',
-          alignItems: 'center',
-          justifyContent: 'center',
-          backgroundColor: '#0a0a0f',
+          position: 'relative',
           fontFamily: 'system-ui, sans-serif',
         }}
       >
-        {/* Purple glow */}
-        <div
+        {/* Background graffiti image */}
+        <img
+          src={`data:image/png;base64,${Buffer.from(bgImage).toString('base64')}`}
           style={{
             position: 'absolute',
-            top: 100,
-            left: 200,
-            width: 400,
-            height: 400,
-            borderRadius: 200,
-            backgroundColor: 'rgba(168, 85, 247, 0.15)',
-            filter: 'blur(100px)',
+            top: 0,
+            left: 0,
+            width: '100%',
+            height: '100%',
+            objectFit: 'cover',
           }}
         />
         
-        {/* Cyan glow */}
+        {/* Dark overlay for readability */}
         <div
           style={{
             position: 'absolute',
-            bottom: 100,
-            right: 200,
-            width: 350,
-            height: 350,
-            borderRadius: 175,
-            backgroundColor: 'rgba(0, 255, 157, 0.1)',
-            filter: 'blur(80px)',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            background: 'linear-gradient(135deg, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.5) 50%, rgba(0,0,0,0.7) 100%)',
           }}
         />
 
-        {/* Logo */}
+        {/* Content */}
         <div
           style={{
             display: 'flex',
+            flexDirection: 'column',
             alignItems: 'center',
-            marginBottom: 24,
+            justifyContent: 'center',
+            height: '100%',
+            width: '100%',
+            position: 'relative',
+            padding: 60,
           }}
         >
-          <span
+          {/* Logo in top-left */}
+          <div
             style={{
-              fontSize: 80,
-              fontWeight: 800,
-              color: '#a855f7',
-              letterSpacing: -3,
+              position: 'absolute',
+              top: 40,
+              left: 40,
+              display: 'flex',
+              alignItems: 'center',
+              gap: 16,
             }}
           >
-            DEGEN
-          </span>
-          <span
-            style={{
-              fontSize: 80,
-              fontWeight: 800,
-              color: '#00ff9d',
-              letterSpacing: -3,
-            }}
-          >
-            ARENA
-          </span>
-          <span
-            style={{
-              fontSize: 80,
-              fontWeight: 800,
-              color: '#ffffff',
-              marginLeft: 20,
-              letterSpacing: -3,
-            }}
-          >
-            HQ
-          </span>
-        </div>
+            <img
+              src={`data:image/png;base64,${Buffer.from(logoImage).toString('base64')}`}
+              style={{
+                width: 60,
+                height: 60,
+                borderRadius: 12,
+              }}
+            />
+            <span
+              style={{
+                fontSize: 28,
+                fontWeight: 700,
+                color: '#ffffff',
+              }}
+            >
+              DegenArena HQ
+            </span>
+          </div>
 
-        {/* Tagline */}
-        <div
-          style={{
-            fontSize: 36,
-            color: '#a1a1aa',
-            marginBottom: 48,
-            fontWeight: 500,
-          }}
-        >
-          Build, Battle, Prove Your Alpha
-        </div>
+          {/* Main text */}
+          <div
+            style={{
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              marginTop: 40,
+            }}
+          >
+            <div
+              style={{
+                fontSize: 64,
+                fontWeight: 800,
+                color: '#ffffff',
+                textAlign: 'center',
+                lineHeight: 1.1,
+                textShadow: '0 4px 20px rgba(0,0,0,0.5)',
+              }}
+            >
+              Build, Battle,
+            </div>
+            <div
+              style={{
+                fontSize: 64,
+                fontWeight: 800,
+                color: '#a855f7',
+                textAlign: 'center',
+                lineHeight: 1.1,
+                textShadow: '0 4px 20px rgba(168,85,247,0.3)',
+              }}
+            >
+              Prove Your Alpha
+            </div>
+          </div>
 
-        {/* Feature pills */}
-        <div
-          style={{
-            display: 'flex',
-            gap: 16,
-          }}
-        >
+          {/* Tagline */}
           <div
             style={{
-              padding: '14px 28px',
-              borderRadius: 50,
-              backgroundColor: 'rgba(168, 85, 247, 0.2)',
-              border: '2px solid rgba(168, 85, 247, 0.4)',
-              color: '#e4e4e7',
-              fontSize: 20,
-              fontWeight: 600,
+              fontSize: 24,
+              color: '#a1a1aa',
+              marginTop: 24,
+              textAlign: 'center',
             }}
           >
-            Token Filters
-          </div>
-          <div
-            style={{
-              padding: '14px 28px',
-              borderRadius: 50,
-              backgroundColor: 'rgba(0, 255, 157, 0.15)',
-              border: '2px solid rgba(0, 255, 157, 0.3)',
-              color: '#e4e4e7',
-              fontSize: 20,
-              fontWeight: 600,
-            }}
-          >
-            Instant Alerts
-          </div>
-          <div
-            style={{
-              padding: '14px 28px',
-              borderRadius: 50,
-              backgroundColor: 'rgba(168, 85, 247, 0.2)',
-              border: '2px solid rgba(168, 85, 247, 0.4)',
-              color: '#e4e4e7',
-              fontSize: 20,
-              fontWeight: 600,
-            }}
-          >
-            Flip Battles
-          </div>
-          <div
-            style={{
-              padding: '14px 28px',
-              borderRadius: 50,
-              backgroundColor: 'rgba(0, 255, 157, 0.15)',
-              border: '2px solid rgba(0, 255, 157, 0.3)',
-              color: '#e4e4e7',
-              fontSize: 20,
-              fontWeight: 600,
-            }}
-          >
-            Clan Wars
+            The competitive memecoin trading platform
           </div>
         </div>
 
