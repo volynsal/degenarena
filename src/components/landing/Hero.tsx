@@ -46,7 +46,7 @@ export function Hero() {
       <div className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center pt-6">
         {/* Badge */}
         <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 mb-8">
-          <span className="text-sm text-gray-300">🏆 ESPORTS FOR DEGENS ⚔️</span>
+          <span className="text-sm text-gray-300">[ ESPORTS FOR DEGENS ]</span>
         </div>
         
         {/* Headline */}
