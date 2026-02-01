@@ -47,7 +47,7 @@ export function Hero() {
         {/* Badge */}
         <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 mb-8">
           <Sparkles className="w-4 h-4 text-arena-cyan" />
-          <span className="text-sm text-gray-300">Esports for trading memecoins</span>
+          <span className="text-sm text-gray-300">🏆 ESPORTS FOR TRADING MEMECOINS ⚔️</span>
         </div>
         
         {/* Headline */}
