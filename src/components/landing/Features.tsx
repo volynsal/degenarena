@@ -13,49 +13,51 @@ import {
 
 const features = [
   {
-    icon: Sliders,
-    title: 'Formula Builder',
-    description: 'Create custom token filters with liquidity, volume, token age, and more. Fine-tune your strategy to find the needle in the haystack.',
-  },
-  {
-    icon: Bell,
-    title: 'Real-Time Alerts',
-    description: 'Get instant notifications via Telegram, Discord, or email when tokens match your formula criteria.',
-  },
-  {
-    icon: TrendingUp,
-    title: 'Performance Tracking',
-    description: 'Every match is tracked. See your win rate, average returns, and performance over 24hr, 7-day, and 30-day periods.',
-  },
-  {
     icon: Trophy,
-    title: 'Leaderboards & Competitions',
-    description: 'Climb the rankings or enter 24-hour flips, weekly leagues, and head-to-head/clan battles. Prove your formula is the best.',
+    title: 'Weekly Competitions',
+    description: 'Enter 24-hour flips, weekly leagues, and special events. Compete against the best traders for ranking and recognition.',
   },
   {
     icon: Swords,
-    title: 'Trading Clans',
-    description: 'Form exclusive teams with invite-only access. Your combined performance gets ranked. Compete as a squad.',
+    title: 'Clan Battles',
+    description: 'Form elite trading teams. Your combined win rates compete against rival clans. Rise together or fall together.',
+    premium: true,
+  },
+  {
+    icon: Sliders,
+    title: 'Formula Builder',
+    description: 'Create custom token-finding strategies with 20+ filters. Liquidity, volume, token age, buy pressure, and more.',
+  },
+  {
+    icon: TrendingUp,
+    title: 'Verified Performance',
+    description: 'Every match is tracked on-chain. Your win rate, average returns, and complete history — no faking, no hiding.',
+  },
+  {
+    icon: Bell,
+    title: 'Instant Alerts',
+    description: 'Get notified via Telegram, Discord, or email the moment your formula catches a token. Never miss a play.',
   },
   {
     icon: Share2,
-    title: 'Formula Sharing',
-    description: 'Share your winning formulas or copy strategies from top performers with full attribution.',
-  },
-  {
-    icon: Zap,
-    title: 'Multi-Chain Support',
-    description: 'Monitor Solana at launch, with Ethereum, Base, and more chains coming soon.',
+    title: 'Formula Marketplace',
+    description: 'Share winning formulas with the community or follow top performers. Full attribution, verified results.',
   },
   {
     icon: BarChart3,
-    title: 'Performance History',
-    description: 'View your complete track record since formula creation. Analyze win rates, returns, and refine your strategy.',
+    title: 'Global Rankings',
+    description: 'Climb the leaderboard. See where you stand against traders worldwide. The best rise to the top.',
+  },
+  {
+    icon: Zap,
+    title: 'Strategy Presets',
+    description: 'Launch Sniper, Momentum Breakout, CEX-Ready Candidate — battle-tested presets for premium members.',
+    premium: true,
   },
   {
     icon: Bot,
     title: 'Sniper Agent',
-    description: 'AI copilot that watches your formulas 24/7 and executes trades automatically. Follow the house account to see it in action.',
+    description: 'AI copilot that runs your formulas 24/7. The house account is ranked #1 — can you beat it?',
     comingSoon: true,
   },
 ]
@@ -69,10 +71,10 @@ export function Features() {
         {/* Section header */}
         <div className="text-center max-w-3xl mx-auto mb-16">
           <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">
-            Everything you need to find alpha
+            The complete arena for serious traders
           </h2>
           <p className="text-lg text-gray-400">
-            A complete toolkit for building, testing, and tracking your token-finding strategies.
+            Build strategies. Enter competitions. Track verified performance. The tools you need to compete at the highest level.
           </p>
         </div>
         
@@ -84,6 +86,11 @@ export function Features() {
                 {'comingSoon' in feature && feature.comingSoon && (
                   <span className="absolute top-4 right-4 text-xs px-2 py-1 rounded-full bg-gradient-to-r from-arena-purple to-arena-cyan text-white font-medium">
                     Coming Soon
+                  </span>
+                )}
+                {'premium' in feature && feature.premium && (
+                  <span className="absolute top-4 right-4 text-xs px-2 py-1 rounded-full bg-yellow-500/20 text-yellow-400 border border-yellow-500/30 font-medium">
+                    Premium
                   </span>
                 )}
                 <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-arena-purple/20 to-arena-cyan/20 flex items-center justify-center mb-4 group-hover:from-arena-purple/30 group-hover:to-arena-cyan/30 transition-colors">

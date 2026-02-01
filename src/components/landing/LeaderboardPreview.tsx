@@ -4,48 +4,53 @@ import { Trophy, TrendingUp, Target } from 'lucide-react'
 const mockLeaderboard = [
   {
     rank: 1,
-    username: 'CryptoKing',
-    formula: 'Gem Hunter Pro',
-    winRate: 73.2,
-    totalTrades: 156,
-    avgReturn: 47.3,
+    username: 'SniperCopilot',
+    formula: 'House Account',
+    winRate: 89.1,
+    totalTrades: 47,
+    avgReturn: 127.3,
     badge: 'gold',
+    isAI: true,
   },
   {
     rank: 2,
-    username: 'AlphaSeeker',
-    formula: 'Low Cap Sniper',
-    winRate: 68.9,
-    totalTrades: 203,
-    avgReturn: 38.1,
+    username: 'degen_whale',
+    formula: 'Launch Sniper',
+    winRate: 84.2,
+    totalTrades: 156,
+    avgReturn: 68.1,
     badge: 'silver',
+    isAI: false,
   },
   {
     rank: 3,
-    username: 'DegenMaster',
-    formula: 'Volume Surge',
-    winRate: 65.4,
-    totalTrades: 89,
+    username: 'alpha_hunter',
+    formula: 'Momentum Breaker',
+    winRate: 78.4,
+    totalTrades: 203,
     avgReturn: 52.7,
     badge: 'bronze',
+    isAI: false,
   },
   {
     rank: 4,
-    username: 'TokenWhale',
-    formula: 'Smart Money Flow',
-    winRate: 61.8,
+    username: 'memecoin_sage',
+    formula: 'Volume Surge Pro',
+    winRate: 71.8,
     totalTrades: 142,
-    avgReturn: 29.4,
+    avgReturn: 41.4,
     badge: null,
+    isAI: false,
   },
   {
     rank: 5,
-    username: 'ChartWizard',
-    formula: 'Breakout Catcher',
-    winRate: 59.2,
-    totalTrades: 178,
-    avgReturn: 24.6,
+    username: 'chart_wizard',
+    formula: 'CEX Predictor',
+    winRate: 67.2,
+    totalTrades: 89,
+    avgReturn: 34.6,
     badge: null,
+    isAI: false,
   },
 ]
 
@@ -66,10 +71,10 @@ export function LeaderboardPreview() {
         {/* Section header */}
         <div className="text-center max-w-3xl mx-auto mb-12">
           <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">
-            Top performers this week
+            This week&apos;s global rankings
           </h2>
           <p className="text-lg text-gray-400">
-            Rankings based on verified formula performance. No screenshots, no trust-me-bro—just data.
+            Verified performance. No screenshots, no trust-me-bro. The AI sits at #1 — can you take the top spot?
           </p>
         </div>
         
@@ -106,13 +111,18 @@ export function LeaderboardPreview() {
                   {/* User & Formula */}
                   <div className="col-span-5 sm:col-span-4">
                     <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-full bg-gradient-to-br from-arena-purple/50 to-arena-cyan/50 flex items-center justify-center">
+                      <div className={`w-10 h-10 rounded-full flex items-center justify-center ${entry.isAI ? 'bg-gradient-to-br from-arena-purple to-arena-cyan' : 'bg-gradient-to-br from-arena-purple/50 to-arena-cyan/50'}`}>
                         <span className="text-white font-medium text-sm">
-                          {entry.username.charAt(0)}
+                          {entry.isAI ? '🤖' : entry.username.charAt(0).toUpperCase()}
                         </span>
                       </div>
                       <div>
-                        <p className="text-white font-medium text-sm">{entry.username}</p>
+                        <div className="flex items-center gap-2">
+                          <p className="text-white font-medium text-sm">{entry.username}</p>
+                          {entry.isAI && (
+                            <span className="text-[10px] px-1.5 py-0.5 rounded bg-arena-purple/30 text-arena-purple font-medium">AI</span>
+                          )}
+                        </div>
                         <p className="text-gray-500 text-xs">{entry.formula}</p>
                       </div>
                     </div>

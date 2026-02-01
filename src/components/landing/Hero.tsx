@@ -47,26 +47,25 @@ export function Hero() {
         {/* Badge */}
         <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 mb-8">
           <Sparkles className="w-4 h-4 text-arena-cyan" />
-          <span className="text-sm text-gray-300">Currently in private beta</span>
+          <span className="text-sm text-gray-300">The esports league for memecoin trading</span>
         </div>
         
         {/* Headline */}
         <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight mb-6">
-          <span className="text-white">Build formulas.</span>
+          <span className="text-white">Build. Compete.</span>
           <br />
           <span className="gradient-text">Prove your alpha.</span>
         </h1>
         
         {/* Subheadline */}
         <p className="text-lg sm:text-xl text-gray-400 max-w-2xl mx-auto mb-10">
-          The competitive platform where traders create token-finding formulas, 
-          compete on leaderboards, and let the results speak for themselves.
-          No more Twitter screenshots—just verified performance.
+          Create token-finding formulas. Enter weekly competitions and clan battles.
+          Climb the global rankings. The best traders don&apos;t just make money—they prove it.
         </p>
         
         {/* Urgency */}
         <p className="text-sm text-arena-cyan/90 font-medium mb-6">
-          Private beta spots limited. Launching in Q1 2026.
+          Join the arena. Limited beta spots available.
         </p>
         
         {/* Email signup form */}
@@ -107,67 +106,75 @@ export function Hero() {
                     <div className="w-3 h-3 rounded-full bg-yellow-500" />
                     <div className="w-3 h-3 rounded-full bg-green-500" />
                   </div>
-                  <span className="text-sm text-gray-500 font-mono">Formula Builder</span>
+                  <span className="text-sm text-gray-500 font-mono">Global Rankings</span>
                 </div>
                 
                 <div className="grid md:grid-cols-2 gap-6">
-                  {/* Left: Formula settings */}
-                  <div className="space-y-4">
-                    <div className="glass-card rounded-lg p-4">
-                      <label className="text-xs text-gray-400 uppercase tracking-wider">Liquidity</label>
-                      <div className="flex items-center justify-between mt-2">
-                        <span className="text-white font-mono">$50K</span>
-                        <div className="flex-1 mx-4 h-2 bg-white/10 rounded-full overflow-hidden">
-                          <div className="h-full w-1/3 bg-gradient-to-r from-arena-purple to-arena-cyan rounded-full" />
-                        </div>
-                        <span className="text-white font-mono">$500K</span>
-                      </div>
-                    </div>
-                    
-                    <div className="glass-card rounded-lg p-4">
-                      <label className="text-xs text-gray-400 uppercase tracking-wider">Holder Count</label>
-                      <div className="flex items-center justify-between mt-2">
-                        <span className="text-white font-mono">100+</span>
-                        <div className="flex-1 mx-4 h-2 bg-white/10 rounded-full overflow-hidden">
-                          <div className="h-full w-1/2 bg-gradient-to-r from-arena-purple to-arena-cyan rounded-full" />
-                        </div>
-                        <span className="text-white font-mono">10K</span>
-                      </div>
-                    </div>
-                    
-                    <div className="glass-card rounded-lg p-4">
-                      <div className="flex items-center justify-between">
-                        <span className="text-sm text-gray-300">Contract Verified</span>
-                        <div className="w-10 h-6 bg-arena-cyan/30 rounded-full p-1">
-                          <div className="w-4 h-4 bg-arena-cyan rounded-full ml-auto" />
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                  
-                  {/* Right: Live matches */}
+                  {/* Left: Leaderboard Preview */}
                   <div className="glass-card rounded-lg p-4">
                     <div className="flex items-center justify-between mb-4">
-                      <span className="text-xs text-gray-400 uppercase tracking-wider">Live Matches</span>
-                      <span className="text-xs text-arena-cyan">3 new</span>
+                      <span className="text-xs text-gray-400 uppercase tracking-wider">This Week&apos;s Leaders</span>
+                      <span className="text-xs text-arena-purple">Live</span>
                     </div>
                     <div className="space-y-3">
                       {[
-                        { name: 'PEPE2', gain: '+127%', time: '2m ago' },
-                        { name: 'WOJAK', gain: '+43%', time: '15m ago' },
-                        { name: 'DOGE420', gain: '+18%', time: '1h ago' },
-                      ].map((token) => (
-                        <div key={token.name} className="flex items-center justify-between py-2 border-b border-white/5 last:border-0">
+                        { rank: 1, name: 'SniperCopilot', tag: 'AI', wins: '89%', badge: '🤖' },
+                        { rank: 2, name: 'degen_whale', tag: null, wins: '84%', badge: '🔥' },
+                        { rank: 3, name: 'alpha_hunter', tag: null, wins: '78%', badge: '⚡' },
+                        { rank: 4, name: 'memecoin_sage', tag: null, wins: '71%', badge: null },
+                      ].map((trader) => (
+                        <div key={trader.name} className="flex items-center justify-between py-2 border-b border-white/5 last:border-0">
                           <div className="flex items-center gap-3">
-                            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-arena-purple/50 to-arena-cyan/50" />
-                            <span className="text-white font-medium">{token.name}</span>
+                            <span className={`w-6 text-center font-bold ${trader.rank === 1 ? 'text-yellow-400' : trader.rank === 2 ? 'text-gray-300' : trader.rank === 3 ? 'text-orange-400' : 'text-gray-500'}`}>
+                              #{trader.rank}
+                            </span>
+                            <span className="text-white font-medium">{trader.name}</span>
+                            {trader.tag && (
+                              <span className="text-[10px] px-1.5 py-0.5 rounded bg-arena-purple/30 text-arena-purple">{trader.tag}</span>
+                            )}
                           </div>
-                          <div className="text-right">
-                            <span className="text-arena-cyan font-mono text-sm">{token.gain}</span>
-                            <p className="text-xs text-gray-500">{token.time}</p>
+                          <div className="flex items-center gap-2">
+                            <span className="text-arena-cyan font-mono text-sm">{trader.wins}</span>
+                            {trader.badge && <span>{trader.badge}</span>}
                           </div>
                         </div>
                       ))}
+                    </div>
+                  </div>
+                  
+                  {/* Right: Live Competition */}
+                  <div className="space-y-4">
+                    <div className="glass-card rounded-lg p-4">
+                      <div className="flex items-center justify-between mb-2">
+                        <span className="text-xs text-gray-400 uppercase tracking-wider">Active Competition</span>
+                        <span className="text-xs px-2 py-0.5 rounded-full bg-green-500/20 text-green-400">Live</span>
+                      </div>
+                      <p className="text-white font-semibold">Weekly League #47</p>
+                      <p className="text-sm text-gray-400 mt-1">127 traders competing</p>
+                      <div className="mt-3 flex items-center gap-2">
+                        <div className="flex-1 h-2 bg-white/10 rounded-full overflow-hidden">
+                          <div className="h-full w-2/3 bg-gradient-to-r from-arena-purple to-arena-cyan rounded-full" />
+                        </div>
+                        <span className="text-xs text-gray-400">4d left</span>
+                      </div>
+                    </div>
+                    
+                    <div className="glass-card rounded-lg p-4">
+                      <div className="flex items-center justify-between mb-2">
+                        <span className="text-xs text-gray-400 uppercase tracking-wider">Top Clan Battle</span>
+                        <span className="text-xs text-arena-cyan">Premium</span>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <div className="text-center">
+                          <p className="text-white font-medium">hypesaints</p>
+                          <p className="text-arena-cyan font-mono">67%</p>
+                        </div>
+                        <span className="text-gray-500 text-lg">vs</span>
+                        <div className="text-center">
+                          <p className="text-white font-medium">degen_lords</p>
+                          <p className="text-arena-purple font-mono">61%</p>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </div>

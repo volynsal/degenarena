@@ -29,11 +29,11 @@ export function CTA() {
       <div className="relative z-10 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="glass-card rounded-2xl p-8 sm:p-12 text-center neon-glow">
           <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">
-            Ready to prove your alpha?
+            Ready to enter the arena?
           </h2>
           <p className="text-lg text-gray-400 mb-8 max-w-2xl mx-auto">
-            Join the waitlist and be among the first to access DegenArena HQ when we launch. 
-            Early users get lifetime discounts and exclusive features.
+            Join the waitlist for early access. First traders in get lifetime discounts, 
+            exclusive clan invites, and a head start on the leaderboard.
           </p>
           
           {!isSubmitted ? (

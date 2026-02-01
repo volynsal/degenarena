@@ -1,32 +1,32 @@
 const steps = [
   {
     number: '01',
-    title: 'Create Your Formula',
-    description: 'Set your parameters: liquidity range, volume thresholds, token age limits. Each combination is unique — find the one that works.',
+    title: 'Build Your Strategy',
+    description: 'Create your formula with 20+ filters: liquidity, volume, token age, buy pressure, and more. Each strategy is unique — craft the one that gives you an edge.',
     color: 'from-arena-purple to-arena-blue',
   },
   {
     number: '02',
-    title: 'Start Tracking Instantly',
-    description: 'Once activated, your formula immediately scans new token launches. Every match is recorded from day one — building your track record in real-time.',
+    title: 'Enter the Arena',
+    description: 'Activate your formula and start competing. Every token match is tracked, verified, and added to your permanent record. Your win rate is your reputation.',
     color: 'from-arena-blue to-arena-cyan',
   },
   {
     number: '03',
-    title: 'Monitor & Get Alerts',
-    description: 'Your formula runs 24/7, scanning new tokens on Solana. When a match is found, get notified via Telegram, Discord, or email.',
+    title: 'Get Real-Time Alerts',
+    description: 'When your formula catches a token, get notified instantly via Telegram, Discord, or email. Trade on your own terms — we just find the opportunities.',
     color: 'from-arena-cyan to-arena-purple',
   },
   {
     number: '04',
-    title: 'Review Your Results',
-    description: 'View your complete match history with price at discovery. Track performance over 1hr, 24hr, and 7-day windows. See your win rate and refine your strategy.',
+    title: 'Climb the Rankings',
+    description: 'Your performance speaks for itself. Watch your rank rise on global leaderboards as your win rate improves. The best traders earn recognition.',
     color: 'from-arena-purple to-arena-pink',
   },
   {
     number: '05',
-    title: 'Join a Clan & Compete',
-    description: 'Team up with other traders in invite-only clans. Your combined wins climb the clan leaderboard. Share strategies, compete together, build reputation.',
+    title: 'Form a Clan & Battle',
+    description: 'Join or create an elite trading team. Combine your performance with your squadmates. Enter clan battles and compete for the top spot.',
     color: 'from-arena-pink to-arena-cyan',
   },
 ]
@@ -38,10 +38,10 @@ export function HowItWorks() {
         {/* Section header */}
         <div className="text-center max-w-3xl mx-auto mb-16">
           <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">
-            How it works
+            From zero to ranked
           </h2>
           <p className="text-lg text-gray-400">
-            From formula creation to leaderboard domination in five simple steps.
+            Build your strategy. Enter competitions. Climb the leaderboard. Five steps to proving your alpha.
           </p>
         </div>
         
