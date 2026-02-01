@@ -21,7 +21,7 @@ const features = [
     icon: Swords,
     title: 'Clan Battles',
     description: 'Form elite trading teams. Your combined win rates compete against rival clans. Rise together or fall together.',
-    premium: true,
+    earlyAccess: true,
   },
   {
     icon: Sliders,
@@ -91,6 +91,11 @@ export function Features() {
                 {'premium' in feature && feature.premium && (
                   <span className="absolute top-4 right-4 text-xs px-2 py-1 rounded-full bg-yellow-500/20 text-yellow-400 border border-yellow-500/30 font-medium">
                     Premium
+                  </span>
+                )}
+                {'earlyAccess' in feature && feature.earlyAccess && (
+                  <span className="absolute top-4 right-4 text-xs px-2 py-1 rounded-full bg-green-500/20 text-green-400 border border-green-500/30 font-medium">
+                    Free for early users
                   </span>
                 )}
                 <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-arena-purple/20 to-arena-cyan/20 flex items-center justify-center mb-4 group-hover:from-arena-purple/30 group-hover:to-arena-cyan/30 transition-colors">
