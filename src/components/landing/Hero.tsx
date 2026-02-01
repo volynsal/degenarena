@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
-import { ArrowRight, Sparkles } from 'lucide-react'
+import { ArrowRight } from 'lucide-react'
 
 export function Hero() {
   const [email, setEmail] = useState('')
@@ -46,8 +46,7 @@ export function Hero() {
       <div className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center pt-6">
         {/* Badge */}
         <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 mb-8">
-          <Sparkles className="w-4 h-4 text-arena-cyan" />
-          <span className="text-sm text-gray-300">🏆 ESPORTS FOR TRADING MEMECOINS ⚔️</span>
+          <span className="text-sm text-gray-300">🏆 ESPORTS FOR DEGENS ⚔️ GET RANKED OR GET REKT</span>
         </div>
         
         {/* Headline */}
