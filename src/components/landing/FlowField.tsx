@@ -34,11 +34,8 @@ export function FlowField() {
     const canvas = canvasRef.current
     if (!canvas) return
     
-    const ctx = canvas.getContext('2d', { 
-      alpha: true,
-      // Performance optimizations
-      desynchronized: true,
-    })
+    // Safari doesn't support desynchronized, so we use a simple fallback
+    const ctx = canvas.getContext('2d')
     if (!ctx) return
     
     // Set canvas size with device pixel ratio handling
@@ -155,11 +152,11 @@ export function FlowField() {
       }
       lastFrame = timestamp
       
-      // Fade effect for trails
-      ctx.fillStyle = mobile ? 'rgba(8, 8, 8, 0.15)' : 'rgba(8, 8, 8, 0.08)'
+      // Fade effect for trails - same speed on both platforms
+      ctx.fillStyle = 'rgba(8, 8, 8, 0.08)'
       ctx.fillRect(0, 0, window.innerWidth, window.innerHeight)
       
-      time += mobile ? 0.004 : 0.003
+      time += 0.003
       
       const width = window.innerWidth
       const height = window.innerHeight
@@ -171,22 +168,22 @@ export function FlowField() {
         const noiseVal = noise(col * 0.05, row * 0.05, time)
         const angle = noiseVal * Math.PI * 4
         
-        // Mouse/touch influence (reduced on mobile)
+        // Mouse/touch influence - same feel on both platforms
         if (mouseRef.current.active) {
           const dx = mouseRef.current.x - particle.x
           const dy = mouseRef.current.y - particle.y
           const dist = Math.sqrt(dx * dx + dy * dy)
-          const influenceRadius = mobile ? 100 : 150
+          const influenceRadius = 150
           if (dist < influenceRadius && dist > 0) {
             const force = (influenceRadius - dist) / influenceRadius
-            particle.vx += (dx / dist) * force * (mobile ? 0.2 : 0.3)
-            particle.vy += (dy / dist) * force * (mobile ? 0.2 : 0.3)
+            particle.vx += (dx / dist) * force * 0.3
+            particle.vy += (dy / dist) * force * 0.3
           }
         }
         
-        // Apply flow field
-        particle.vx += Math.cos(angle) * (mobile ? 0.12 : 0.15)
-        particle.vy += Math.sin(angle) * (mobile ? 0.12 : 0.15)
+        // Apply flow field - consistent speed
+        particle.vx += Math.cos(angle) * 0.15
+        particle.vy += Math.sin(angle) * 0.15
         
         // Friction
         particle.vx *= 0.98
@@ -197,12 +194,12 @@ export function FlowField() {
         particle.y += particle.vy
         particle.life++
         
-        // Draw particle
+        // Draw particle - consistent look
         const lifeRatio = particle.life / particle.maxLife
         const alpha = lifeRatio < 0.1 ? lifeRatio * 10 : lifeRatio > 0.9 ? (1 - lifeRatio) * 10 : 1
         ctx.beginPath()
         ctx.arc(particle.x, particle.y, particle.size, 0, Math.PI * 2)
-        ctx.fillStyle = `hsla(${particle.hue}, 80%, 60%, ${alpha * (mobile ? 0.6 : 0.5)})`
+        ctx.fillStyle = `hsla(${particle.hue}, 80%, 60%, ${alpha * 0.5})`
         ctx.fill()
         
         // Glow effect - less frequent on mobile
