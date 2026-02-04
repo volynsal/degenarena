@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 
 interface Particle {
   x: number
@@ -18,28 +18,54 @@ export function FlowField() {
   const animationRef = useRef<number>()
   const particlesRef = useRef<Particle[]>([])
   const mouseRef = useRef({ x: 0, y: 0, active: false })
+  const [isMobile, setIsMobile] = useState(false)
   
   useEffect(() => {
+    // Detect mobile device
+    const checkMobile = () => {
+      const mobile = window.innerWidth < 768 || 
+        /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)
+      setIsMobile(mobile)
+      return mobile
+    }
+    
+    const mobile = checkMobile()
+    
     const canvas = canvasRef.current
     if (!canvas) return
     
-    const ctx = canvas.getContext('2d')
+    const ctx = canvas.getContext('2d', { 
+      alpha: true,
+      // Performance optimizations
+      desynchronized: true,
+    })
     if (!ctx) return
     
-    // Set canvas size
+    // Set canvas size with device pixel ratio handling
+    const dpr = mobile ? 1 : Math.min(window.devicePixelRatio || 1, 2)
+    
     const resize = () => {
-      canvas.width = window.innerWidth
-      canvas.height = window.innerHeight
+      const width = window.innerWidth
+      const height = window.innerHeight
+      canvas.width = width * dpr
+      canvas.height = height * dpr
+      canvas.style.width = `${width}px`
+      canvas.style.height = `${height}px`
+      ctx.scale(dpr, dpr)
     }
     resize()
     window.addEventListener('resize', resize)
     
-    // Flow field parameters
-    const scale = 20
+    // Flow field parameters - larger scale on mobile for better performance
+    const scale = mobile ? 30 : 20
     let time = 0
     
-    // Noise function (simplex-like)
+    // Simplified noise for mobile, full noise for desktop
     const noise = (x: number, y: number, z: number): number => {
+      if (mobile) {
+        // Simpler, faster noise for mobile
+        return Math.sin(x * 0.5 + z) * Math.cos(y * 0.5 + z) * 0.5
+      }
       const X = Math.floor(x) & 255
       const Y = Math.floor(y) & 255
       const Z = Math.floor(z) & 255
@@ -66,47 +92,77 @@ export function FlowField() {
       return ((h & 1) === 0 ? u : -u) + ((h & 2) === 0 ? v : -v)
     }
     
-    // Permutation table
+    // Permutation table (only needed for desktop)
     const p = new Array(512)
     const permutation = [151,160,137,91,90,15,131,13,201,95,96,53,194,233,7,225,140,36,103,30,69,142,8,99,37,240,21,10,23,190,6,148,247,120,234,75,0,26,197,62,94,252,219,203,117,35,11,32,57,177,33,88,237,149,56,87,174,20,125,136,171,168,68,175,74,165,71,134,139,48,27,166,77,146,158,231,83,111,229,122,60,211,133,230,220,105,92,41,55,46,245,40,244,102,143,54,65,25,63,161,1,216,80,73,209,76,132,187,208,89,18,169,200,196,135,130,116,188,159,86,164,100,109,198,173,186,3,64,52,217,226,250,124,123,5,202,38,147,118,126,255,82,85,212,207,206,59,227,47,16,58,17,182,189,28,42,223,183,170,213,119,248,152,2,44,154,163,70,221,153,101,155,167,43,172,9,129,22,39,253,19,98,108,110,79,113,224,232,178,185,112,104,218,246,97,228,251,34,242,193,238,210,144,12,191,179,162,241,81,51,145,235,249,14,239,107,49,192,214,31,181,199,106,157,184,84,204,176,115,121,50,45,127,4,150,254,138,236,205,93,222,114,67,29,24,72,243,141,128,195,78,66,215,61,156,180]
     for (let i = 0; i < 256; i++) p[256 + i] = p[i] = permutation[i]
     
     // Create particles - using DegenArena brand colors
-    // Purple: #9945FF (hue ~265), Cyan/Green: #14F195 (hue ~156)
     const createParticle = (): Particle => ({
-      x: Math.random() * canvas.width,
-      y: Math.random() * canvas.height,
+      x: Math.random() * window.innerWidth,
+      y: Math.random() * window.innerHeight,
       vx: 0,
       vy: 0,
       life: 0,
-      maxLife: 100 + Math.random() * 200,
-      size: 1 + Math.random() * 2,
-      hue: Math.random() > 0.5 ? 265 + Math.random() * 20 : 156 + Math.random() * 15 // Arena purple or cyan
+      maxLife: mobile ? 80 + Math.random() * 120 : 100 + Math.random() * 200,
+      size: mobile ? 1.5 + Math.random() * 1.5 : 1 + Math.random() * 2,
+      hue: Math.random() > 0.5 ? 265 + Math.random() * 20 : 156 + Math.random() * 15
     })
     
-    // Initialize particles
-    const particleCount = Math.min(600, Math.floor((canvas.width * canvas.height) / 4000))
+    // Fewer particles on mobile for better performance
+    const particleCount = mobile 
+      ? Math.min(150, Math.floor((window.innerWidth * window.innerHeight) / 8000))
+      : Math.min(500, Math.floor((window.innerWidth * window.innerHeight) / 4000))
+    
     particlesRef.current = Array.from({ length: particleCount }, createParticle)
     
-    // Mouse tracking - listen on window so it works even with pointer-events: none
+    // Mouse/Touch tracking
     const handleMouseMove = (e: MouseEvent) => {
       mouseRef.current.x = e.clientX
       mouseRef.current.y = e.clientY
       mouseRef.current.active = true
     }
+    const handleTouchMove = (e: TouchEvent) => {
+      if (e.touches.length > 0) {
+        mouseRef.current.x = e.touches[0].clientX
+        mouseRef.current.y = e.touches[0].clientY
+        mouseRef.current.active = true
+      }
+    }
     const handleMouseLeave = () => {
       mouseRef.current.active = false
     }
+    const handleTouchEnd = () => {
+      mouseRef.current.active = false
+    }
+    
     window.addEventListener('mousemove', handleMouseMove)
+    window.addEventListener('touchmove', handleTouchMove, { passive: true })
     document.addEventListener('mouseleave', handleMouseLeave)
+    window.addEventListener('touchend', handleTouchEnd)
+    
+    // Throttle animation on mobile
+    let lastFrame = 0
+    const targetFPS = mobile ? 30 : 60
+    const frameInterval = 1000 / targetFPS
     
     // Animation loop
-    const animate = () => {
-      // Fade effect for trails
-      ctx.fillStyle = 'rgba(10, 10, 15, 0.08)'
-      ctx.fillRect(0, 0, canvas.width, canvas.height)
+    const animate = (timestamp: number) => {
+      // Throttle frame rate on mobile
+      if (mobile && timestamp - lastFrame < frameInterval) {
+        animationRef.current = requestAnimationFrame(animate)
+        return
+      }
+      lastFrame = timestamp
       
-      time += 0.003
+      // Fade effect for trails
+      ctx.fillStyle = mobile ? 'rgba(8, 8, 8, 0.15)' : 'rgba(8, 8, 8, 0.08)'
+      ctx.fillRect(0, 0, window.innerWidth, window.innerHeight)
+      
+      time += mobile ? 0.004 : 0.003
+      
+      const width = window.innerWidth
+      const height = window.innerHeight
       
       particlesRef.current.forEach((particle, i) => {
         // Get flow field angle
@@ -115,21 +171,22 @@ export function FlowField() {
         const noiseVal = noise(col * 0.05, row * 0.05, time)
         const angle = noiseVal * Math.PI * 4
         
-        // Mouse influence
+        // Mouse/touch influence (reduced on mobile)
         if (mouseRef.current.active) {
           const dx = mouseRef.current.x - particle.x
           const dy = mouseRef.current.y - particle.y
           const dist = Math.sqrt(dx * dx + dy * dy)
-          if (dist < 150) {
-            const force = (150 - dist) / 150
-            particle.vx += (dx / dist) * force * 0.3
-            particle.vy += (dy / dist) * force * 0.3
+          const influenceRadius = mobile ? 100 : 150
+          if (dist < influenceRadius && dist > 0) {
+            const force = (influenceRadius - dist) / influenceRadius
+            particle.vx += (dx / dist) * force * (mobile ? 0.2 : 0.3)
+            particle.vy += (dy / dist) * force * (mobile ? 0.2 : 0.3)
           }
         }
         
         // Apply flow field
-        particle.vx += Math.cos(angle) * 0.15
-        particle.vy += Math.sin(angle) * 0.15
+        particle.vx += Math.cos(angle) * (mobile ? 0.12 : 0.15)
+        particle.vy += Math.sin(angle) * (mobile ? 0.12 : 0.15)
         
         // Friction
         particle.vx *= 0.98
@@ -145,11 +202,11 @@ export function FlowField() {
         const alpha = lifeRatio < 0.1 ? lifeRatio * 10 : lifeRatio > 0.9 ? (1 - lifeRatio) * 10 : 1
         ctx.beginPath()
         ctx.arc(particle.x, particle.y, particle.size, 0, Math.PI * 2)
-        ctx.fillStyle = `hsla(${particle.hue}, 80%, 60%, ${alpha * 0.5})`
+        ctx.fillStyle = `hsla(${particle.hue}, 80%, 60%, ${alpha * (mobile ? 0.6 : 0.5)})`
         ctx.fill()
         
-        // Add glow effect for some particles
-        if (Math.random() > 0.995) {
+        // Glow effect - less frequent on mobile
+        if (!mobile && Math.random() > 0.995) {
           ctx.beginPath()
           ctx.arc(particle.x, particle.y, particle.size * 4, 0, Math.PI * 2)
           const gradient = ctx.createRadialGradient(particle.x, particle.y, 0, particle.x, particle.y, particle.size * 4)
@@ -160,8 +217,8 @@ export function FlowField() {
         }
         
         // Reset particle if out of bounds or life ended
-        if (particle.x < 0 || particle.x > canvas.width ||
-            particle.y < 0 || particle.y > canvas.height ||
+        if (particle.x < 0 || particle.x > width ||
+            particle.y < 0 || particle.y > height ||
             particle.life > particle.maxLife) {
           particlesRef.current[i] = createParticle()
         }
@@ -170,12 +227,14 @@ export function FlowField() {
       animationRef.current = requestAnimationFrame(animate)
     }
     
-    animate()
+    animationRef.current = requestAnimationFrame(animate)
     
     return () => {
       window.removeEventListener('resize', resize)
       window.removeEventListener('mousemove', handleMouseMove)
+      window.removeEventListener('touchmove', handleTouchMove)
       document.removeEventListener('mouseleave', handleMouseLeave)
+      window.removeEventListener('touchend', handleTouchEnd)
       if (animationRef.current) {
         cancelAnimationFrame(animationRef.current)
       }
@@ -189,7 +248,8 @@ export function FlowField() {
       style={{ 
         zIndex: 0,
         background: 'transparent',
-        pointerEvents: 'none'
+        pointerEvents: 'none',
+        willChange: 'transform',
       }}
     />
   )
