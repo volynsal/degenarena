@@ -3,225 +3,224 @@
 import { useEffect, useRef } from 'react'
 
 // Crypto color palette (HSL hues)
-const COLORS = {
-  purple: 270,    // DegenArena purple
-  cyan: 175,      // Teal/cyan
-  gold: 45,       // Bitcoin gold
-  green: 145,     // Bullish green
-}
+const COLORS = [270, 175, 45, 145] // purple, cyan, gold, green
 
 export function FlowField() {
   const canvasRef = useRef<HTMLCanvasElement>(null)
-  const animationRef = useRef<number>(0)
   
   useEffect(() => {
     const canvas = canvasRef.current
     if (!canvas) return
     
-    const ctx = canvas.getContext('2d')
+    // Force canvas to be visible on Safari
+    canvas.style.opacity = '1'
+    canvas.style.visibility = 'visible'
+    
+    const ctx = canvas.getContext('2d', { 
+      alpha: false // Opaque canvas is faster
+    })
     if (!ctx) return
     
-    // Detect mobile once
+    // Detect mobile
     const isMobile = window.innerWidth < 768 || 
       /iPhone|iPad|iPod|Android/i.test(navigator.userAgent)
     
-    // Canvas setup - simple, no DPR scaling on mobile for performance
-    let width = window.innerWidth
-    let height = window.innerHeight
+    // Setup canvas
+    let width = 0
+    let height = 0
     
     const resize = () => {
       width = window.innerWidth
       height = window.innerHeight
       canvas.width = width
       canvas.height = height
+      // Fill with background color immediately
+      ctx.fillStyle = '#080808'
+      ctx.fillRect(0, 0, width, height)
     }
     resize()
     window.addEventListener('resize', resize)
     
-    // Particle system - MUCH fewer on mobile
-    const particleCount = isMobile ? 60 : 300
-    const particles: {
+    // Particles - fewer on mobile
+    const count = isMobile ? 50 : 250
+    
+    interface Particle {
       x: number
       y: number
       vx: number
       vy: number
       hue: number
       size: number
-      life: number
-      maxLife: number
-    }[] = []
-    
-    // Color picker
-    const getHue = () => {
-      const r = Math.random()
-      if (r < 0.4) return COLORS.purple + (Math.random() - 0.5) * 20
-      if (r < 0.7) return COLORS.cyan + (Math.random() - 0.5) * 20
-      if (r < 0.85) return COLORS.gold + (Math.random() - 0.5) * 15
-      return COLORS.green + (Math.random() - 0.5) * 15
+      age: number
+      maxAge: number
     }
     
-    // Create particle
-    const createParticle = () => ({
+    const particles: Particle[] = []
+    
+    const spawn = (): Particle => ({
       x: Math.random() * width,
       y: Math.random() * height,
-      vx: (Math.random() - 0.5) * 0.5,
-      vy: -0.3 - Math.random() * 0.4, // Upward bias
-      hue: getHue(),
-      size: isMobile ? 2 : 1.5 + Math.random() * 1.5,
-      life: 0,
-      maxLife: 150 + Math.random() * 150
+      vx: 0,
+      vy: 0,
+      hue: COLORS[Math.floor(Math.random() * COLORS.length)] + (Math.random() - 0.5) * 20,
+      size: isMobile ? 2.5 : 2,
+      age: 0,
+      maxAge: 200 + Math.random() * 200
     })
     
-    // Initialize particles
-    for (let i = 0; i < particleCount; i++) {
-      particles.push(createParticle())
+    for (let i = 0; i < count; i++) {
+      particles.push(spawn())
     }
     
-    // Simple flow noise
-    const flowNoise = (x: number, y: number, t: number) => {
-      return Math.sin(x * 0.01 + t) * Math.cos(y * 0.01 + t * 0.7) * Math.PI * 2
-    }
+    // Mouse/touch
+    let mx = 0, my = 0, mActive = false
     
-    // Mouse tracking
-    let mouseX = 0, mouseY = 0, mouseActive = false
+    const onMove = (x: number, y: number) => { mx = x; my = y; mActive = true }
+    const onEnd = () => { mActive = false }
     
-    const onMouseMove = (e: MouseEvent) => {
-      mouseX = e.clientX
-      mouseY = e.clientY
-      mouseActive = true
-    }
-    const onMouseLeave = () => { mouseActive = false }
-    const onTouchMove = (e: TouchEvent) => {
-      if (e.touches[0]) {
-        mouseX = e.touches[0].clientX
-        mouseY = e.touches[0].clientY
-        mouseActive = true
-      }
-    }
-    const onTouchEnd = () => { mouseActive = false }
+    window.addEventListener('mousemove', (e) => onMove(e.clientX, e.clientY))
+    document.addEventListener('mouseleave', onEnd)
+    window.addEventListener('touchmove', (e) => {
+      if (e.touches[0]) onMove(e.touches[0].clientX, e.touches[0].clientY)
+    }, { passive: true })
+    window.addEventListener('touchend', onEnd)
     
-    window.addEventListener('mousemove', onMouseMove)
-    document.addEventListener('mouseleave', onMouseLeave)
-    window.addEventListener('touchmove', onTouchMove, { passive: true })
-    window.addEventListener('touchend', onTouchEnd)
-    
-    // Animation
+    // Animation with delta time for consistent speed
+    let lastTime = performance.now()
     let time = 0
-    let lastTime = 0
+    let animId = 0
     
-    const animate = (timestamp: number) => {
-      // Frame limiting for mobile (target ~24fps)
-      if (isMobile && timestamp - lastTime < 41) {
-        animationRef.current = requestAnimationFrame(animate)
-        return
-      }
-      lastTime = timestamp
+    const loop = () => {
+      const now = performance.now()
+      const delta = Math.min(now - lastTime, 50) // Cap delta to avoid jumps
+      lastTime = now
       
-      // Clear with fade
-      ctx.fillStyle = isMobile ? 'rgba(8, 8, 8, 0.12)' : 'rgba(8, 8, 8, 0.06)'
+      // Time increment - SAME for both mobile and desktop
+      time += delta * 0.00003
+      
+      // Fade trails - slightly faster fade for cleaner look
+      ctx.fillStyle = 'rgba(8, 8, 8, 0.08)'
       ctx.fillRect(0, 0, width, height)
       
-      time += 0.01
+      // Update particles
+      const speed = delta * 0.001 // Normalized speed factor
       
-      // Update and draw particles
-      for (let i = 0; i < particles.length; i++) {
+      for (let i = 0; i < count; i++) {
         const p = particles[i]
         
-        // Flow field
-        const angle = flowNoise(p.x, p.y, time)
-        p.vx += Math.cos(angle) * 0.08
-        p.vy += Math.sin(angle) * 0.08 - 0.015 // Upward drift
+        // Simple flow field
+        const nx = p.x * 0.008
+        const ny = p.y * 0.008
+        const angle = (Math.sin(nx + time * 30) + Math.cos(ny + time * 20)) * Math.PI
         
-        // Mouse influence
-        if (mouseActive) {
-          const dx = mouseX - p.x
-          const dy = mouseY - p.y
-          const dist = Math.sqrt(dx * dx + dy * dy)
-          if (dist < 120 && dist > 0) {
-            const force = (120 - dist) / 120 * 0.2
-            p.vx += (dx / dist) * force
-            p.vy += (dy / dist) * force
+        // Apply force (scaled by delta time)
+        p.vx += Math.cos(angle) * speed * 5
+        p.vy += Math.sin(angle) * speed * 5 - speed * 1.5 // Upward bias
+        
+        // Mouse attraction
+        if (mActive) {
+          const dx = mx - p.x
+          const dy = my - p.y
+          const d = Math.sqrt(dx * dx + dy * dy)
+          if (d < 100 && d > 1) {
+            const f = (100 - d) / 100 * speed * 15
+            p.vx += (dx / d) * f
+            p.vy += (dy / d) * f
           }
         }
         
-        // Friction and movement
-        p.vx *= 0.96
-        p.vy *= 0.96
+        // Friction
+        p.vx *= 0.95
+        p.vy *= 0.95
+        
+        // Move
         p.x += p.vx
         p.y += p.vy
-        p.life++
+        p.age += delta * 0.06
         
-        // Alpha based on life
-        const lifeRatio = p.life / p.maxLife
-        let alpha = 1
-        if (lifeRatio < 0.1) alpha = lifeRatio * 10
-        else if (lifeRatio > 0.85) alpha = (1 - lifeRatio) / 0.15
+        // Calculate alpha
+        const lifeRatio = p.age / p.maxAge
+        let alpha = 0.6
+        if (lifeRatio < 0.15) alpha = lifeRatio / 0.15 * 0.6
+        else if (lifeRatio > 0.8) alpha = (1 - lifeRatio) / 0.2 * 0.6
         
-        // Draw particle
+        // Draw - use rgba for Safari compatibility
+        const h = p.hue
+        const r = h < 60 ? 255 : h < 180 ? Math.round((180 - h) / 120 * 255) : h > 300 ? 255 : h > 240 ? Math.round((h - 240) / 60 * 255) : 0
+        const g = h < 60 ? Math.round(h / 60 * 255) : h < 180 ? 255 : h < 240 ? Math.round((240 - h) / 60 * 255) : 0
+        const b = h < 120 ? 0 : h < 180 ? Math.round((h - 120) / 60 * 255) : h < 300 ? 255 : Math.round((360 - h) / 60 * 255)
+        
         ctx.beginPath()
-        ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2)
-        ctx.fillStyle = `hsla(${p.hue}, 85%, 60%, ${alpha * 0.6})`
+        ctx.arc(p.x, p.y, p.size, 0, 6.28)
+        ctx.fillStyle = `rgba(${r}, ${g}, ${b}, ${alpha})`
         ctx.fill()
         
-        // Reset if needed
-        if (p.x < -20 || p.x > width + 20 || 
-            p.y < -20 || p.y > height + 20 || 
-            p.life > p.maxLife) {
-          particles[i] = createParticle()
-          // Spawn from bottom half for upward flow
-          if (Math.random() > 0.3) {
-            particles[i].y = height + 10
-            particles[i].x = Math.random() * width
+        // Reset if out of bounds or old
+        if (p.x < -30 || p.x > width + 30 || p.y < -30 || p.y > height + 30 || p.age > p.maxAge) {
+          const newP = spawn()
+          // Spawn from bottom for upward flow
+          if (Math.random() > 0.4) {
+            newP.y = height + 15
           }
+          particles[i] = newP
         }
       }
       
-      // Draw connections between close particles (desktop only)
-      if (!isMobile) {
-        ctx.lineWidth = 0.5
-        for (let i = 0; i < particles.length; i++) {
-          for (let j = i + 1; j < particles.length; j++) {
-            const dx = particles[i].x - particles[j].x
-            const dy = particles[i].y - particles[j].y
-            const dist = dx * dx + dy * dy // Skip sqrt for performance
-            if (dist < 6400) { // 80px squared
-              const alpha = (1 - dist / 6400) * 0.12
+      // Connection lines (desktop only, limit checks for performance)
+      if (!isMobile && count <= 250) {
+        ctx.lineWidth = 0.4
+        const maxDist = 70
+        const maxDistSq = maxDist * maxDist
+        
+        for (let i = 0; i < count; i += 2) { // Check every other particle
+          const p1 = particles[i]
+          for (let j = i + 2; j < count; j += 2) {
+            const p2 = particles[j]
+            const dx = p1.x - p2.x
+            const dy = p1.y - p2.y
+            const distSq = dx * dx + dy * dy
+            
+            if (distSq < maxDistSq) {
+              const alpha = (1 - distSq / maxDistSq) * 0.1
+              const avgHue = (p1.hue + p2.hue) / 2
+              const r = avgHue < 60 ? 200 : avgHue < 180 ? Math.round((180 - avgHue) / 120 * 200) : avgHue > 300 ? 200 : avgHue > 240 ? Math.round((avgHue - 240) / 60 * 200) : 50
+              const g = avgHue < 60 ? Math.round(avgHue / 60 * 200) : avgHue < 180 ? 200 : avgHue < 240 ? Math.round((240 - avgHue) / 60 * 200) : 50
+              const b = avgHue < 120 ? 50 : avgHue < 180 ? Math.round((avgHue - 120) / 60 * 200) : avgHue < 300 ? 200 : Math.round((360 - avgHue) / 60 * 200)
+              
               ctx.beginPath()
-              ctx.moveTo(particles[i].x, particles[i].y)
-              ctx.lineTo(particles[j].x, particles[j].y)
-              ctx.strokeStyle = `hsla(${(particles[i].hue + particles[j].hue) / 2}, 70%, 55%, ${alpha})`
+              ctx.moveTo(p1.x, p1.y)
+              ctx.lineTo(p2.x, p2.y)
+              ctx.strokeStyle = `rgba(${r}, ${g}, ${b}, ${alpha})`
               ctx.stroke()
             }
           }
         }
       }
       
-      animationRef.current = requestAnimationFrame(animate)
+      animId = requestAnimationFrame(loop)
     }
     
-    animationRef.current = requestAnimationFrame(animate)
+    animId = requestAnimationFrame(loop)
     
     return () => {
+      cancelAnimationFrame(animId)
       window.removeEventListener('resize', resize)
-      window.removeEventListener('mousemove', onMouseMove)
-      document.removeEventListener('mouseleave', onMouseLeave)
-      window.removeEventListener('touchmove', onTouchMove)
-      window.removeEventListener('touchend', onTouchEnd)
-      cancelAnimationFrame(animationRef.current)
     }
   }, [])
   
   return (
     <canvas
       ref={canvasRef}
+      width={typeof window !== 'undefined' ? window.innerWidth : 1920}
+      height={typeof window !== 'undefined' ? window.innerHeight : 1080}
       style={{ 
         position: 'fixed',
-        top: 0,
-        left: 0,
-        width: '100%',
-        height: '100%',
+        inset: 0,
+        width: '100vw',
+        height: '100vh',
         zIndex: 0,
         pointerEvents: 'none',
+        background: '#080808',
       }}
     />
   )
