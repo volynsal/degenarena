@@ -187,7 +187,7 @@ export default function WaitlistPage() {
               {/* Social proof */}
               <div className="mt-6 text-center">
                 <p className="text-sm text-gray-500">
-                  <span className="text-arena-cyan font-medium">500+</span> degens already waiting
+                  <span className="text-arena-cyan font-medium">Limited beta access</span> coming soon
                 </p>
               </div>
             </div>
