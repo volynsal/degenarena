@@ -175,7 +175,7 @@ export default function LoginPage() {
                 <span className="font-semibold bg-gradient-to-r from-arena-purple to-arena-cyan bg-clip-text text-transparent">
                   Sniper Agent
                 </span>
-                <span className="text-gray-500 text-xs ml-1">— AI that trades for you</span>
+                <span className="text-gray-500 text-xs ml-1">— AI that advises you in real-time</span>
               </span>
             </div>
             
