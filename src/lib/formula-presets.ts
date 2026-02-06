@@ -117,21 +117,21 @@ export const FORMULA_PRESETS: FormulaPreset[] = [
     holdTime: '30 min - 6 hours',
     requireRugcheck: true,
     rugcheckMinScore: 35, // Aggressive - fast-moving opportunities
-    requireGalaxyScore: true,
-    galaxyScoreMin: 45, // Validates organic volume
+    // Galaxy Score removed - most tokens with sudden volume spikes won't have
+    // LunarCrush data yet. RugCheck + volume/price filters are sufficient.
     parameters: {
-      // Massive volume spike - 5x normal
-      volume_1h_vs_6h_spike: 5.0,
+      // Strong volume spike - 3x normal (was 5x, too restrictive)
+      volume_1h_vs_6h_spike: 3.0,
       // Just starting to move
-      price_change_1h_min: 3,
-      price_change_1h_max: 25,
-      // Strong buying
-      buy_sell_ratio_1h_min: 1.5,
-      tx_count_1h_min: 60,
+      price_change_1h_min: 2,
+      price_change_1h_max: 40,
+      // Buyers present
+      buy_sell_ratio_1h_min: 1.2,
+      tx_count_1h_min: 30,
       // Mid-cap focus
-      fdv_min: 200000,
-      fdv_max: 5000000,
-      liquidity_min: 30000,
+      fdv_min: 100000,
+      fdv_max: 10000000,
+      liquidity_min: 15000,
     }
   },
   
@@ -139,7 +139,7 @@ export const FORMULA_PRESETS: FormulaPreset[] = [
   {
     id: 'accumulation_quiet',
     name: 'Quiet Accumulation',
-    description: 'Find tokens being quietly accumulated. Low volume + growing holders = smart money loading.',
+    description: 'Find tokens being quietly accumulated. Stable price + decent liquidity = smart money loading.',
     tier: 'pro',
     strategy: 'accumulation',
     riskLevel: 'low',
@@ -147,19 +147,17 @@ export const FORMULA_PRESETS: FormulaPreset[] = [
     requireRugcheck: true,
     rugcheckMinScore: 15, // Conservative - longest hold, highest safety needed
     parameters: {
-      // Not dumping, not pumping
-      price_change_24h_min: -10,
-      price_change_24h_max: 15,
-      // Volume decreasing (quiet)
-      volume_6h_vs_24h_spike: 0.7, // Below 0.7x = decreasing
-      // Survived initial volatility
-      token_age_max_hours: 168, // 7 days old minimum (use as inverse)
+      // Not dumping, not pumping — sideways action
+      price_change_24h_min: -15,
+      price_change_24h_max: 10,
+      // Survived initial volatility — at least 3 days old (4320 minutes)
+      token_age_min_minutes: 4320,
       // Established project
-      fdv_min: 200000,
+      fdv_min: 100000,
       fdv_max: 20000000,
       // Solid liquidity
-      liquidity_min: 50000,
-      volume_24h_min: 20000,
+      liquidity_min: 25000,
+      volume_24h_min: 10000,
     }
   },
   {
@@ -171,20 +169,21 @@ export const FORMULA_PRESETS: FormulaPreset[] = [
     riskLevel: 'medium',
     holdTime: '2-14 days',
     requireRugcheck: true,
-    rugcheckMinScore: 30, // Moderate - quality oversold tokens should have decent fundamentals
+    rugcheckMinScore: 25, // Moderate - quality oversold tokens should have decent fundamentals
     parameters: {
-      // Down but stabilizing
-      price_change_24h_min: -5,
-      price_change_24h_max: 10,
-      // Volume picking up slightly
-      volume_1h_vs_6h_spike: 1.5,
+      // Recently dropped but stabilizing — 24h still red or flat
+      price_change_24h_min: -30,
+      price_change_24h_max: 5,
+      // Short-term buying returning — 1h volume picking up vs 6h average
+      volume_1h_vs_6h_spike: 1.3,
       // Some buying returning
-      buy_sell_ratio_1h_min: 1.1,
-      tx_count_24h_min: 100,
-      // Established
-      fdv_min: 500000,
+      buy_sell_ratio_1h_min: 1.05,
+      tx_count_24h_min: 50,
+      // Established — at least 2 days old
+      token_age_min_minutes: 2880,
+      fdv_min: 200000,
       fdv_max: 50000000,
-      liquidity_min: 100000,
+      liquidity_min: 30000,
     }
   },
   
