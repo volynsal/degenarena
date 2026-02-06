@@ -86,7 +86,9 @@ export default function WaitlistPage() {
                 Find the next{' '}
                 <span className="gradient-text">100x</span>
                 <br />
-                before everyone else
+                before everyone
+                <br />
+                else
               </h1>
               
               <p className="text-lg sm:text-xl text-gray-400 mb-8 max-w-lg mx-auto lg:mx-0">
