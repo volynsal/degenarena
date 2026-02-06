@@ -19,7 +19,7 @@ export function Footer() {
             {/* Logo */}
             <div className="flex items-center gap-2">
               <img src="/logo.png" alt="DegenArena HQ" className="w-10 h-10 rounded-lg" />
-              <span className="text-lg font-bold text-white">DegenArena HQ</span>
+              <span className="text-lg font-bold text-white font-brand">DegenArena HQ</span>
             </div>
             
             {/* Links */}

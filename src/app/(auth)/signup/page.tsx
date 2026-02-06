@@ -83,7 +83,7 @@ export default function SignupPage() {
         <nav className="p-4">
           <Link href="/" className="flex items-center gap-2 w-fit">
             <img src="/logo.png" alt="DegenArena HQ" className="w-10 h-10 rounded-lg" />
-            <span className="text-xl font-bold gradient-text">DegenArena HQ</span>
+            <span className="text-xl font-bold gradient-text font-brand">DegenArena HQ</span>
           </Link>
         </nav>
         
@@ -115,7 +115,7 @@ export default function SignupPage() {
         <nav className="p-4">
           <Link href="/" className="flex items-center gap-2 w-fit">
             <img src="/logo.png" alt="DegenArena HQ" className="w-10 h-10 rounded-lg" />
-            <span className="text-xl font-bold gradient-text">DegenArena HQ</span>
+            <span className="text-xl font-bold gradient-text font-brand">DegenArena HQ</span>
           </Link>
         </nav>
         

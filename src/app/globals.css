@@ -63,6 +63,11 @@ body {
   background-clip: text;
 }
 
+/* Brand font for DegenArena HQ logo */
+.font-brand {
+  font-family: var(--font-orbitron), sans-serif;
+}
+
 /* Glass morphism card */
 .glass-card {
   background: rgba(255, 255, 255, 0.02);
