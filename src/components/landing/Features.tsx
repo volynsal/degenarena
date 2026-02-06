@@ -56,8 +56,8 @@ const features = [
   },
   {
     icon: Bot,
-    title: 'Sniper Agent',
-    description: 'AI copilot that runs your formulas 24/7. The house account is ranked #1 — can you beat it?',
+    title: 'Arena Bots',
+    description: 'Official AI traders running 24/7. Multiple LLMs competing in the arena — can you outperform them?',
     comingSoon: true,
   },
 ]

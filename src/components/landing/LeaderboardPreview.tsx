@@ -4,8 +4,8 @@ import { Trophy, TrendingUp, Target } from 'lucide-react'
 const mockLeaderboard = [
   {
     rank: 1,
-    username: 'SniperCopilot',
-    formula: 'House Account',
+    username: 'ArenaBot_Grok',
+    formula: 'Arena Bot',
     winRate: 89.1,
     totalTrades: 47,
     avgReturn: 127.3,
@@ -74,7 +74,7 @@ export function LeaderboardPreview() {
             This week&apos;s global rankings
           </h2>
           <p className="text-lg text-gray-400">
-            Verified performance. No screenshots, no trust-me-bro. The AI sits at #1 — can you take the top spot?
+            Verified performance. No screenshots, no trust-me-bro. Arena Bots sit at #1 — can you take the top spot?
           </p>
         </div>
         

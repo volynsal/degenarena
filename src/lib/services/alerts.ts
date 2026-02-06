@@ -22,7 +22,7 @@ export interface AlertPayload {
   dexscreenerUrl: string
 }
 
-// Grok Advisor webhook configuration
+// Arena Bot webhook configuration (AI analysis on alerts)
 const GROK_WEBHOOK_URL = process.env.GROK_WEBHOOK_URL // e.g., http://your-vps-ip:5000/webhook
 const GROK_WEBHOOK_SECRET = process.env.GROK_WEBHOOK_SECRET || 'degenarena-grok-secret'
 
@@ -110,7 +110,7 @@ export class AlertService {
   
   /**
    * Send alert via Telegram
-   * After successful send, triggers Grok Advisor webhook for AI analysis
+   * After successful send, triggers Arena Bot webhook for AI analysis
    */
   async sendTelegramAlert(chatId: string, payload: AlertPayload): Promise<boolean> {
     const botToken = process.env.TELEGRAM_BOT_TOKEN
@@ -142,7 +142,7 @@ export class AlertService {
         return false
       }
       
-      // After successful Telegram alert, trigger Grok Advisor analysis
+      // After successful Telegram alert, trigger Arena Bot analysis
       // This runs asynchronously - don't await to avoid blocking
       this.sendGrokWebhook(chatId, payload).catch(err => {
         console.error('Grok webhook trigger failed (non-blocking):', err)
@@ -476,11 +476,11 @@ You'll receive alerts when matches are found.`
     return results
   }
   
-  // ============ Grok Advisor Integration ============
+  // ============ Arena Bot Integration ============
   
   /**
-   * Send alert to Grok Advisor webhook for AI analysis
-   * This enables each user to get their own Grok copilot analysis
+   * Send alert to Arena Bot webhook for AI analysis
+   * This enables each user to get their own Arena Bot analysis
    */
   async sendGrokWebhook(chatId: string, payload: AlertPayload): Promise<boolean> {
     if (!GROK_WEBHOOK_URL) {
