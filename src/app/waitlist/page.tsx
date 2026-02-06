@@ -9,9 +9,9 @@ import { Mail, ArrowRight, Zap, Check, Trophy, Target, Bell, Users } from 'lucid
 
 const features = [
   { icon: Target, text: 'Build shareable, custom token-finding formulas and get rewarded for cooking up winners' },
-  { icon: Bell, text: 'Early sign-ups will be able to subscribe at a discount to AI copilot - coming soon - to advise you on alerts instantly in one unified Telegram chat, powered by Grok' },
+  { icon: Bell, text: 'Early users can subscribe at a discount to AI copilot to advise you on alerts instantly, in one Telegram chat, powered by Grok' },
   { icon: Trophy, text: 'Compete on the global leaderboard and in regular competitions' },
-  { icon: Users, text: 'Twitch integration will enable you to go live on your own or with your collective - help build the next FaZe' },
+  { icon: Users, text: 'Twitch integration will enable you to go live on your own or with your clan' },
 ]
 
 export default function WaitlistPage() {
