@@ -22,6 +22,10 @@ export interface AlertPayload {
   dexscreenerUrl: string
 }
 
+// Grok Advisor webhook configuration
+const GROK_WEBHOOK_URL = process.env.GROK_WEBHOOK_URL // e.g., http://your-vps-ip:5000/webhook
+const GROK_WEBHOOK_SECRET = process.env.GROK_WEBHOOK_SECRET || 'degenarena-grok-secret'
+
 export interface DigestMatch {
   tokenSymbol: string
   tokenName: string
@@ -106,6 +110,7 @@ export class AlertService {
   
   /**
    * Send alert via Telegram
+   * After successful send, triggers Grok Advisor webhook for AI analysis
    */
   async sendTelegramAlert(chatId: string, payload: AlertPayload): Promise<boolean> {
     const botToken = process.env.TELEGRAM_BOT_TOKEN
@@ -136,6 +141,12 @@ export class AlertService {
         console.error('Telegram API error:', error)
         return false
       }
+      
+      // After successful Telegram alert, trigger Grok Advisor analysis
+      // This runs asynchronously - don't await to avoid blocking
+      this.sendGrokWebhook(chatId, payload).catch(err => {
+        console.error('Grok webhook trigger failed (non-blocking):', err)
+      })
       
       return true
     } catch (error) {
@@ -463,6 +474,54 @@ You'll receive alerts when matches are found.`
     }
     
     return results
+  }
+  
+  // ============ Grok Advisor Integration ============
+  
+  /**
+   * Send alert to Grok Advisor webhook for AI analysis
+   * This enables each user to get their own Grok copilot analysis
+   */
+  async sendGrokWebhook(chatId: string, payload: AlertPayload): Promise<boolean> {
+    if (!GROK_WEBHOOK_URL) {
+      // Grok webhook not configured - silently skip
+      return false
+    }
+    
+    try {
+      const response = await fetch(GROK_WEBHOOK_URL, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${GROK_WEBHOOK_SECRET}`,
+        },
+        body: JSON.stringify({
+          token_address: payload.tokenAddress,
+          chat_id: chatId,
+          formula_name: payload.formulaName,
+          user_id: payload.userId,
+          token_symbol: payload.tokenSymbol,
+          token_name: payload.tokenName,
+          chain: payload.chain,
+          price: payload.price,
+          liquidity: payload.liquidity,
+          volume24h: payload.volume24h,
+        }),
+      })
+      
+      if (!response.ok) {
+        const error = await response.json().catch(() => ({ message: 'Unknown error' }))
+        console.error('Grok webhook error:', error)
+        return false
+      }
+      
+      const result = await response.json()
+      console.log(`🤖 Grok analysis triggered for ${payload.tokenSymbol}:`, result.status)
+      return true
+    } catch (error) {
+      console.error('Error calling Grok webhook:', error)
+      return false
+    }
   }
   
   // ============ Message Formatting ============
