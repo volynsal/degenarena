@@ -8,9 +8,9 @@ import { Input } from '@/components/ui/Input'
 import { Mail, ArrowRight, Zap, Check, Trophy, Target, Bell, Users } from 'lucide-react'
 
 const features = [
-  { icon: Target, text: 'Build shareable, custom token-finding formulas and get rewarded for cooking up winners' },
+  { icon: Target, text: 'Build custom token-finding formulas and get rewarded for cooking up winners' },
   { icon: Bell, text: 'AI copilot to advise you on alerts instantly, in one Telegram chat, powered by Grok' },
-  { icon: Trophy, text: 'Compete on the global leaderboard and in regular competitions' },
+  { icon: Trophy, text: 'Compete on the global leaderboard' },
   { icon: Users, text: 'Twitch integration will enable you to go live on your own or with your clan' },
 ]
 
