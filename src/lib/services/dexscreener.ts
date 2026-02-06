@@ -163,7 +163,7 @@ export class DexScreenerService {
           .slice(0, 30) // Limit to keep within cron timeout
         
         // Fetch full pair data for each token (in batches)
-        const tokenAddresses = [...new Set(chainTokens.map((t: { tokenAddress: string }) => t.tokenAddress))]
+        const tokenAddresses = Array.from(new Set(chainTokens.map((t: { tokenAddress: string }) => t.tokenAddress))) as string[]
         
         // Batch fetch - DexScreener allows comma-separated addresses (up to 30)
         for (let i = 0; i < tokenAddresses.length; i += 15) {
