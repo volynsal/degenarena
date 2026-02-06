@@ -11,7 +11,7 @@ const features = [
   { icon: Target, text: 'Build custom token-finding formulas and get rewarded for cooking up winners' },
   { icon: Bell, text: 'AI copilot to advise you on alerts instantly, in one Telegram chat, powered by Grok' },
   { icon: Trophy, text: 'Compete on the global leaderboard' },
-  { icon: Users, text: 'Twitch integration will enable you to go live on your own or with your clan' },
+  { icon: Users, text: 'Twitch integration will allow you to go live on your own or with your clan' },
 ]
 
 export default function WaitlistPage() {
