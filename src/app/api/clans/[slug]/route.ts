@@ -33,6 +33,7 @@ interface ClanDetails {
     user_id: string
     username: string
     avatar_url: string | null
+    twitch_url: string | null
     role: string
     win_rate: number
     total_matches: number
@@ -82,10 +83,10 @@ export async function GET(
   // Get member details and stats
   const memberStats: any[] = []
   for (const member of members || []) {
-    // Get profile separately
+    // Get profile separately (including twitch_url)
     const { data: profile } = await serviceClient
       .from('profiles')
-      .select('username, avatar_url')
+      .select('username, avatar_url, twitch_url')
       .eq('id', member.user_id)
       .single()
     
@@ -104,6 +105,7 @@ export async function GET(
       user_id: member.user_id,
       username: profile?.username || 'Unknown User',
       avatar_url: profile?.avatar_url || null,
+      twitch_url: profile?.twitch_url || null,
       role: member.role,
       win_rate: Math.round(avgWinRate * 10) / 10,
       total_matches: totalMatches,

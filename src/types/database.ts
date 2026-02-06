@@ -13,6 +13,7 @@ export interface Profile {
   email: string
   avatar_url?: string | null
   bio?: string | null
+  twitch_url?: string | null
   subscription_tier: SubscriptionTier
   badges: EarnedBadge[]
   created_at: string

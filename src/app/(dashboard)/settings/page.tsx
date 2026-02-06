@@ -12,11 +12,30 @@ import {
   Save, 
   Loader2,
   ExternalLink,
-  Info
+  Info,
+  User,
+  Tv
 } from 'lucide-react'
+
+// Twitch icon component
+const TwitchIcon = ({ className }: { className?: string }) => (
+  <svg className={className} viewBox="0 0 24 24" fill="currentColor">
+    <path d="M11.571 4.714h1.715v5.143H11.57zm4.715 0H18v5.143h-1.714zM6 0L1.714 4.286v15.428h5.143V24l4.286-4.286h3.428L22.286 12V0zm14.571 11.143l-3.428 3.428h-3.429l-3 3v-3H6.857V1.714h13.714z"/>
+  </svg>
+)
 
 export default function SettingsPage() {
   const { settings, isLoading, isSaving, error, saveSettings, clearError } = useAlertSettings()
+  
+  // Profile state
+  const [profileData, setProfileData] = useState({
+    twitch_url: '',
+    bio: '',
+  })
+  const [profileLoading, setProfileLoading] = useState(true)
+  const [profileSaving, setProfileSaving] = useState(false)
+  const [profileError, setProfileError] = useState<string | null>(null)
+  const [profileSuccess, setProfileSuccess] = useState(false)
   
   const [formData, setFormData] = useState({
     telegram_enabled: false,
@@ -27,6 +46,29 @@ export default function SettingsPage() {
     min_interval_seconds: 60,
     daily_limit: 100,
   })
+  
+  // Fetch profile data
+  useEffect(() => {
+    const fetchProfile = async () => {
+      try {
+        const res = await fetch('/api/user/profile')
+        if (res.ok) {
+          const data = await res.json()
+          if (data.data) {
+            setProfileData({
+              twitch_url: data.data.twitch_url || '',
+              bio: data.data.bio || '',
+            })
+          }
+        }
+      } catch (e) {
+        console.error('Failed to fetch profile:', e)
+      } finally {
+        setProfileLoading(false)
+      }
+    }
+    fetchProfile()
+  }, [])
   
   // Update form when settings load
   useEffect(() => {
@@ -42,6 +84,34 @@ export default function SettingsPage() {
       })
     }
   }, [settings])
+  
+  // Save profile
+  const handleProfileSave = async () => {
+    setProfileSaving(true)
+    setProfileError(null)
+    setProfileSuccess(false)
+    
+    try {
+      const res = await fetch('/api/user/profile', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(profileData),
+      })
+      
+      const data = await res.json()
+      
+      if (!res.ok) {
+        setProfileError(data.error || 'Failed to save profile')
+      } else {
+        setProfileSuccess(true)
+        setTimeout(() => setProfileSuccess(false), 3000)
+      }
+    } catch (e) {
+      setProfileError('Failed to save profile')
+    } finally {
+      setProfileSaving(false)
+    }
+  }
   
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -78,6 +148,77 @@ export default function SettingsPage() {
           {error}
         </div>
       )}
+      
+      {/* Profile Settings */}
+      <Card>
+        <CardHeader>
+          <div className="flex items-center gap-2">
+            <User className="w-5 h-5 text-arena-purple" />
+            <CardTitle>Profile</CardTitle>
+          </div>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          {profileError && (
+            <div className="p-3 rounded-lg bg-red-500/10 border border-red-500/20 text-red-400 text-sm">
+              {profileError}
+            </div>
+          )}
+          {profileSuccess && (
+            <div className="p-3 rounded-lg bg-green-500/10 border border-green-500/20 text-green-400 text-sm">
+              Profile saved successfully!
+            </div>
+          )}
+          
+          {/* Twitch URL */}
+          <div className="p-4 rounded-lg bg-[#9146FF]/10 border border-[#9146FF]/20">
+            <div className="flex items-center gap-2 mb-3">
+              <TwitchIcon className="w-5 h-5 text-[#9146FF]" />
+              <span className="text-white font-medium">Twitch Channel</span>
+            </div>
+            <p className="text-sm text-gray-400 mb-3">
+              Link your Twitch channel to show on your profile and clan page. Others can see when you&apos;re streaming.
+            </p>
+            <Input
+              placeholder="https://twitch.tv/yourusername or just yourusername"
+              value={profileData.twitch_url}
+              onChange={(e) => setProfileData(prev => ({ ...prev, twitch_url: e.target.value }))}
+              disabled={profileLoading}
+            />
+          </div>
+          
+          {/* Bio */}
+          <div>
+            <label className="block text-sm font-medium text-gray-300 mb-2">
+              Bio
+            </label>
+            <textarea
+              placeholder="Tell others about yourself..."
+              value={profileData.bio}
+              onChange={(e) => setProfileData(prev => ({ ...prev, bio: e.target.value }))}
+              disabled={profileLoading}
+              rows={3}
+              maxLength={500}
+              className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:border-arena-purple transition-colors resize-none"
+            />
+            <p className="text-xs text-gray-500 mt-1 text-right">
+              {profileData.bio.length}/500
+            </p>
+          </div>
+          
+          <div className="flex justify-end">
+            <Button 
+              type="button" 
+              variant="secondary" 
+              onClick={handleProfileSave}
+              loading={profileSaving}
+              disabled={profileLoading}
+            >
+              <Save className="w-4 h-4 mr-2" />
+              Save Profile
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
       
       <form onSubmit={handleSubmit} className="space-y-6">
         {/* Telegram Settings */}
