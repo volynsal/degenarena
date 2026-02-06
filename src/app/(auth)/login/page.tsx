@@ -173,7 +173,7 @@ export default function LoginPage() {
               <span className="text-sm">
                 <span className="text-gray-400">Coming Soon:</span>{' '}
                 <span className="font-semibold bg-gradient-to-r from-arena-purple to-arena-cyan bg-clip-text text-transparent">
-                  Sniper Agent
+                  AI Copilot
                 </span>
                 <span className="text-gray-500 text-xs ml-1">— AI that advises you in real-time</span>
               </span>
@@ -182,7 +182,7 @@ export default function LoginPage() {
             {/* Feature highlights */}
             <div className="flex flex-wrap justify-center gap-2">
               {[
-                'Build Token Filters',
+                'Token Filters',
                 'Instant Alerts',
                 '24hr Flip Battles',
                 'Clan Wars',
