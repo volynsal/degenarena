@@ -1,337 +1,200 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef } from 'react'
 
-interface Particle {
-  x: number
-  y: number
-  vx: number
-  vy: number
-  life: number
-  maxLife: number
-  size: number
-  hue: number
-  type: 'normal' | 'node' | 'pulse'
-  brightness: number
-}
-
-// Crypto-aligned color palette
-const CRYPTO_COLORS = {
-  purple: 270,      // DegenArena purple
-  cyan: 175,        // DegenArena cyan/teal
-  gold: 45,         // Bitcoin gold
-  green: 145,       // Bullish green
-  solana: 260,      // Solana purple
+// Crypto color palette (HSL hues)
+const COLORS = {
+  purple: 270,    // DegenArena purple
+  cyan: 175,      // Teal/cyan
+  gold: 45,       // Bitcoin gold
+  green: 145,     // Bullish green
 }
 
 export function FlowField() {
   const canvasRef = useRef<HTMLCanvasElement>(null)
-  const animationRef = useRef<number>()
-  const particlesRef = useRef<Particle[]>([])
-  const mouseRef = useRef({ x: 0, y: 0, active: false })
-  const [isMobile, setIsMobile] = useState(false)
+  const animationRef = useRef<number>(0)
   
   useEffect(() => {
-    // Detect mobile device
-    const checkMobile = () => {
-      const mobile = window.innerWidth < 768 || 
-        /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)
-      setIsMobile(mobile)
-      return mobile
-    }
-    
-    const mobile = checkMobile()
-    
     const canvas = canvasRef.current
     if (!canvas) return
     
-    // Use standard 2d context for maximum compatibility
-    const ctx = canvas.getContext('2d', { alpha: true })
+    const ctx = canvas.getContext('2d')
     if (!ctx) return
     
-    // Set canvas size with device pixel ratio handling
-    const dpr = mobile ? 1 : Math.min(window.devicePixelRatio || 1, 2)
-    let currentWidth = window.innerWidth
-    let currentHeight = window.innerHeight
+    // Detect mobile once
+    const isMobile = window.innerWidth < 768 || 
+      /iPhone|iPad|iPod|Android/i.test(navigator.userAgent)
+    
+    // Canvas setup - simple, no DPR scaling on mobile for performance
+    let width = window.innerWidth
+    let height = window.innerHeight
     
     const resize = () => {
-      currentWidth = window.innerWidth
-      currentHeight = window.innerHeight
-      canvas.width = currentWidth * dpr
-      canvas.height = currentHeight * dpr
-      canvas.style.width = `${currentWidth}px`
-      canvas.style.height = `${currentHeight}px`
-      ctx.setTransform(1, 0, 0, 1, 0, 0)
-      ctx.scale(dpr, dpr)
+      width = window.innerWidth
+      height = window.innerHeight
+      canvas.width = width
+      canvas.height = height
     }
     resize()
     window.addEventListener('resize', resize)
     
-    // Flow field parameters
-    const scale = mobile ? 30 : 20
+    // Particle system - MUCH fewer on mobile
+    const particleCount = isMobile ? 60 : 300
+    const particles: {
+      x: number
+      y: number
+      vx: number
+      vy: number
+      hue: number
+      size: number
+      life: number
+      maxLife: number
+    }[] = []
+    
+    // Color picker
+    const getHue = () => {
+      const r = Math.random()
+      if (r < 0.4) return COLORS.purple + (Math.random() - 0.5) * 20
+      if (r < 0.7) return COLORS.cyan + (Math.random() - 0.5) * 20
+      if (r < 0.85) return COLORS.gold + (Math.random() - 0.5) * 15
+      return COLORS.green + (Math.random() - 0.5) * 15
+    }
+    
+    // Create particle
+    const createParticle = () => ({
+      x: Math.random() * width,
+      y: Math.random() * height,
+      vx: (Math.random() - 0.5) * 0.5,
+      vy: -0.3 - Math.random() * 0.4, // Upward bias
+      hue: getHue(),
+      size: isMobile ? 2 : 1.5 + Math.random() * 1.5,
+      life: 0,
+      maxLife: 150 + Math.random() * 150
+    })
+    
+    // Initialize particles
+    for (let i = 0; i < particleCount; i++) {
+      particles.push(createParticle())
+    }
+    
+    // Simple flow noise
+    const flowNoise = (x: number, y: number, t: number) => {
+      return Math.sin(x * 0.01 + t) * Math.cos(y * 0.01 + t * 0.7) * Math.PI * 2
+    }
+    
+    // Mouse tracking
+    let mouseX = 0, mouseY = 0, mouseActive = false
+    
+    const onMouseMove = (e: MouseEvent) => {
+      mouseX = e.clientX
+      mouseY = e.clientY
+      mouseActive = true
+    }
+    const onMouseLeave = () => { mouseActive = false }
+    const onTouchMove = (e: TouchEvent) => {
+      if (e.touches[0]) {
+        mouseX = e.touches[0].clientX
+        mouseY = e.touches[0].clientY
+        mouseActive = true
+      }
+    }
+    const onTouchEnd = () => { mouseActive = false }
+    
+    window.addEventListener('mousemove', onMouseMove)
+    document.addEventListener('mouseleave', onMouseLeave)
+    window.addEventListener('touchmove', onTouchMove, { passive: true })
+    window.addEventListener('touchend', onTouchEnd)
+    
+    // Animation
     let time = 0
+    let lastTime = 0
     
-    // Simplified noise for mobile, full Perlin for desktop
-    const noise = (x: number, y: number, z: number): number => {
-      if (mobile) {
-        return Math.sin(x * 0.5 + z) * Math.cos(y * 0.5 + z) * 0.5
-      }
-      const X = Math.floor(x) & 255
-      const Y = Math.floor(y) & 255
-      const Z = Math.floor(z) & 255
-      x -= Math.floor(x)
-      y -= Math.floor(y)
-      z -= Math.floor(z)
-      const u = fade(x)
-      const v = fade(y)
-      const w = fade(z)
-      const A = p[X] + Y, AA = p[A] + Z, AB = p[A + 1] + Z
-      const B = p[X + 1] + Y, BA = p[B] + Z, BB = p[B + 1] + Z
-      return lerp(w, lerp(v, lerp(u, grad(p[AA], x, y, z), grad(p[BA], x - 1, y, z)),
-        lerp(u, grad(p[AB], x, y - 1, z), grad(p[BB], x - 1, y - 1, z))),
-        lerp(v, lerp(u, grad(p[AA + 1], x, y, z - 1), grad(p[BA + 1], x - 1, y, z - 1)),
-          lerp(u, grad(p[AB + 1], x, y - 1, z - 1), grad(p[BB + 1], x - 1, y - 1, z - 1))))
-    }
-    
-    const fade = (t: number) => t * t * t * (t * (t * 6 - 15) + 10)
-    const lerp = (t: number, a: number, b: number) => a + t * (b - a)
-    const grad = (hash: number, x: number, y: number, z: number) => {
-      const h = hash & 15
-      const u = h < 8 ? x : y
-      const v = h < 4 ? y : h === 12 || h === 14 ? x : z
-      return ((h & 1) === 0 ? u : -u) + ((h & 2) === 0 ? v : -v)
-    }
-    
-    // Permutation table
-    const p = new Array(512)
-    const permutation = [151,160,137,91,90,15,131,13,201,95,96,53,194,233,7,225,140,36,103,30,69,142,8,99,37,240,21,10,23,190,6,148,247,120,234,75,0,26,197,62,94,252,219,203,117,35,11,32,57,177,33,88,237,149,56,87,174,20,125,136,171,168,68,175,74,165,71,134,139,48,27,166,77,146,158,231,83,111,229,122,60,211,133,230,220,105,92,41,55,46,245,40,244,102,143,54,65,25,63,161,1,216,80,73,209,76,132,187,208,89,18,169,200,196,135,130,116,188,159,86,164,100,109,198,173,186,3,64,52,217,226,250,124,123,5,202,38,147,118,126,255,82,85,212,207,206,59,227,47,16,58,17,182,189,28,42,223,183,170,213,119,248,152,2,44,154,163,70,221,153,101,155,167,43,172,9,129,22,39,253,19,98,108,110,79,113,224,232,178,185,112,104,218,246,97,228,251,34,242,193,238,210,144,12,191,179,162,241,81,51,145,235,249,14,239,107,49,192,214,31,181,199,106,157,184,84,204,176,115,121,50,45,127,4,150,254,138,236,205,93,222,114,67,29,24,72,243,141,128,195,78,66,215,61,156,180]
-    for (let i = 0; i < 256; i++) p[256 + i] = p[i] = permutation[i]
-    
-    // Get crypto-themed color
-    const getCryptoHue = (): number => {
-      const rand = Math.random()
-      if (rand < 0.35) return CRYPTO_COLORS.purple + (Math.random() - 0.5) * 20
-      if (rand < 0.60) return CRYPTO_COLORS.cyan + (Math.random() - 0.5) * 20
-      if (rand < 0.75) return CRYPTO_COLORS.gold + (Math.random() - 0.5) * 15
-      if (rand < 0.90) return CRYPTO_COLORS.green + (Math.random() - 0.5) * 15
-      return CRYPTO_COLORS.solana + (Math.random() - 0.5) * 15
-    }
-    
-    // Create particles with crypto-aligned properties
-    const createParticle = (isNode = false): Particle => {
-      const type = isNode ? 'node' : (Math.random() > 0.97 ? 'pulse' : 'normal')
-      return {
-        x: Math.random() * currentWidth,
-        y: Math.random() * currentHeight,
-        vx: 0,
-        vy: -0.2 - Math.random() * 0.3, // Slight upward bias (bullish)
-        life: 0,
-        maxLife: mobile ? 80 + Math.random() * 120 : 100 + Math.random() * 200,
-        size: type === 'node' ? 2.5 + Math.random() * 1.5 : 
-              type === 'pulse' ? 1.5 + Math.random() * 1 :
-              mobile ? 1.2 + Math.random() * 1.3 : 1 + Math.random() * 1.5,
-        hue: getCryptoHue(),
-        type,
-        brightness: type === 'pulse' ? 80 : 60
-      }
-    }
-    
-    // Particle count based on screen size
-    const particleCount = mobile 
-      ? Math.min(120, Math.floor((currentWidth * currentHeight) / 10000))
-      : Math.min(400, Math.floor((currentWidth * currentHeight) / 5000))
-    
-    // Create mix of particle types - more nodes for network effect
-    const nodeCount = Math.floor(particleCount * 0.15)
-    particlesRef.current = [
-      ...Array.from({ length: nodeCount }, () => createParticle(true)),
-      ...Array.from({ length: particleCount - nodeCount }, () => createParticle(false))
-    ]
-    
-    // Mouse/Touch tracking
-    const handleMouseMove = (e: MouseEvent) => {
-      mouseRef.current.x = e.clientX
-      mouseRef.current.y = e.clientY
-      mouseRef.current.active = true
-    }
-    const handleTouchMove = (e: TouchEvent) => {
-      if (e.touches.length > 0) {
-        mouseRef.current.x = e.touches[0].clientX
-        mouseRef.current.y = e.touches[0].clientY
-        mouseRef.current.active = true
-      }
-    }
-    const handleMouseLeave = () => { mouseRef.current.active = false }
-    const handleTouchEnd = () => { mouseRef.current.active = false }
-    
-    window.addEventListener('mousemove', handleMouseMove)
-    window.addEventListener('touchmove', handleTouchMove, { passive: true })
-    document.addEventListener('mouseleave', handleMouseLeave)
-    window.addEventListener('touchend', handleTouchEnd)
-    
-    // FPS control
-    let lastFrame = 0
-    const targetFPS = mobile ? 30 : 60
-    const frameInterval = 1000 / targetFPS
-    
-    // Connection line drawing helper
-    const drawConnection = (p1: Particle, p2: Particle, alpha: number) => {
-      ctx.beginPath()
-      ctx.moveTo(p1.x, p1.y)
-      ctx.lineTo(p2.x, p2.y)
-      ctx.strokeStyle = `hsla(${(p1.hue + p2.hue) / 2}, 60%, 50%, ${alpha * 0.15})`
-      ctx.lineWidth = 0.5
-      ctx.stroke()
-    }
-    
-    // Animation loop
     const animate = (timestamp: number) => {
-      // Frame rate limiting
-      if (timestamp - lastFrame < frameInterval) {
+      // Frame limiting for mobile (target ~24fps)
+      if (isMobile && timestamp - lastTime < 41) {
         animationRef.current = requestAnimationFrame(animate)
         return
       }
-      lastFrame = timestamp
+      lastTime = timestamp
       
-      // Fade effect for trails
-      ctx.fillStyle = 'rgba(8, 8, 8, 0.08)'
-      ctx.fillRect(0, 0, currentWidth, currentHeight)
+      // Clear with fade
+      ctx.fillStyle = isMobile ? 'rgba(8, 8, 8, 0.12)' : 'rgba(8, 8, 8, 0.06)'
+      ctx.fillRect(0, 0, width, height)
       
-      time += 0.003
+      time += 0.01
       
-      const particles = particlesRef.current
+      // Update and draw particles
+      for (let i = 0; i < particles.length; i++) {
+        const p = particles[i]
+        
+        // Flow field
+        const angle = flowNoise(p.x, p.y, time)
+        p.vx += Math.cos(angle) * 0.08
+        p.vy += Math.sin(angle) * 0.08 - 0.015 // Upward drift
+        
+        // Mouse influence
+        if (mouseActive) {
+          const dx = mouseX - p.x
+          const dy = mouseY - p.y
+          const dist = Math.sqrt(dx * dx + dy * dy)
+          if (dist < 120 && dist > 0) {
+            const force = (120 - dist) / 120 * 0.2
+            p.vx += (dx / dist) * force
+            p.vy += (dy / dist) * force
+          }
+        }
+        
+        // Friction and movement
+        p.vx *= 0.96
+        p.vy *= 0.96
+        p.x += p.vx
+        p.y += p.vy
+        p.life++
+        
+        // Alpha based on life
+        const lifeRatio = p.life / p.maxLife
+        let alpha = 1
+        if (lifeRatio < 0.1) alpha = lifeRatio * 10
+        else if (lifeRatio > 0.85) alpha = (1 - lifeRatio) / 0.15
+        
+        // Draw particle
+        ctx.beginPath()
+        ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2)
+        ctx.fillStyle = `hsla(${p.hue}, 85%, 60%, ${alpha * 0.6})`
+        ctx.fill()
+        
+        // Reset if needed
+        if (p.x < -20 || p.x > width + 20 || 
+            p.y < -20 || p.y > height + 20 || 
+            p.life > p.maxLife) {
+          particles[i] = createParticle()
+          // Spawn from bottom half for upward flow
+          if (Math.random() > 0.3) {
+            particles[i].y = height + 10
+            particles[i].x = Math.random() * width
+          }
+        }
+      }
       
-      // Draw network connections between nearby node particles (desktop only)
-      if (!mobile) {
-        const connectionDist = 120
-        const nodes = particles.filter(p => p.type === 'node')
-        for (let i = 0; i < nodes.length; i++) {
-          for (let j = i + 1; j < nodes.length; j++) {
-            const dx = nodes[i].x - nodes[j].x
-            const dy = nodes[i].y - nodes[j].y
-            const dist = Math.sqrt(dx * dx + dy * dy)
-            if (dist < connectionDist) {
-              const alpha = 1 - dist / connectionDist
-              const life1 = nodes[i].life / nodes[i].maxLife
-              const life2 = nodes[j].life / nodes[j].maxLife
-              const lifeAlpha = Math.min(
-                life1 < 0.1 ? life1 * 10 : life1 > 0.9 ? (1 - life1) * 10 : 1,
-                life2 < 0.1 ? life2 * 10 : life2 > 0.9 ? (1 - life2) * 10 : 1
-              )
-              drawConnection(nodes[i], nodes[j], alpha * lifeAlpha)
+      // Draw connections between close particles (desktop only)
+      if (!isMobile) {
+        ctx.lineWidth = 0.5
+        for (let i = 0; i < particles.length; i++) {
+          for (let j = i + 1; j < particles.length; j++) {
+            const dx = particles[i].x - particles[j].x
+            const dy = particles[i].y - particles[j].y
+            const dist = dx * dx + dy * dy // Skip sqrt for performance
+            if (dist < 6400) { // 80px squared
+              const alpha = (1 - dist / 6400) * 0.12
+              ctx.beginPath()
+              ctx.moveTo(particles[i].x, particles[i].y)
+              ctx.lineTo(particles[j].x, particles[j].y)
+              ctx.strokeStyle = `hsla(${(particles[i].hue + particles[j].hue) / 2}, 70%, 55%, ${alpha})`
+              ctx.stroke()
             }
           }
         }
       }
-      
-      // Update and draw particles
-      particles.forEach((particle, i) => {
-        // Get flow field angle
-        const col = Math.floor(particle.x / scale)
-        const row = Math.floor(particle.y / scale)
-        const noiseVal = noise(col * 0.05, row * 0.05, time)
-        const angle = noiseVal * Math.PI * 4
-        
-        // Mouse/touch influence
-        if (mouseRef.current.active) {
-          const dx = mouseRef.current.x - particle.x
-          const dy = mouseRef.current.y - particle.y
-          const dist = Math.sqrt(dx * dx + dy * dy)
-          const influenceRadius = 150
-          if (dist < influenceRadius && dist > 0) {
-            const force = (influenceRadius - dist) / influenceRadius
-            particle.vx += (dx / dist) * force * 0.3
-            particle.vy += (dy / dist) * force * 0.3
-          }
-        }
-        
-        // Apply flow field with slight upward bias (bullish motion)
-        particle.vx += Math.cos(angle) * 0.12
-        particle.vy += Math.sin(angle) * 0.12 - 0.02 // Subtle upward drift
-        
-        // Friction
-        particle.vx *= 0.98
-        particle.vy *= 0.98
-        
-        // Update position
-        particle.x += particle.vx
-        particle.y += particle.vy
-        particle.life++
-        
-        // Calculate alpha based on life cycle
-        const lifeRatio = particle.life / particle.maxLife
-        const alpha = lifeRatio < 0.1 ? lifeRatio * 10 : lifeRatio > 0.9 ? (1 - lifeRatio) * 10 : 1
-        
-        // Draw based on particle type
-        if (particle.type === 'pulse') {
-          // Pulsing "transaction" particle
-          const pulsePhase = (particle.life % 30) / 30
-          const pulseSize = particle.size * (1 + Math.sin(pulsePhase * Math.PI * 2) * 0.5)
-          ctx.beginPath()
-          ctx.arc(particle.x, particle.y, pulseSize, 0, Math.PI * 2)
-          ctx.fillStyle = `hsla(${particle.hue}, 90%, ${particle.brightness}%, ${alpha * 0.7})`
-          ctx.fill()
-          
-          // Pulse glow
-          ctx.beginPath()
-          ctx.arc(particle.x, particle.y, pulseSize * 2.5, 0, Math.PI * 2)
-          const pulseGradient = ctx.createRadialGradient(
-            particle.x, particle.y, 0, 
-            particle.x, particle.y, pulseSize * 2.5
-          )
-          pulseGradient.addColorStop(0, `hsla(${particle.hue}, 100%, 70%, ${alpha * 0.3})`)
-          pulseGradient.addColorStop(1, 'transparent')
-          ctx.fillStyle = pulseGradient
-          ctx.fill()
-          
-        } else if (particle.type === 'node') {
-          // Network node particle (larger, brighter)
-          ctx.beginPath()
-          ctx.arc(particle.x, particle.y, particle.size, 0, Math.PI * 2)
-          ctx.fillStyle = `hsla(${particle.hue}, 75%, ${particle.brightness}%, ${alpha * 0.6})`
-          ctx.fill()
-          
-          // Node ring (blockchain node aesthetic)
-          ctx.beginPath()
-          ctx.arc(particle.x, particle.y, particle.size * 1.8, 0, Math.PI * 2)
-          ctx.strokeStyle = `hsla(${particle.hue}, 70%, 55%, ${alpha * 0.2})`
-          ctx.lineWidth = 0.8
-          ctx.stroke()
-          
-        } else {
-          // Normal particle
-          ctx.beginPath()
-          ctx.arc(particle.x, particle.y, particle.size, 0, Math.PI * 2)
-          ctx.fillStyle = `hsla(${particle.hue}, 80%, ${particle.brightness}%, ${alpha * 0.5})`
-          ctx.fill()
-        }
-        
-        // Occasional bright flash (like a "confirmation")
-        if (!mobile && Math.random() > 0.997 && particle.type === 'node') {
-          ctx.beginPath()
-          ctx.arc(particle.x, particle.y, particle.size * 5, 0, Math.PI * 2)
-          const flashGradient = ctx.createRadialGradient(
-            particle.x, particle.y, 0,
-            particle.x, particle.y, particle.size * 5
-          )
-          flashGradient.addColorStop(0, `hsla(${particle.hue}, 100%, 80%, 0.5)`)
-          flashGradient.addColorStop(0.5, `hsla(${particle.hue}, 100%, 60%, 0.2)`)
-          flashGradient.addColorStop(1, 'transparent')
-          ctx.fillStyle = flashGradient
-          ctx.fill()
-        }
-        
-        // Reset particle if out of bounds or life ended
-        if (particle.x < -50 || particle.x > currentWidth + 50 ||
-            particle.y < -50 || particle.y > currentHeight + 50 ||
-            particle.life > particle.maxLife) {
-          particlesRef.current[i] = createParticle(particle.type === 'node')
-          // Respawn at bottom for upward flow feel
-          if (Math.random() > 0.5) {
-            particlesRef.current[i].y = currentHeight + 20
-          }
-        }
-      })
       
       animationRef.current = requestAnimationFrame(animate)
     }
@@ -340,27 +203,25 @@ export function FlowField() {
     
     return () => {
       window.removeEventListener('resize', resize)
-      window.removeEventListener('mousemove', handleMouseMove)
-      window.removeEventListener('touchmove', handleTouchMove)
-      document.removeEventListener('mouseleave', handleMouseLeave)
-      window.removeEventListener('touchend', handleTouchEnd)
-      if (animationRef.current) {
-        cancelAnimationFrame(animationRef.current)
-      }
+      window.removeEventListener('mousemove', onMouseMove)
+      document.removeEventListener('mouseleave', onMouseLeave)
+      window.removeEventListener('touchmove', onTouchMove)
+      window.removeEventListener('touchend', onTouchEnd)
+      cancelAnimationFrame(animationRef.current)
     }
   }, [])
   
   return (
     <canvas
       ref={canvasRef}
-      className="fixed inset-0"
       style={{ 
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        width: '100%',
+        height: '100%',
         zIndex: 0,
-        background: 'transparent',
         pointerEvents: 'none',
-        willChange: 'transform',
-        WebkitTransform: 'translateZ(0)',
-        transform: 'translateZ(0)',
       }}
     />
   )
