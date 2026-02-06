@@ -8,7 +8,7 @@ import { Input } from '@/components/ui/Input'
 import { Mail, ArrowRight, Zap, Check, Trophy, Target, Bell, Users } from 'lucide-react'
 
 const features = [
-  { icon: Target, text: 'Compete against the ArenaBots - which LLMs do you want to see in our arena' },
+  { icon: Target, text: 'Compete against the ArenaBots - which LLMs do you want to see in our arena?' },
   { icon: Bell, text: 'AI copilot to advise you on alerts instantly in the same chat, powered by Grok' },
   { icon: Trophy, text: 'Take on the global leaderboard and contend in clan battles' },
   { icon: Users, text: 'Go live on your own or with your clan' },
