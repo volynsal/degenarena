@@ -160,14 +160,14 @@ export class DexScreenerService {
         // Filter to requested chain and get unique token addresses
         const chainTokens = boostedTokens
           .filter((t: { chainId: string }) => t.chainId === chain)
-          .slice(0, 50) // Limit to avoid too many API calls
+          .slice(0, 30) // Limit to keep within cron timeout
         
         // Fetch full pair data for each token (in batches)
-        const tokenAddresses = chainTokens.map((t: { tokenAddress: string }) => t.tokenAddress)
+        const tokenAddresses = [...new Set(chainTokens.map((t: { tokenAddress: string }) => t.tokenAddress))]
         
-        // Batch fetch - DexScreener allows comma-separated addresses
-        for (let i = 0; i < tokenAddresses.length; i += 10) {
-          const batch = tokenAddresses.slice(i, i + 10)
+        // Batch fetch - DexScreener allows comma-separated addresses (up to 30)
+        for (let i = 0; i < tokenAddresses.length; i += 15) {
+          const batch = tokenAddresses.slice(i, i + 15)
           const batchAddresses = batch.join(',')
           
           try {

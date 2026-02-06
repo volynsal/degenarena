@@ -58,6 +58,19 @@ export class TokenMonitorService {
   }
   
   /**
+   * Batch-load all already-matched token addresses for a formula
+   * Returns a Set of token addresses for fast lookup
+   */
+  async getAlreadyMatchedTokens(formulaId: string): Promise<Set<string>> {
+    const { data } = await supabaseAdmin
+      .from('token_matches')
+      .select('token_address')
+      .eq('formula_id', formulaId)
+    
+    return new Set((data || []).map(m => m.token_address))
+  }
+  
+  /**
    * Save a new token match to the database
    * @param sendImmediateAlert - If true, sends alert immediately. If false, waits for digest cron.
    * @param rugcheckData - Optional RugCheck safety data to store with match
@@ -154,18 +167,20 @@ export class TokenMonitorService {
         const pairs = await dexscreener.getPairsByChain(chain, 'volume')
         console.log(`🔗 Fetched ${pairs.length} pairs from ${chain}`)
         
-        // Filter to only new tokens (created in last 24h for now)
-        const oneDayAgo = Date.now() - (24 * 60 * 60 * 1000)
-        const newPairs = pairs.filter(p => {
-          if (!p.pairCreatedAt) return false
-          return p.pairCreatedAt > oneDayAgo
-        })
+        // Use all fetched pairs — individual formulas have their own age filters
+        // (token_age_max_hours, token_age_min_minutes) so we don't need to
+        // pre-filter here. This allows accumulation/bounce presets to match
+        // older tokens that DexScreener returns as trending/boosted.
+        const newPairs = pairs.filter(p => p.baseToken?.address && p.priceUsd)
         
-        console.log(`🆕 ${newPairs.length} pairs created in last 24h`)
+        console.log(`📊 ${newPairs.length} valid pairs to check`)
         
         // Check each formula against each new token
         for (const formula of formulas) {
           const matchedTokens: { pair: DexScreenerPair; reasons: string[] }[] = []
+          
+          // Batch-load already matched tokens for this formula (1 DB query instead of N)
+          const alreadyMatchedTokens = await this.getAlreadyMatchedTokens(formula.id)
           
           for (const pair of newPairs) {
             // Skip if already processed this token for this formula
@@ -174,18 +189,13 @@ export class TokenMonitorService {
               continue
             }
             
-            // Check if already in database
-            const alreadyMatched = await this.isAlreadyMatched(
-              formula.id, 
-              pair.baseToken.address
-            )
-            
-            if (alreadyMatched) {
+            // Check if already in database (fast Set lookup, no DB call)
+            if (alreadyMatchedTokens.has(pair.baseToken.address)) {
               this.processedTokens.add(cacheKey)
               continue
             }
             
-            // Check if token matches formula criteria
+            // Check if token matches formula criteria (pure function, no I/O)
             const { matches, reasons } = dexscreener.checkFormulaMatch(pair, formula)
             
             if (matches) {
