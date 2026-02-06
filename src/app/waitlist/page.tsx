@@ -8,10 +8,10 @@ import { Input } from '@/components/ui/Input'
 import { Mail, ArrowRight, Zap, Check, Trophy, Target, Bell, Users } from 'lucide-react'
 
 const features = [
-  { icon: Target, text: 'Build custom token-finding formulas' },
-  { icon: Bell, text: 'Real-time alerts via Telegram & Discord' },
-  { icon: Trophy, text: 'Compete on the global leaderboard' },
-  { icon: Users, text: 'Join clans and trade with friends' },
+  { icon: Target, text: 'Build shareable, custom token-finding formulas and get rewarded for cooking up winners' },
+  { icon: Bell, text: 'Early sign-ups will be able to subscribe at a discount to AI copilot - coming soon - to advise you on alerts instantly in one unified Telegram chat, powered by Grok' },
+  { icon: Trophy, text: 'Compete on the global leaderboard and in regular competitions' },
+  { icon: Users, text: 'Twitch integration will enable you to go live on your own or with your collective - help build the next FaZe' },
 ]
 
 export default function WaitlistPage() {
