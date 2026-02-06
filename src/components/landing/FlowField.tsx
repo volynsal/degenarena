@@ -197,6 +197,54 @@ export function FlowField() {
         }
       }
       
+      // === GLITCH EFFECT ===
+      // Random glitch bursts — brief digital distortion
+      const glitchChance = isMobile ? 0.003 : 0.006
+      
+      if (Math.random() < glitchChance) {
+        const glitchIntensity = Math.random()
+        const numSlices = Math.floor(2 + Math.random() * (glitchIntensity > 0.7 ? 8 : 4))
+        
+        for (let g = 0; g < numSlices; g++) {
+          // Random horizontal slice
+          const sliceY = Math.floor(Math.random() * height)
+          const sliceH = Math.floor(2 + Math.random() * (isMobile ? 8 : 15))
+          const shiftX = Math.floor((Math.random() - 0.5) * (isMobile ? 20 : 50))
+          
+          // Copy and shift a horizontal slice
+          const imgData = ctx.getImageData(0, sliceY, width, sliceH)
+          ctx.putImageData(imgData, shiftX, sliceY)
+        }
+        
+        // Occasional color channel separation (desktop only, heavier effect)
+        if (!isMobile && glitchIntensity > 0.8) {
+          const scanY = Math.floor(Math.random() * height)
+          const scanH = Math.floor(5 + Math.random() * 30)
+          
+          // Cyan/red chromatic aberration line
+          ctx.globalCompositeOperation = 'lighter'
+          ctx.fillStyle = `rgba(20, 241, 149, ${0.03 + Math.random() * 0.04})`
+          ctx.fillRect(0, scanY, width, scanH)
+          ctx.fillStyle = `rgba(153, 69, 255, ${0.02 + Math.random() * 0.03})`
+          ctx.fillRect(0, scanY + 2, width, scanH)
+          ctx.globalCompositeOperation = 'source-over'
+        }
+        
+        // Brief scan line flicker
+        if (glitchIntensity > 0.5) {
+          const lineY = Math.floor(Math.random() * height)
+          ctx.fillStyle = `rgba(20, 241, 149, ${0.05 + Math.random() * 0.1})`
+          ctx.fillRect(0, lineY, width, 1)
+        }
+      }
+      
+      // Subtle persistent scan lines (desktop only)
+      if (!isMobile && Math.random() < 0.02) {
+        const y = Math.floor(Math.random() * height)
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.015)'
+        ctx.fillRect(0, y, width, 1)
+      }
+      
       animId = requestAnimationFrame(loop)
     }
     
