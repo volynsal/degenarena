@@ -73,10 +73,14 @@ export default function WaitlistPage() {
             
             {/* Left side - Text */}
             <div className="text-center lg:text-left">
-              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-arena-purple/20 border border-arena-purple/30 text-arena-purple text-sm mb-6">
+              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-arena-purple/20 border border-arena-purple/30 text-arena-purple text-sm mb-4">
                 <Zap className="w-4 h-4" />
                 Early Access Waitlist
               </div>
+              
+              <p className="text-sm sm:text-base font-bold tracking-[0.2em] text-arena-cyan uppercase mb-4">
+                Esports for Degens
+              </p>
               
               <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-white mb-6 leading-tight">
                 Find the next{' '}
