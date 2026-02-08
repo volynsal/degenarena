@@ -8,7 +8,8 @@ import {
   Zap,
   BarChart3,
   Swords,
-  Bot
+  Bot,
+  Target
 } from 'lucide-react'
 
 const features = [
@@ -25,8 +26,8 @@ const features = [
   },
   {
     icon: Sliders,
-    title: 'Formula Builder',
-    description: 'Use our tool to get started in the arena or BYO. Scan new tokens with 20+ filters. Liquidity, volume, token age, rug and galaxy score checks.',
+    title: 'Formulas & Presets',
+    description: 'Scan new tokens with 20+ filters or use battle-tested presets like Launch Sniper and Momentum Breakout. A great way to get started or sharpen your edge.',
   },
   {
     icon: TrendingUp,
@@ -49,10 +50,9 @@ const features = [
     description: 'Climb the leaderboard. See where you stand against traders worldwide. The best rise to the top.',
   },
   {
-    icon: Zap,
-    title: 'Strategy Presets',
-    description: 'Launch Sniper, Momentum Breakout, CEX-Ready Candidate — battle-tested scanning presets to help you find opportunities.',
-    premium: true,
+    icon: Target,
+    title: 'Arena Bets',
+    description: 'Prediction markets on trending memecoins. Will it pump, dump, or rug? Bet with points and build win streaks.',
   },
   {
     icon: Bot,

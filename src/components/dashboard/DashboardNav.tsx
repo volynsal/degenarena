@@ -3,12 +3,13 @@
 import { useState, useRef, useEffect } from 'react'
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
-import { Bell, Settings, User, Menu, LogOut, ChevronDown, X, LayoutDashboard, Sliders, Users, Shield, Trophy, Radio } from 'lucide-react'
+import { Bell, Settings, User, Menu, LogOut, ChevronDown, X, LayoutDashboard, Sliders, Users, Shield, Trophy, Radio, Target } from 'lucide-react'
 import { useAuthStore } from '@/lib/stores/auth-store'
 import { cn } from '@/lib/utils'
 
 const mobileNavigation = [
   { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
+  { name: 'Arena Bets', href: '/arena-bets', icon: Target },
   { name: 'My Formulas', href: '/formulas', icon: Sliders },
   { name: 'Community', href: '/community', icon: Users },
   { name: 'Clans', href: '/clans', icon: Shield },

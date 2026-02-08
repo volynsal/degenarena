@@ -13,7 +13,7 @@ const features = [
   'Compete against AI bots and real traders',
   'Real-time alerts via Telegram & Discord',
   'Track verified performance with analytics',
-  'Optional token scanners to sharpen your edge',
+  'Prediction markets, token scanners, and more',
 ]
 
 export default function SignupPage() {

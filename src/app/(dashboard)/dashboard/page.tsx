@@ -152,6 +152,32 @@ export default function DashboardPage() {
         </CardContent>
       </Card>
       
+      {/* Arena Bets widget */}
+      <Card className="border-arena-purple/20">
+        <CardContent className="p-4 sm:p-6">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-lg bg-arena-purple/20 flex items-center justify-center">
+                <Target className="w-5 h-5 text-arena-purple" />
+              </div>
+              <div>
+                <p className="text-white font-medium">Arena Bets</p>
+                <p className="text-sm text-gray-400">
+                  Predict memecoin moves, earn points
+                </p>
+              </div>
+            </div>
+            <Link
+              href="/arena-bets"
+              className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-gradient-to-r from-arena-purple to-arena-cyan text-white text-sm font-medium hover:opacity-90 transition-opacity"
+            >
+              <Zap className="w-3.5 h-3.5" />
+              Play Now
+            </Link>
+          </div>
+        </CardContent>
+      </Card>
+      
       {/* Best formula highlight */}
       {stats?.best_formula && (
         <Card className="border-arena-purple/30">

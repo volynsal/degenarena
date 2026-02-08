@@ -12,11 +12,13 @@ import {
   Settings,
   Sparkles,
   Swords,
-  Radio
+  Radio,
+  Target
 } from 'lucide-react'
 
 const navigation = [
   { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
+  { name: 'Arena Bets', href: '/arena-bets', icon: Target },
   { name: 'My Formulas', href: '/formulas', icon: Sliders },
   { name: 'Community', href: '/community', icon: Users },
   { name: 'Competitions', href: '/competitions', icon: Swords },

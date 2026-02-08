@@ -414,6 +414,71 @@ export interface UpdateAlertSettingsInput {
   daily_limit?: number
 }
 
+// Arena Bets Types
+export type MarketType = 'up_down' | 'rug_call' | 'moonshot'
+export type MarketStatus = 'active' | 'resolved' | 'cancelled'
+export type BetPosition = 'yes' | 'no'
+
+export interface ArenaMarket {
+  id: string
+  token_address: string
+  token_name: string
+  token_symbol: string
+  chain: string
+  market_type: MarketType
+  question: string
+  description?: string | null
+  price_at_creation: number
+  price_at_resolution?: number | null
+  liquidity?: number | null
+  volume_24h?: number | null
+  holder_count?: number | null
+  rugcheck_score?: number | null
+  resolve_at: string
+  resolved_at?: string | null
+  outcome?: BetPosition | null
+  status: MarketStatus
+  total_pool: number
+  yes_pool: number
+  no_pool: number
+  total_bettors: number
+  bot_predictions: Record<string, BetPosition>
+  dexscreener_url?: string | null
+  created_at: string
+  // Computed on API
+  user_bet?: ArenaBet | null
+  time_remaining?: number
+}
+
+export interface ArenaBet {
+  id: string
+  market_id: string
+  user_id: string
+  position: BetPosition
+  amount: number
+  payout: number
+  is_winner?: boolean | null
+  created_at: string
+  // Relations
+  market?: ArenaMarket
+}
+
+export interface UserPoints {
+  id: string
+  user_id: string
+  balance: number
+  total_earned: number
+  total_wagered: number
+  total_won: number
+  win_count: number
+  loss_count: number
+  current_streak: number
+  best_streak: number
+  last_daily_claim?: string | null
+  created_at: string
+  updated_at: string
+}
+
 // DexScreener API types
 export interface DexScreenerToken {
   chainId: string
