@@ -61,7 +61,7 @@ export class AlertService {
       .from('alert_settings')
       .select('*')
       .eq('user_id', userId)
-      .single()
+      .maybeSingle()
     
     return data as AlertSettings | null
   }
@@ -93,7 +93,7 @@ export class AlertService {
       .eq('status', 'sent')
       .order('sent_at', { ascending: false })
       .limit(1)
-      .single()
+      .maybeSingle()
     
     if (lastAlert?.sent_at) {
       const lastSentTime = new Date(lastAlert.sent_at).getTime()
@@ -354,7 +354,7 @@ You'll receive alerts when matches are found.`
         .from('profiles')
         .select('email')
         .eq('id', payload.userId)
-        .single()
+        .maybeSingle()
       
       if (profile?.email) {
         results.email = await this.sendDigestEmail(profile.email, payload)
@@ -459,7 +459,7 @@ You'll receive alerts when matches are found.`
         .from('profiles')
         .select('email')
         .eq('id', payload.userId)
-        .single()
+        .maybeSingle()
       
       if (profile?.email) {
         results.email = await this.sendEmailAlert(profile.email, payload)

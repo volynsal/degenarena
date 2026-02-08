@@ -52,7 +52,7 @@ export class TokenMonitorService {
       .select('id')
       .eq('formula_id', formulaId)
       .eq('token_address', tokenAddress)
-      .single()
+      .maybeSingle()
     
     return !!data
   }

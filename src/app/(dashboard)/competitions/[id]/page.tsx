@@ -335,7 +335,7 @@ export default function CompetitionDetailPage() {
                           </button>
                           
                           {showFormulaDropdown && (
-                            <div className="absolute top-full left-0 right-0 mt-1 bg-dark-800 border border-white/10 rounded-lg shadow-xl z-10 max-h-60 overflow-y-auto">
+                            <div className="absolute top-full left-0 right-0 mt-1 bg-arena-dark border border-white/10 rounded-lg shadow-xl z-10 max-h-60 overflow-y-auto">
                               {formulasLoading ? (
                                 <div className="p-4 text-center text-gray-400">
                                   <Loader2 className="w-5 h-5 animate-spin mx-auto" />
