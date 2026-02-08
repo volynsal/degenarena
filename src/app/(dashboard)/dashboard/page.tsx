@@ -1,10 +1,18 @@
 'use client'
 
+import { useState, useEffect } from 'react'
 import { useUserStats } from '@/lib/hooks/use-user-stats'
 import { useRecentMatches } from '@/lib/hooks/use-matches'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card'
-import { TrendingUp, Target, Trophy, Zap, ArrowUpRight, ExternalLink, Loader2 } from 'lucide-react'
+import { TrendingUp, Target, Trophy, Zap, ArrowUpRight, ExternalLink, Loader2, Radio } from 'lucide-react'
 import Link from 'next/link'
+
+// Twitch icon component
+const TwitchIcon = ({ className }: { className?: string }) => (
+  <svg className={className} viewBox="0 0 24 24" fill="currentColor">
+    <path d="M11.571 4.714h1.715v5.143H11.57zm4.715 0H18v5.143h-1.714zM6 0L1.714 4.286v15.428h5.143V24l4.286-4.286h3.428L22.286 12V0zm14.571 11.143l-3.428 3.428h-3.429l-3 3v-3H6.857V1.714h13.714z"/>
+  </svg>
+)
 
 function formatTimeAgo(dateString: string): string {
   const date = new Date(dateString)
@@ -22,6 +30,21 @@ function formatTimeAgo(dateString: string): string {
 export default function DashboardPage() {
   const { stats, isLoading: statsLoading } = useUserStats()
   const { matches, isLoading: matchesLoading } = useRecentMatches(5)
+  const [liveCount, setLiveCount] = useState(0)
+  const [userTwitchUrl, setUserTwitchUrl] = useState<string | null>(null)
+  
+  useEffect(() => {
+    // Fetch live count for the live widget
+    fetch('/api/twitch/live')
+      .then(r => r.json())
+      .then(d => setLiveCount(d.data?.length || 0))
+      .catch(() => {})
+    // Check if user has Twitch connected
+    fetch('/api/user/profile')
+      .then(r => r.json())
+      .then(d => { if (d.data?.twitch_url) setUserTwitchUrl(d.data.twitch_url) })
+      .catch(() => {})
+  }, [])
   
   const statsData = [
     {
@@ -78,6 +101,56 @@ export default function DashboardPage() {
           </Card>
         ))}
       </div>
+      
+      {/* Live & Go Live widget */}
+      <Card className="border-[#9146FF]/20">
+        <CardContent className="p-4 sm:p-6">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-lg bg-[#9146FF]/20 flex items-center justify-center">
+                <Radio className="w-5 h-5 text-[#9146FF]" />
+              </div>
+              <div>
+                <p className="text-white font-medium">Live Streams</p>
+                <p className="text-sm text-gray-400">
+                  {liveCount > 0
+                    ? `${liveCount} trader${liveCount > 1 ? 's' : ''} streaming now`
+                    : 'No one is live right now'}
+                </p>
+              </div>
+            </div>
+            <div className="flex items-center gap-2">
+              {liveCount > 0 && (
+                <Link
+                  href="/live"
+                  className="px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-sm text-white transition-colors"
+                >
+                  Watch
+                </Link>
+              )}
+              {userTwitchUrl ? (
+                <a
+                  href="https://dashboard.twitch.tv/stream-manager"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-[#9146FF] hover:bg-[#7c3aed] text-white text-sm font-medium transition-colors"
+                >
+                  <TwitchIcon className="w-3.5 h-3.5" />
+                  Go Live
+                </a>
+              ) : (
+                <Link
+                  href="/settings"
+                  className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-sm text-gray-400 hover:text-white transition-colors"
+                >
+                  <TwitchIcon className="w-3.5 h-3.5" />
+                  Connect
+                </Link>
+              )}
+            </div>
+          </div>
+        </CardContent>
+      </Card>
       
       {/* Best formula highlight */}
       {stats?.best_formula && (

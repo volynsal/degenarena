@@ -41,13 +41,28 @@ export default function LivePage() {
   const [liveUsers, setLiveUsers] = useState<LiveUser[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [selectedStream, setSelectedStream] = useState<string | null>(null)
+  const [userTwitchUrl, setUserTwitchUrl] = useState<string | null>(null)
+  const [userIsLive, setUserIsLive] = useState(false)
 
   useEffect(() => {
     fetchLiveUsers()
+    fetchUserProfile()
     // Refresh every 60 seconds
     const interval = setInterval(fetchLiveUsers, 60000)
     return () => clearInterval(interval)
   }, [])
+
+  const fetchUserProfile = async () => {
+    try {
+      const res = await fetch('/api/user/profile')
+      const data = await res.json()
+      if (data.data?.twitch_url) {
+        setUserTwitchUrl(data.data.twitch_url)
+      }
+    } catch {
+      // Not critical
+    }
+  }
 
   const fetchLiveUsers = async () => {
     try {
@@ -59,6 +74,9 @@ export default function LivePage() {
         if (!selectedStream && data.data.length > 0) {
           setSelectedStream(data.data[0].twitch_username)
         }
+        // Check if current user is among the live users
+        // We'll compare after profile loads
+        setUserIsLive(false)
       }
     } catch {
       // Silently fail
@@ -66,6 +84,14 @@ export default function LivePage() {
       setIsLoading(false)
     }
   }
+
+  // Check if current user is live whenever liveUsers or userTwitchUrl changes
+  useEffect(() => {
+    if (userTwitchUrl && liveUsers.length > 0) {
+      const twitchUser = userTwitchUrl.replace(/https?:\/\/(www\.)?twitch\.tv\//i, '').split('/')[0].split('?')[0].toLowerCase()
+      setUserIsLive(liveUsers.some(u => u.twitch_username === twitchUser))
+    }
+  }, [liveUsers, userTwitchUrl])
 
   const parentDomain = typeof window !== 'undefined' ? window.location.hostname : 'localhost'
   const activeStream = liveUsers.find(u => u.twitch_username === selectedStream)
@@ -91,12 +117,41 @@ export default function LivePage() {
             Watch DegenArena traders streaming live
           </p>
         </div>
-        {liveUsers.length > 0 && (
-          <div className="flex items-center gap-2 text-sm text-gray-500">
-            <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
-            {liveUsers.length} live
-          </div>
-        )}
+        <div className="flex items-center gap-3">
+          {liveUsers.length > 0 && (
+            <div className="flex items-center gap-2 text-sm text-gray-500">
+              <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
+              {liveUsers.length} live
+            </div>
+          )}
+          {userTwitchUrl ? (
+            userIsLive ? (
+              <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-red-500/20 border border-red-500/30 text-red-400 text-sm font-medium">
+                <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
+                You&apos;re Live
+              </div>
+            ) : (
+              <a
+                href="https://dashboard.twitch.tv/stream-manager"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-2 px-4 py-2 rounded-lg bg-[#9146FF] hover:bg-[#7c3aed] text-white text-sm font-medium transition-colors"
+              >
+                <TwitchIcon className="w-4 h-4" />
+                Go Live
+                <ExternalLink className="w-3 h-3 opacity-60" />
+              </a>
+            )
+          ) : (
+            <Link
+              href="/settings"
+              className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white/5 border border-white/10 text-gray-400 hover:text-white hover:bg-white/10 text-sm transition-colors"
+            >
+              <TwitchIcon className="w-4 h-4" />
+              Connect Twitch
+            </Link>
+          )}
+        </div>
       </div>
 
       {liveUsers.length === 0 ? (
