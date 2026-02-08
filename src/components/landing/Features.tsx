@@ -41,7 +41,7 @@ const features = [
   {
     icon: Radio,
     title: 'Go Live',
-    description: 'Link your Twitch and stream your trades. Viewers watch directly inside DegenArena — no switching tabs. Show a live badge on your profile and build your audience from the arena.',
+    description: 'Link your Twitch and stream your trades. Viewers watch directly inside — no switching tabs. Build your audience from the arena.',
   },
   {
     icon: BarChart3,
