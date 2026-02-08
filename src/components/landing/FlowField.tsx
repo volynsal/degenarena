@@ -8,43 +8,117 @@ import { useEffect, useRef } from 'react'
 // =============================================
 
 export function VideoBackground() {
-  const videoRef = useRef<HTMLVideoElement>(null)
+  const canvasRef = useRef<HTMLCanvasElement>(null)
+  const videoRef = useRef<HTMLVideoElement | null>(null)
 
   useEffect(() => {
-    const video = videoRef.current
-    if (!video) return
+    const canvas = canvasRef.current
+    if (!canvas) return
 
-    const tryPlay = () => {
-      if (video.paused) {
-        video.muted = true
-        video.play().catch(() => {})
+    const ctx = canvas.getContext('2d')
+    if (!ctx) return
+
+    // Create a completely hidden video element — NOT in the DOM tree,
+    // so Safari has no UI element to attach a play button to.
+    const video = document.createElement('video')
+    video.src = '/grok-video-246d9a09-191b-4cbf-ad90-1e78efe57863-2.mp4'
+    video.muted = true
+    video.loop = true
+    video.playsInline = true
+    video.preload = 'auto'
+    video.setAttribute('playsinline', '')          // iOS requires attribute
+    video.setAttribute('webkit-playsinline', '')   // older iOS
+    video.setAttribute('muted', '')                // attribute form for Safari
+    videoRef.current = video
+
+    // Size canvas to fill viewport
+    const resize = () => {
+      canvas.width = window.innerWidth
+      canvas.height = window.innerHeight
+    }
+    resize()
+    window.addEventListener('resize', resize)
+
+    // Draw loop: paint video frame + dark overlay onto canvas
+    let animId = 0
+    let playing = false
+
+    const draw = () => {
+      if (playing && video.readyState >= 2) {
+        const vw = video.videoWidth
+        const vh = video.videoHeight
+        const cw = canvas.width
+        const ch = canvas.height
+
+        // Cover-fit calculation (same as object-fit: cover)
+        const scale = Math.max(cw / vw, ch / vh)
+        const dw = vw * scale
+        const dh = vh * scale
+        const dx = (cw - dw) / 2
+        const dy = (ch - dh) / 2
+
+        ctx.drawImage(video, dx, dy, dw, dh)
+
+        // Darken overlay for readability
+        const grad = ctx.createLinearGradient(0, 0, 0, ch)
+        grad.addColorStop(0, 'rgba(8,8,8,0.55)')
+        grad.addColorStop(0.4, 'rgba(8,8,8,0.35)')
+        grad.addColorStop(0.6, 'rgba(8,8,8,0.35)')
+        grad.addColorStop(1, 'rgba(8,8,8,0.6)')
+        ctx.fillStyle = grad
+        ctx.fillRect(0, 0, cw, ch)
       }
+      animId = requestAnimationFrame(draw)
     }
 
+    // Attempt autoplay
+    const tryPlay = () => {
+      video.muted = true
+      video.play().then(() => {
+        playing = true
+      }).catch(() => {
+        // Autoplay blocked — wait for any user gesture
+      })
+    }
+
+    // Try multiple times to cover Safari timing quirks
     tryPlay()
-    const t1 = setTimeout(tryPlay, 300)
-    const t2 = setTimeout(tryPlay, 1000)
-    const t3 = setTimeout(tryPlay, 3000)
+    const t1 = setTimeout(tryPlay, 200)
+    const t2 = setTimeout(tryPlay, 800)
+    const t3 = setTimeout(tryPlay, 2000)
 
-    const handleInteraction = () => {
+    // Fallback: play on first user interaction
+    const onGesture = () => {
       tryPlay()
-      document.removeEventListener('click', handleInteraction)
-      document.removeEventListener('touchstart', handleInteraction)
+      document.removeEventListener('click', onGesture)
+      document.removeEventListener('touchstart', onGesture)
+      document.removeEventListener('scroll', onGesture)
     }
-    document.addEventListener('click', handleInteraction)
-    document.addEventListener('touchstart', handleInteraction)
+    document.addEventListener('click', onGesture)
+    document.addEventListener('touchstart', onGesture)
+    document.addEventListener('scroll', onGesture)
+
+    // Start render loop
+    animId = requestAnimationFrame(draw)
 
     return () => {
+      cancelAnimationFrame(animId)
       clearTimeout(t1)
       clearTimeout(t2)
       clearTimeout(t3)
-      document.removeEventListener('click', handleInteraction)
-      document.removeEventListener('touchstart', handleInteraction)
+      window.removeEventListener('resize', resize)
+      document.removeEventListener('click', onGesture)
+      document.removeEventListener('touchstart', onGesture)
+      document.removeEventListener('scroll', onGesture)
+      video.pause()
+      video.src = ''
+      videoRef.current = null
     }
   }, [])
 
   return (
-    <div
+    <canvas
+      ref={canvasRef}
       style={{
         position: 'fixed',
         top: 0,
@@ -52,52 +126,10 @@ export function VideoBackground() {
         width: '100vw',
         height: '100vh',
         zIndex: 0,
-        overflow: 'hidden',
-        background: '#080808',
         pointerEvents: 'none',
+        background: '#080808',
       }}
-    >
-      {/* Full-screen video */}
-      <video
-        ref={videoRef}
-        autoPlay
-        loop
-        muted
-        playsInline
-        preload="auto"
-        controls={false}
-        style={{
-          position: 'absolute',
-          top: '50%',
-          left: '50%',
-          transform: 'translate(-50%, -50%)',
-          minWidth: '100%',
-          minHeight: '100%',
-          width: 'auto',
-          height: 'auto',
-          objectFit: 'cover',
-        }}
-      >
-        <source
-          src="/grok-video-246d9a09-191b-4cbf-ad90-1e78efe57863-2.mp4"
-          type="video/mp4"
-        />
-      </video>
-      {/*
-        Overlay sits ON TOP of the video — covers Safari's play button
-        and darkens the video for text readability.
-        pointer-events: none so clicks pass through to page content.
-      */}
-      <div
-        style={{
-          position: 'absolute',
-          inset: 0,
-          zIndex: 1,
-          background: 'linear-gradient(to bottom, rgba(8,8,8,0.55) 0%, rgba(8,8,8,0.35) 40%, rgba(8,8,8,0.35) 60%, rgba(8,8,8,0.6) 100%)',
-          pointerEvents: 'none',
-        }}
-      />
-    </div>
+    />
   )
 }
 
