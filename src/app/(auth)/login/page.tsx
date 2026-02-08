@@ -226,11 +226,11 @@ export default function LoginPage() {
             </div>
             
             {/* Feature highlights */}
-            <div className="flex flex-wrap justify-center gap-1.5">
+            <div className="flex flex-wrap justify-center gap-1.5 max-w-sm mx-auto">
               {[
                 'GalaxyArena',
-                'Instant Alerts',
-                '24hr Flip Battles',
+                'Alerts',
+                '24hr Flips',
                 'Clan Wars',
                 'Pro Presets'
               ].map((feature) => (

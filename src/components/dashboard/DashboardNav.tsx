@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect } from 'react'
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
-import { Bell, Settings, User, Menu, LogOut, ChevronDown, X, LayoutDashboard, Sliders, Swords, Shield, Trophy, Radio, Orbit } from 'lucide-react'
+import { Bell, Settings, User, Menu, LogOut, ChevronDown, X, LayoutDashboard, Sliders, Swords, Shield, Trophy, Radio, Orbit, MessageSquare } from 'lucide-react'
 import { useAuthStore } from '@/lib/stores/auth-store'
 import { cn } from '@/lib/utils'
 
@@ -15,6 +15,7 @@ const mobileNavigation = [
   { name: 'Clans', href: '/clans', icon: Shield },
   { name: 'Leaderboard', href: '/leaderboard', icon: Trophy },
   { name: 'Live', href: '/live', icon: Radio },
+  { name: 'Feedback', href: '/feedback', icon: MessageSquare },
   { name: 'Settings', href: '/settings', icon: Settings },
 ]
 

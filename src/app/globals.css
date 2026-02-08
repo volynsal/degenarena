@@ -63,6 +63,28 @@ body {
   background-clip: text;
 }
 
+/* Shimmer gradient text */
+.shimmer-text {
+  background: linear-gradient(
+    90deg,
+    var(--arena-purple) 0%,
+    var(--arena-cyan) 25%,
+    #ffffff 50%,
+    var(--arena-cyan) 75%,
+    var(--arena-purple) 100%
+  );
+  background-size: 200% 100%;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: shimmer 3s ease-in-out infinite;
+}
+
+@keyframes shimmer {
+  0% { background-position: 100% 0; }
+  100% { background-position: -100% 0; }
+}
+
 /* Brand font for DegenArena HQ logo */
 .font-brand {
   font-family: var(--font-brand), sans-serif;

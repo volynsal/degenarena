@@ -12,7 +12,8 @@ import {
   Sparkles,
   Swords,
   Radio,
-  Orbit
+  Orbit,
+  MessageSquare
 } from 'lucide-react'
 
 const navigation = [
@@ -26,6 +27,7 @@ const navigation = [
 ]
 
 const bottomNavigation = [
+  { name: 'Feedback', href: '/feedback', icon: MessageSquare },
   { name: 'Settings', href: '/settings', icon: Settings },
 ]
 
