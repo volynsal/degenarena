@@ -26,17 +26,17 @@ const features = [
   {
     icon: Sliders,
     title: 'Formula Builder',
-    description: 'Optional tool to scan new tokens with 20+ filters. Liquidity, volume, token age, buy pressure — a great way to get started or sharpen your edge.',
+    description: 'Use our tool to get started in the arena or BYO. Scan new tokens with 20+ filters. Liquidity, volume, token age, rug and galaxy score checks — a great way to sharpen your edge.',
   },
   {
     icon: TrendingUp,
     title: 'Verified Performance',
-    description: 'Every match is tracked on-chain. Your win rate, average returns, and complete history — no faking, no hiding.',
+    description: 'Every match is tracked on-chain. Your win rate, average returns, and complete history — no faking, no hiding, and no need to connect your wallet.',
   },
   {
     icon: Bell,
     title: 'Instant Alerts',
-    description: 'Get notified via Telegram, Discord, or email the moment a token matches your criteria. Never miss a play.',
+    description: 'AI copilot to advise you on alerts instantly in the same chat, powered by Grok. Never miss a play.',
   },
   {
     icon: Share2,
