@@ -112,26 +112,19 @@ export async function POST(request: NextRequest) {
 
   // Update market pool stats
   const poolField = position === 'yes' ? 'yes_pool' : 'no_pool'
-  await serviceClient.rpc('increment_market_pool', {
-    p_market_id: market_id,
-    p_amount: betAmount,
-    p_field: poolField,
-  }).catch(async () => {
-    // Fallback if RPC doesn't exist — direct update
-    const { data: mkt } = await serviceClient
-      .from('arena_markets')
-      .select('total_pool, yes_pool, no_pool, total_bettors')
-      .eq('id', market_id)
-      .maybeSingle()
+  const { data: mkt } = await serviceClient
+    .from('arena_markets')
+    .select('total_pool, yes_pool, no_pool, total_bettors')
+    .eq('id', market_id)
+    .maybeSingle()
 
-    if (mkt) {
-      await serviceClient.from('arena_markets').update({
-        total_pool: (mkt.total_pool ?? 0) + betAmount,
-        [poolField]: (mkt[poolField as keyof typeof mkt] as number ?? 0) + betAmount,
-        total_bettors: (mkt.total_bettors ?? 0) + 1,
-      }).eq('id', market_id)
-    }
-  })
+  if (mkt) {
+    await serviceClient.from('arena_markets').update({
+      total_pool: (mkt.total_pool ?? 0) + betAmount,
+      [poolField]: ((mkt as Record<string, number>)[poolField] ?? 0) + betAmount,
+      total_bettors: (mkt.total_bettors ?? 0) + 1,
+    }).eq('id', market_id)
+  }
 
   return NextResponse.json({
     data: bet,

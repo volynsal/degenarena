@@ -458,21 +458,17 @@ async function creditPoints(
     }
   } else {
     // Just credit balance (refund case)
-    await supabase.rpc('increment_balance', { p_user_id: userId, p_amount: amount }).catch(() => {
-      // Fallback if RPC doesn't exist
-      supabase
-        .from('user_points')
-        .select('balance')
-        .eq('user_id', userId)
-        .maybeSingle()
-        .then(({ data }) => {
-          if (data) {
-            supabase.from('user_points').update({
-              balance: (data.balance ?? 0) + amount,
-            }).eq('user_id', userId)
-          }
-        })
-    })
+    const { data } = await supabase
+      .from('user_points')
+      .select('balance')
+      .eq('user_id', userId)
+      .maybeSingle()
+
+    if (data) {
+      await supabase.from('user_points').update({
+        balance: (data.balance ?? 0) + amount,
+      }).eq('user_id', userId)
+    }
   }
 }
 
