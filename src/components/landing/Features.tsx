@@ -4,7 +4,7 @@ import {
   Bell, 
   TrendingUp, 
   Trophy, 
-  Share2, 
+  Radio, 
   Zap,
   BarChart3,
   Swords,
@@ -39,9 +39,9 @@ const features = [
     description: 'AI copilot to advise you on alerts instantly in the same chat, powered by Grok. Never miss a play.',
   },
   {
-    icon: Share2,
-    title: 'Formula Marketplace',
-    description: 'Share winning strategies with the community or follow top performers. Full attribution, verified results.',
+    icon: Radio,
+    title: 'Go Live',
+    description: 'Link your Twitch and stream your trades. Show a live badge on your profile, go live with your clan, and build your audience from inside the arena.',
   },
   {
     icon: BarChart3,
