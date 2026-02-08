@@ -178,7 +178,6 @@ export default function LoginPage() {
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-arena-purple/20 to-arena-cyan/20 border border-arena-purple/30">
               <Zap className="w-4 h-4 text-arena-cyan animate-pulse" />
               <span className="text-sm">
-                <span className="text-gray-400">Coming Soon:</span>{' '}
                 <span className="font-semibold bg-gradient-to-r from-arena-purple to-arena-cyan bg-clip-text text-transparent">
                   AI Copilot
                 </span>
