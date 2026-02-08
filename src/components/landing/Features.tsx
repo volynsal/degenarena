@@ -59,7 +59,6 @@ const features = [
     icon: Share2,
     title: 'Go Live',
     description: 'Stream your trades with your clan. Link your Twitch, show a live badge, and build your audience from inside the arena.',
-    comingSoon: true,
   },
 ]
 
