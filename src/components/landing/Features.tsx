@@ -26,7 +26,7 @@ const features = [
   {
     icon: Sliders,
     title: 'Formula Builder',
-    description: 'Use our tool to get started in the arena or BYO. Scan new tokens with 20+ filters. Liquidity, volume, token age, rug and galaxy score checks — a great way to sharpen your edge.',
+    description: 'Use our tool to get started in the arena or BYO. Scan new tokens with 20+ filters. Liquidity, volume, token age, rug and galaxy score checks.',
   },
   {
     icon: TrendingUp,
