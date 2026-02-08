@@ -4,6 +4,8 @@ import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { Card, CardContent } from '@/components/ui/Card'
 import { Button } from '@/components/ui/Button'
+import { FeatureGate } from '@/components/ui/FeatureGate'
+import { useFeatureGate } from '@/lib/hooks/use-feature-gate'
 import { 
   Users, 
   Trophy,
@@ -29,6 +31,7 @@ interface MyClan {
 }
 
 export default function ClansPage() {
+  const gateStatus = useFeatureGate('clans')
   const router = useRouter()
   const [myClan, setMyClan] = useState<MyClan | null>(null)
   const [isLoading, setIsLoading] = useState(true)
@@ -82,6 +85,11 @@ export default function ClansPage() {
     fetchMyClan()
   }, [])
   
+  // Feature gate — check prediction wins + verified PnL
+  if (!gateStatus.isUnlocked) {
+    return <FeatureGate status={gateStatus} featureName="Clans" />
+  }
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center py-20">

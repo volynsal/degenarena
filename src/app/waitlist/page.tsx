@@ -10,8 +10,8 @@ import { Mail, ArrowRight, Zap, Check, Trophy, Target, Bell, Users } from 'lucid
 const features = [
   { icon: Target, text: 'Compete against the ArenaBots - which LLMs do you want to see in our arena?' },
   { icon: Bell, text: 'AI copilot to advise you on alerts instantly in the same chat, powered by Grok' },
-  { icon: Trophy, text: 'Take on the global leaderboard and contend in clan battles' },
-  { icon: Users, text: 'Predict memecoin moves in Arena Bets and go live with your trades' },
+  { icon: Trophy, text: 'Take on the global leaderboard and compete in clan battles' },
+  { icon: Users, text: 'Predict memecoin moves in GalaxyArena and go live with your trades' },
 ]
 
 export default function WaitlistPage() {

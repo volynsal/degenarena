@@ -6,9 +6,12 @@ import Link from 'next/link'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
+import { FeatureGate } from '@/components/ui/FeatureGate'
+import { useFeatureGate } from '@/lib/hooks/use-feature-gate'
 import { ArrowLeft, Shield, Lock } from 'lucide-react'
 
 export default function CreateClanPage() {
+  const gateStatus = useFeatureGate('clans')
   const router = useRouter()
   const [isCreating, setIsCreating] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -49,6 +52,11 @@ export default function CreateClanPage() {
     }
   }
   
+  // Feature gate — check prediction wins + verified PnL
+  if (!gateStatus.isUnlocked) {
+    return <FeatureGate status={gateStatus} featureName="Clans" />
+  }
+
   return (
     <div className="max-w-2xl mx-auto space-y-8">
       {/* Header */}

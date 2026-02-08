@@ -3,6 +3,8 @@
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { Card, CardContent } from '@/components/ui/Card'
+import { FeatureGate } from '@/components/ui/FeatureGate'
+import { useFeatureGate } from '@/lib/hooks/use-feature-gate'
 import { Loader2, Users, Radio, ExternalLink } from 'lucide-react'
 
 // Twitch icon component
@@ -38,6 +40,7 @@ function formatDuration(startedAt: string): string {
 }
 
 export default function LivePage() {
+  const gateStatus = useFeatureGate('goLive')
   const [liveUsers, setLiveUsers] = useState<LiveUser[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [selectedStream, setSelectedStream] = useState<string | null>(null)
@@ -95,6 +98,11 @@ export default function LivePage() {
 
   const parentDomain = typeof window !== 'undefined' ? window.location.hostname : 'localhost'
   const activeStream = liveUsers.find(u => u.twitch_username === selectedStream)
+
+  // Feature gate — check prediction wins + verified PnL
+  if (!gateStatus.isUnlocked) {
+    return <FeatureGate status={gateStatus} featureName="Go Live" />
+  }
 
   if (isLoading) {
     return (
