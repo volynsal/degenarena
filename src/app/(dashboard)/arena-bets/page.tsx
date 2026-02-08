@@ -487,7 +487,7 @@ export default function ArenaBetsPage() {
           </span>
         </h1>
         <p className="text-gray-400 text-sm sm:text-base">
-          Predict memecoin moves. Earn points. Climb the ranks.
+          Predict memecoin moves that are driving culture. Earn points. Climb the ranks.
         </p>
       </div>
 
