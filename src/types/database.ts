@@ -415,7 +415,8 @@ export interface UpdateAlertSettingsInput {
 }
 
 // Arena Bets Types
-export type MarketType = 'up_down' | 'rug_call' | 'moonshot'
+export type MarketType = 'up_down' | 'rug_call' | 'moonshot' | 'culture'
+export type MarketNarrative = 'super_bowl' | 'ai_agents' | 'political' | 'celebrity' | 'revenge_pump' | 'meta_wars' | 'trending'
 export type MarketStatus = 'active' | 'resolved' | 'cancelled'
 export type BetPosition = 'yes' | 'no'
 
@@ -426,6 +427,7 @@ export interface ArenaMarket {
   token_symbol: string
   chain: string
   market_type: MarketType
+  narrative?: MarketNarrative | null
   question: string
   description?: string | null
   price_at_creation: number
@@ -443,6 +445,7 @@ export interface ArenaMarket {
   no_pool: number
   total_bettors: number
   bot_predictions: Record<string, BetPosition>
+  pinned?: boolean | null
   dexscreener_url?: string | null
   created_at: string
   // Computed on API

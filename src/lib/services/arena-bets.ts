@@ -20,6 +20,31 @@ interface MarketTemplate {
   timeframeMinutes: number
 }
 
+// =============================================
+// NARRATIVE AUTO-DETECTION
+// =============================================
+
+function detectNarrative(symbol: string, name: string): string | null {
+  const s = symbol.toLowerCase()
+  const n = name.toLowerCase()
+  const combined = `${s} ${n}`
+
+  // Political
+  if (/trump|biden|maga|kamala|potus|election|congress|senate|patriot/.test(combined)) return 'political'
+  // AI Agents
+  if (/\bai\b|agent|gpt|neural|llm|sentient|cortex|brain|singularity/.test(combined)) return 'ai_agents'
+  // Celebrity
+  if (/elon|musk|drake|kanye|ye\b|taylor|celebrity|famous/.test(combined)) return 'celebrity'
+  // Super Bowl / sports events
+  if (/super.?bowl|nfl|patriots|seahawks|chiefs|eagles|touchdown/.test(combined)) return 'super_bowl'
+  // Revenge pump / comeback
+  if (/revenge|comeback|return|revival|phoenix|resurrect/.test(combined)) return 'revenge_pump'
+  // Meta wars / competitive narratives
+  if (/war|battle|\bvs\b|flip|dethrone|king|queen|crown|rival|clash|dominat/.test(combined)) return 'meta_wars'
+
+  return null // No specific narrative detected — will show without a tag
+}
+
 const MARKET_TEMPLATES: MarketTemplate[] = [
   // Quick flip markets (15 min)
   {
@@ -48,6 +73,50 @@ const MARKET_TEMPLATES: MarketTemplate[] = [
     question: (s) => `Will $${s} rug in the next hour?`,
     description: (s, _, tf) => `Predict whether $${s} will lose 80%+ of its value within ${tf}. Trust your instincts.`,
     timeframeMinutes: 60,
+  },
+  // ── CULTURE / META MARKETS ──
+  // Culturally-framed markets. Resolve on price as a proxy for virality/buzz.
+  // Virality / going mainstream
+  {
+    type: 'culture',
+    question: (s) => `Will $${s} go viral today? 10%+ pump incoming?`,
+    description: (s, _, tf) => `The culture is watching. Predict whether $${s} catches fire and pumps 10%+ within ${tf}. Memes, tweets, and vibes only.`,
+    timeframeMinutes: 240,
+  },
+  // CT (Crypto Twitter) momentum
+  {
+    type: 'culture',
+    question: (s) => `Is CT about to send $${s} to the moon? 25%+ in 4 hours?`,
+    description: (s, _, tf) => `Crypto Twitter is talking. Predict whether the hype around $${s} translates to a 25%+ pump within ${tf}.`,
+    timeframeMinutes: 240,
+  },
+  // Cultural moment / event-driven
+  {
+    type: 'culture',
+    question: (s) => `Will $${s} be the breakout memecoin of the day and double?`,
+    description: (s, _, tf) => `Every day has a main character. Predict whether $${s} doubles within ${tf} and becomes today's headline coin.`,
+    timeframeMinutes: 360,
+  },
+  // Celebrity / influencer catalyst
+  {
+    type: 'culture',
+    question: (s) => `Will a major influencer pump $${s} 20%+ in the next few hours?`,
+    description: (s, _, tf) => `One tweet can change everything. Predict whether $${s} gets the signal boost it needs to pump 20%+ within ${tf}.`,
+    timeframeMinutes: 180,
+  },
+  // Narrative survival / staying power
+  {
+    type: 'culture',
+    question: (s) => `Does $${s} have staying power or is the hype already dead?`,
+    description: (s, _, tf) => `Memecoins live and die by the narrative. Predict whether $${s} holds above its current price over the next ${tf} — or fades into nothing.`,
+    timeframeMinutes: 360,
+  },
+  // Meta rotation play
+  {
+    type: 'culture',
+    question: (s) => `Will $${s} catch the next meta rotation? 15%+ pump?`,
+    description: (s, _, tf) => `Narratives rotate fast. Predict whether $${s} rides the next wave and gains 15%+ within ${tf}.`,
+    timeframeMinutes: 180,
   },
 ]
 
@@ -118,14 +187,14 @@ function generateBotPredictions(pair: DexScreenerPair, marketType: MarketType): 
   const rugScore = (pair as any).rugcheck_score ?? 50
 
   // Grok — momentum chaser
-  if (marketType === 'up_down' || marketType === 'moonshot') {
+  if (marketType === 'up_down' || marketType === 'moonshot' || marketType === 'culture') {
     preds['ArenaBot_Grok'] = priceChange1h > 5 ? 'yes' : 'no'
   } else {
     preds['ArenaBot_Grok'] = rugScore < 30 ? 'yes' : 'no'
   }
 
   // Claude — conservative / contrarian
-  if (marketType === 'up_down') {
+  if (marketType === 'up_down' || marketType === 'culture') {
     preds['ArenaBot_Claude'] = priceChange1h > 15 ? 'no' : priceChange1h < -10 ? 'yes' : (Math.random() > 0.5 ? 'yes' : 'no')
   } else if (marketType === 'rug_call') {
     const liq = pair.liquidity?.usd ?? 0
@@ -263,8 +332,20 @@ export async function generateMarkets(): Promise<{ created: number; skipped: num
     }
 
     try {
-      // Pick a random market template weighted toward up_down
-      const weights = [3, 4, 1, 2] // 15min, 1hr, moonshot, rug
+      // Detect narrative for this token
+      const narrative = detectNarrative(pair.baseToken.symbol, pair.baseToken.name)
+
+      // Pick a market template — narrative tokens are biased toward culture templates
+      //   Indices: 0=up_down 15m, 1=up_down 1h, 2=moonshot, 3=rug,
+      //            4=viral, 5=CT hype, 6=breakout, 7=influencer, 8=staying power, 9=meta rotation
+      let weights: number[]
+      if (narrative) {
+        // Strong narrative detected → heavily favor culture templates
+        weights = [1, 1, 1, 1, 2, 2, 1, 2, 1, 2] // culture ~10/14
+      } else {
+        // No narrative → mostly price-based, small chance of culture
+        weights = [3, 4, 1, 2, 1, 1, 0, 0, 0, 0] // culture ~2/12
+      }
       const totalWeight = weights.reduce((a, b) => a + b, 0)
       let r = Math.random() * totalWeight
       let templateIdx = 0
@@ -284,6 +365,9 @@ export async function generateMarkets(): Promise<{ created: number; skipped: num
 
       const botPredictions = generateBotPredictions(pair, template.type)
 
+      // Assign 'trending' narrative to culture markets that don't have a specific one
+      const marketNarrative = (template.type === 'culture' && !narrative) ? 'trending' : narrative
+
       const { error } = await supabase.from('arena_markets').insert({
         token_address: address,
         token_name: pair.baseToken.name,
@@ -292,6 +376,7 @@ export async function generateMarkets(): Promise<{ created: number; skipped: num
         market_type: template.type,
         question: template.question(pair.baseToken.symbol, ''),
         description: template.description(pair.baseToken.symbol, '', timeframeStr),
+        narrative: marketNarrative,
         price_at_creation: price,
         liquidity: pair.liquidity?.usd ?? null,
         volume_24h: pair.volume?.h24 ?? null,
@@ -372,6 +457,27 @@ export async function resolveMarkets(): Promise<{ resolved: number; cancelled: n
         case 'rug_call':
           outcome = currentPrice <= creationPrice * 0.2 ? 'yes' : 'no'
           break
+        case 'culture': {
+          // Culture markets encode their threshold in the question text.
+          // Price movement is used as a proxy for virality/cultural momentum.
+          const q = market.question.toLowerCase()
+          const thresholdMatch = market.question.match(/(\d+)%\+?/)
+          if (q.includes('double')) {
+            // "doubles" = 2x
+            outcome = currentPrice >= creationPrice * 2 ? 'yes' : 'no'
+          } else if (thresholdMatch) {
+            // e.g. "10%+", "25%+", "20%+", "15%+"
+            const threshold = parseInt(thresholdMatch[1]) / 100
+            outcome = currentPrice >= creationPrice * (1 + threshold) ? 'yes' : 'no'
+          } else if (q.includes('staying power') || q.includes('holds above') || q.includes('hold above')) {
+            // Staying power / survival = still above creation price
+            outcome = currentPrice >= creationPrice ? 'yes' : 'no'
+          } else {
+            // Fallback: treat like up_down
+            outcome = currentPrice > creationPrice ? 'yes' : 'no'
+          }
+          break
+        }
       }
 
       // Update market
@@ -419,7 +525,7 @@ async function distributePayouts(
   // If no winners, refund everyone
   if (winnerBets.length === 0) {
     for (const bet of bets) {
-      await supabase.rpc('refund_bet', { p_user_id: bet.user_id, p_amount: bet.amount })
+      await creditPoints(supabase, bet.user_id, bet.amount, false)
       await supabase.from('arena_bets').update({ payout: bet.amount, is_winner: false }).eq('id', bet.id)
     }
     return
@@ -443,7 +549,6 @@ async function distributePayouts(
   for (const bet of winnerBets) {
     const share = bet.amount / winnerPool
     const payout = Math.round(bet.amount + (loserPool * share))
-    const profit = payout - bet.amount
 
     await supabase.from('arena_bets').update({ payout, is_winner: true }).eq('id', bet.id)
     await creditPoints(supabase, bet.user_id, payout, true)

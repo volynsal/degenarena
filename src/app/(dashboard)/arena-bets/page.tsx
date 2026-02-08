@@ -12,14 +12,26 @@ import Link from 'next/link'
 // TYPES
 // =============================================
 
+// Narrative/meta categories for culture-forward market browsing
+const NARRATIVES: Record<string, { label: string; color: string; icon: string }> = {
+  super_bowl: { label: 'Super Bowl', color: 'text-emerald-400 bg-emerald-500/10 border-emerald-500/20', icon: '🏈' },
+  ai_agents: { label: 'AI Agents', color: 'text-cyan-400 bg-cyan-500/10 border-cyan-500/20', icon: '🤖' },
+  political: { label: 'Political', color: 'text-blue-400 bg-blue-500/10 border-blue-500/20', icon: '🏛️' },
+  celebrity: { label: 'Celebrity', color: 'text-pink-400 bg-pink-500/10 border-pink-500/20', icon: '⭐' },
+  revenge_pump: { label: 'Revenge Pump', color: 'text-orange-400 bg-orange-500/10 border-orange-500/20', icon: '🔥' },
+  meta_wars: { label: 'Meta Wars', color: 'text-violet-400 bg-violet-500/10 border-violet-500/20', icon: '⚔️' },
+  trending: { label: 'Trending', color: 'text-amber-400 bg-amber-500/10 border-amber-500/20', icon: '📈' },
+}
+
 interface Market {
   id: string
   token_address: string
   token_name: string
   token_symbol: string
-  market_type: 'up_down' | 'rug_call' | 'moonshot'
+  market_type: 'up_down' | 'rug_call' | 'moonshot' | 'culture'
   question: string
   description: string | null
+  narrative: string | null
   price_at_creation: number
   price_at_resolution: number | null
   resolve_at: string
@@ -81,6 +93,7 @@ function getMarketTypeIcon(type: string) {
   switch (type) {
     case 'rug_call': return <SkullIcon size={14} />
     case 'moonshot': return <Rocket size={14} />
+    case 'culture': return <span className="text-sm">🔮</span>
     default: return <TrendingUp size={14} />
   }
 }
@@ -89,6 +102,7 @@ function getMarketTypeColor(type: string): string {
   switch (type) {
     case 'rug_call': return 'text-red-400 bg-red-500/10 border-red-500/20'
     case 'moonshot': return 'text-yellow-400 bg-yellow-500/10 border-yellow-500/20'
+    case 'culture': return 'text-purple-400 bg-purple-500/10 border-purple-500/20'
     default: return 'text-rose-400 bg-rose-500/10 border-rose-500/20'
   }
 }
@@ -98,6 +112,7 @@ function getMarketTypeLabel(type: string): string {
     case 'rug_call': return 'RUG CALL'
     case 'moonshot': return 'MOONSHOT'
     case 'up_down': return 'UP / DOWN'
+    case 'culture': return 'CULTURE'
     default: return type.toUpperCase()
   }
 }
@@ -204,6 +219,12 @@ function MarketCard({
               {getMarketTypeLabel(market.market_type)}
             </span>
             <span className="text-xs text-gray-500 font-mono">${market.token_symbol}</span>
+            {market.narrative && NARRATIVES[market.narrative] && (
+              <span className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-medium border ${NARRATIVES[market.narrative].color}`}>
+                <span>{NARRATIVES[market.narrative].icon}</span>
+                {NARRATIVES[market.narrative].label}
+              </span>
+            )}
           </div>
           <div className="flex items-center gap-1.5 text-xs">
             {!isResolved && !isExpired && (
@@ -382,6 +403,7 @@ export default function ArenaBetsPage() {
   const [claimMessage, setClaimMessage] = useState<string | null>(null)
   const [tab, setTab] = useState<'active' | 'resolved'>('active')
   const [typeFilter, setTypeFilter] = useState<string>('all')
+  const [narrativeFilter, setNarrativeFilter] = useState<string>('all')
   const [error, setError] = useState<string | null>(null)
   const pollRef = useRef<NodeJS.Timeout | null>(null)
 
@@ -389,6 +411,7 @@ export default function ArenaBetsPage() {
     try {
       const params = new URLSearchParams({ status: tab, limit: '30' })
       if (typeFilter !== 'all') params.set('type', typeFilter)
+      if (narrativeFilter !== 'all') params.set('narrative', narrativeFilter)
 
       const res = await fetch(`/api/arena-bets/markets?${params}`)
       const data = await res.json()
@@ -409,7 +432,7 @@ export default function ArenaBetsPage() {
     } finally {
       setLoading(false)
     }
-  }, [tab, typeFilter])
+  }, [tab, typeFilter, narrativeFilter])
 
   const fetchPoints = useCallback(async () => {
     try {
@@ -423,7 +446,7 @@ export default function ArenaBetsPage() {
     setLoading(true)
     fetchMarkets()
     fetchPoints()
-  }, [tab, typeFilter, fetchMarkets, fetchPoints])
+  }, [tab, typeFilter, narrativeFilter, fetchMarkets, fetchPoints])
 
   // Auto-refresh active markets every 30 seconds
   useEffect(() => {
@@ -533,6 +556,7 @@ export default function ArenaBetsPage() {
             { key: 'up_down', label: 'Up/Down' },
             { key: 'rug_call', label: 'Rug Call' },
             { key: 'moonshot', label: 'Moonshot' },
+            { key: 'culture', label: '🔮 Culture' },
           ].map((f) => (
             <button
               key={f.key}
@@ -547,6 +571,34 @@ export default function ArenaBetsPage() {
             </button>
           ))}
         </div>
+      </div>
+
+      {/* Narrative/Meta filters */}
+      <div className="flex items-center gap-2 overflow-x-auto pb-1 -mt-4 scrollbar-hide">
+        <button
+          onClick={() => setNarrativeFilter('all')}
+          className={`flex-shrink-0 px-3 py-1.5 rounded-full text-xs font-medium transition-colors border ${
+            narrativeFilter === 'all'
+              ? 'bg-white/10 text-white border-white/20'
+              : 'text-gray-500 hover:text-gray-300 border-transparent hover:border-white/10'
+          }`}
+        >
+          All Narratives
+        </button>
+        {Object.entries(NARRATIVES).map(([key, meta]) => (
+          <button
+            key={key}
+            onClick={() => setNarrativeFilter(key)}
+            className={`flex-shrink-0 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-colors border ${
+              narrativeFilter === key
+                ? meta.color
+                : 'text-gray-500 hover:text-gray-300 border-transparent hover:border-white/10'
+            }`}
+          >
+            <span>{meta.icon}</span>
+            {meta.label}
+          </button>
+        ))}
       </div>
 
       {/* Market Grid */}
