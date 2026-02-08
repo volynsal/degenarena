@@ -184,7 +184,7 @@ export default function LoginPage() {
             </div>
             
             {/* Feature highlights */}
-            <div className="flex flex-wrap justify-center gap-2">
+            <div className="flex flex-wrap justify-center gap-1.5">
               {[
                 'Token Filters',
                 'Instant Alerts',
@@ -194,7 +194,7 @@ export default function LoginPage() {
               ].map((feature) => (
                 <span
                   key={feature}
-                  className="px-3 py-1 rounded-full bg-white/5 text-gray-400 text-xs border border-white/10"
+                  className="px-2.5 py-1 rounded-full bg-white/5 text-gray-400 text-xs border border-white/10 whitespace-nowrap"
                 >
                   {feature}
                 </span>
