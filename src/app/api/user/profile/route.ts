@@ -1,6 +1,14 @@
 import { createClient } from '@/lib/supabase/server'
+import { createClient as createServiceClient } from '@supabase/supabase-js'
 import { NextRequest, NextResponse } from 'next/server'
 import type { Profile, ApiResponse } from '@/types/database'
+
+function getServiceClient() {
+  return createServiceClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!
+  )
+}
 
 // GET /api/user/profile - Get current user's profile
 export async function GET() {
@@ -13,7 +21,8 @@ export async function GET() {
     }, { status: 401 })
   }
   
-  const { data, error } = await supabase
+  const serviceClient = getServiceClient()
+  const { data, error } = await serviceClient
     .from('profiles')
     .select('*')
     .eq('id', user.id)
@@ -54,7 +63,8 @@ export async function PATCH(request: NextRequest) {
       }
       
       // Check if username is taken
-      const { data: existing } = await supabase
+      const serviceClient = getServiceClient()
+      const { data: existing } = await serviceClient
         .from('profiles')
         .select('id')
         .eq('username', username)
@@ -118,7 +128,8 @@ export async function PATCH(request: NextRequest) {
       }, { status: 400 })
     }
     
-    const { data, error } = await supabase
+    const serviceClient = getServiceClient()
+    const { data, error } = await serviceClient
       .from('profiles')
       .update(updateData)
       .eq('id', user.id)
