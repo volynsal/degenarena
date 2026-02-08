@@ -247,7 +247,7 @@ export default function SignupPage() {
       <div className="hidden lg:flex flex-1 bg-gradient-to-br from-arena-purple/20 to-arena-cyan/20 items-center justify-center p-12 relative z-10">
         <div className="max-w-md">
           <h2 className="text-3xl font-bold text-white mb-6">
-            Find the next 100x before everyone else
+            Find and stream your 100x gainer as it happens
           </h2>
           <p className="text-gray-300 mb-8">
             Compete on a verified leaderboard against AI bots and real traders. Get instant alerts, track your performance, and climb the global rankings.
