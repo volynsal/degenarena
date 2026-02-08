@@ -9,27 +9,37 @@ import { useEffect, useRef } from 'react'
 
 export function VideoBackground() {
   const canvasRef = useRef<HTMLCanvasElement>(null)
-  const videoRef = useRef<HTMLVideoElement | null>(null)
+  const containerRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     const canvas = canvasRef.current
-    if (!canvas) return
+    const container = containerRef.current
+    if (!canvas || !container) return
 
     const ctx = canvas.getContext('2d')
     if (!ctx) return
 
-    // Create a completely hidden video element — NOT in the DOM tree,
-    // so Safari has no UI element to attach a play button to.
+    // Create video element and append it to the DOM (hidden).
+    // Desktop Safari refuses to play video elements not in the DOM.
+    // We hide it with CSS (opacity:0, size:0) so Safari can't render
+    // a play button, then draw frames to canvas.
     const video = document.createElement('video')
-    video.src = '/grok-video-246d9a09-191b-4cbf-ad90-1e78efe57863-2.mp4'
     video.muted = true
     video.loop = true
     video.playsInline = true
     video.preload = 'auto'
-    video.setAttribute('playsinline', '')          // iOS requires attribute
-    video.setAttribute('webkit-playsinline', '')   // older iOS
-    video.setAttribute('muted', '')                // attribute form for Safari
-    videoRef.current = video
+    video.setAttribute('playsinline', '')
+    video.setAttribute('webkit-playsinline', '')
+    video.setAttribute('muted', '')
+    // Hide from view — no visible element for Safari to attach controls to
+    video.style.position = 'absolute'
+    video.style.width = '1px'
+    video.style.height = '1px'
+    video.style.opacity = '0'
+    video.style.pointerEvents = 'none'
+    video.style.zIndex = '-1'
+    container.appendChild(video)
+    video.src = '/grok-video-246d9a09-191b-4cbf-ad90-1e78efe57863-2.mp4'
 
     // Size canvas to fill viewport
     const resize = () => {
@@ -39,36 +49,53 @@ export function VideoBackground() {
     resize()
     window.addEventListener('resize', resize)
 
-    // Draw loop: paint video frame + dark overlay onto canvas
+    // Preload the fallback image so first frame is instant
+    const fallbackImg = new Image()
+    fallbackImg.src = '/Unknown.jpeg'
+
     let animId = 0
     let playing = false
+    let fallbackDrawn = false
+
+    const drawOverlay = (cw: number, ch: number) => {
+      const grad = ctx.createLinearGradient(0, 0, 0, ch)
+      grad.addColorStop(0, 'rgba(8,8,8,0.55)')
+      grad.addColorStop(0.4, 'rgba(8,8,8,0.35)')
+      grad.addColorStop(0.6, 'rgba(8,8,8,0.35)')
+      grad.addColorStop(1, 'rgba(8,8,8,0.6)')
+      ctx.fillStyle = grad
+      ctx.fillRect(0, 0, cw, ch)
+    }
+
+    const coverDraw = (source: HTMLVideoElement | HTMLImageElement, sw: number, sh: number) => {
+      const cw = canvas.width
+      const ch = canvas.height
+      const scale = Math.max(cw / sw, ch / sh)
+      const dw = sw * scale
+      const dh = sh * scale
+      const dx = (cw - dw) / 2
+      const dy = (ch - dh) / 2
+      ctx.drawImage(source, dx, dy, dw, dh)
+      drawOverlay(cw, ch)
+    }
 
     const draw = () => {
       if (playing && video.readyState >= 2) {
-        const vw = video.videoWidth
-        const vh = video.videoHeight
-        const cw = canvas.width
-        const ch = canvas.height
-
-        // Cover-fit calculation (same as object-fit: cover)
-        const scale = Math.max(cw / vw, ch / vh)
-        const dw = vw * scale
-        const dh = vh * scale
-        const dx = (cw - dw) / 2
-        const dy = (ch - dh) / 2
-
-        ctx.drawImage(video, dx, dy, dw, dh)
-
-        // Darken overlay for readability
-        const grad = ctx.createLinearGradient(0, 0, 0, ch)
-        grad.addColorStop(0, 'rgba(8,8,8,0.55)')
-        grad.addColorStop(0.4, 'rgba(8,8,8,0.35)')
-        grad.addColorStop(0.6, 'rgba(8,8,8,0.35)')
-        grad.addColorStop(1, 'rgba(8,8,8,0.6)')
-        ctx.fillStyle = grad
-        ctx.fillRect(0, 0, cw, ch)
+        coverDraw(video, video.videoWidth, video.videoHeight)
+      } else if (!fallbackDrawn && fallbackImg.complete && fallbackImg.naturalWidth > 0) {
+        // Video not playing yet — show static fallback image
+        coverDraw(fallbackImg, fallbackImg.naturalWidth, fallbackImg.naturalHeight)
+        fallbackDrawn = true
       }
       animId = requestAnimationFrame(draw)
+    }
+
+    // When fallback image loads, draw it immediately
+    fallbackImg.onload = () => {
+      if (!playing) {
+        coverDraw(fallbackImg, fallbackImg.naturalWidth, fallbackImg.naturalHeight)
+        fallbackDrawn = true
+      }
     }
 
     // Attempt autoplay
@@ -76,16 +103,15 @@ export function VideoBackground() {
       video.muted = true
       video.play().then(() => {
         playing = true
-      }).catch(() => {
-        // Autoplay blocked — wait for any user gesture
-      })
+        fallbackDrawn = false // allow video frames to take over
+      }).catch(() => {})
     }
 
-    // Try multiple times to cover Safari timing quirks
+    // Try multiple times for Safari timing
     tryPlay()
     const t1 = setTimeout(tryPlay, 200)
     const t2 = setTimeout(tryPlay, 800)
-    const t3 = setTimeout(tryPlay, 2000)
+    const t3 = setTimeout(tryPlay, 2500)
 
     // Fallback: play on first user interaction
     const onGesture = () => {
@@ -98,7 +124,6 @@ export function VideoBackground() {
     document.addEventListener('touchstart', onGesture)
     document.addEventListener('scroll', onGesture)
 
-    // Start render loop
     animId = requestAnimationFrame(draw)
 
     return () => {
@@ -111,14 +136,15 @@ export function VideoBackground() {
       document.removeEventListener('touchstart', onGesture)
       document.removeEventListener('scroll', onGesture)
       video.pause()
-      video.src = ''
-      videoRef.current = null
+      video.removeAttribute('src')
+      video.load()
+      if (container.contains(video)) container.removeChild(video)
     }
   }, [])
 
   return (
-    <canvas
-      ref={canvasRef}
+    <div
+      ref={containerRef}
       style={{
         position: 'fixed',
         top: 0,
@@ -126,10 +152,22 @@ export function VideoBackground() {
         width: '100vw',
         height: '100vh',
         zIndex: 0,
+        overflow: 'hidden',
         pointerEvents: 'none',
-        background: '#080808',
       }}
-    />
+    >
+      {/* Static fallback via CSS — visible instantly before JS runs */}
+      <canvas
+        ref={canvasRef}
+        style={{
+          position: 'absolute',
+          inset: 0,
+          width: '100%',
+          height: '100%',
+          background: `#080808 url('/Unknown.jpeg') center/cover no-repeat`,
+        }}
+      />
+    </div>
   )
 }
 
