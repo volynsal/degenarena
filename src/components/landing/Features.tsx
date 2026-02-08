@@ -9,7 +9,7 @@ import {
   BarChart3,
   Swords,
   Bot,
-  Target
+  Orbit
 } from 'lucide-react'
 
 interface Feature {
@@ -60,8 +60,8 @@ const features: Feature[] = [
     description: 'Climb the leaderboard. See where you stand against traders worldwide. The best rise to the top.',
   },
   {
-    icon: Target,
-    title: 'Degen Bets',
+    icon: Orbit,
+    title: 'Galaxy Arena',
     description: 'Prediction markets on trending memecoins. Will it pump, dump, or rug? Bet with points and build win streaks.',
   },
   {
