@@ -193,14 +193,14 @@ export default function FormulaMatchesPage({ params }: { params: { id: string } 
                     </p>
                   </div>
                   <div>
-                    <p className="text-xs text-gray-500">7d Return</p>
-                    <p className={`font-mono ${
-                      match.return_7d !== null && match.return_7d !== undefined
-                        ? match.return_7d >= 0 ? 'text-arena-cyan' : 'text-red-400'
+                    <p className="text-xs text-gray-500">Best Return</p>
+                    <p className={`font-mono font-bold ${
+                      (match as any).return_max_exit ?? (match as any).return_max_24h
+                        ? ((match as any).return_max_exit ?? (match as any).return_max_24h) >= 0 ? 'text-arena-cyan' : 'text-red-400'
                         : 'text-gray-500'
                     }`}>
-                      {match.return_7d !== null && match.return_7d !== undefined
-                        ? `${match.return_7d >= 0 ? '+' : ''}${match.return_7d.toFixed(1)}%`
+                      {(match as any).return_max_exit ?? (match as any).return_max_24h
+                        ? `${((match as any).return_max_exit ?? (match as any).return_max_24h) >= 0 ? '+' : ''}${((match as any).return_max_exit ?? (match as any).return_max_24h).toFixed(1)}%`
                         : '—'}
                     </p>
                   </div>

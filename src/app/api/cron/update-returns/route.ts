@@ -27,12 +27,9 @@ export async function GET(request: NextRequest) {
     const now = Date.now()
     const oneHourAgo = new Date(now - 60 * 60 * 1000).toISOString()
     const twentyFourHoursAgo = new Date(now - 24 * 60 * 60 * 1000).toISOString()
-    const sevenDaysAgo = new Date(now - 7 * 24 * 60 * 60 * 1000).toISOString()
-    
     const updates = {
       oneHour: 0,
       twentyFourHour: 0,
-      sevenDay: 0,
       maxPriceUpdates: 0,
       errors: 0,
     }
@@ -126,26 +123,6 @@ export async function GET(request: NextRequest) {
         if (currentPrice) {
           await tokenMonitor.updateMatchReturns(match.id, currentPrice, match.price_at_match, '24h')
           updates.twentyFourHour++
-        }
-      } catch (e) {
-        updates.errors++
-      }
-    }
-    
-    // Get matches needing 7d update
-    const { data: matches7d } = await supabaseAdmin
-      .from('token_matches')
-      .select('id, token_address, price_at_match')
-      .lte('matched_at', sevenDaysAgo)
-      .is('price_7d', null)
-      .limit(50)
-    
-    for (const match of matches7d || []) {
-      try {
-        const currentPrice = await tokenMonitor.getTokenPrice(match.token_address)
-        if (currentPrice) {
-          await tokenMonitor.updateMatchReturns(match.id, currentPrice, match.price_at_match, '7d')
-          updates.sevenDay++
         }
       } catch (e) {
         updates.errors++
