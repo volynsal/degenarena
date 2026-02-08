@@ -36,7 +36,7 @@ export function Hero() {
         </p>
         
         {/* BETA IS LIVE */}
-        <p className="text-sm font-bold tracking-widest mb-6 bg-gradient-to-r from-arena-cyan via-arena-purple to-arena-cyan bg-clip-text text-transparent">
+        <p className="text-sm font-bold tracking-widest mb-6 gradient-text">
           BETA IS LIVE
         </p>
         

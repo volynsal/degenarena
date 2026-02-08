@@ -16,7 +16,7 @@ export function CTA() {
           <p className="text-lg text-gray-400 mb-4 max-w-2xl mx-auto">
             Compete against AI and real traders. Track your performance. Climb the leaderboard.
           </p>
-          <p className="text-sm font-bold tracking-widest mb-8 bg-gradient-to-r from-arena-cyan via-arena-purple to-arena-cyan bg-clip-text text-transparent">
+          <p className="text-sm font-bold tracking-widest mb-8 gradient-text">
             BETA IS LIVE
           </p>
           

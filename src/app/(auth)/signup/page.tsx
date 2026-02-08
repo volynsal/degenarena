@@ -308,7 +308,7 @@ export default function SignupPage() {
           {/* Beta note */}
           <div className="mt-12 pt-8 border-t border-white/10">
             <p className="text-sm text-gray-400">
-              Welcome to the <span className="font-bold tracking-widest bg-gradient-to-r from-arena-cyan to-arena-purple bg-clip-text text-transparent">BETA</span> of DegenArena HQ. 
+              Welcome to the <span className="font-bold tracking-widest gradient-text">BETA</span> of DegenArena HQ. 
               Jump in and start competing.
             </p>
           </div>
