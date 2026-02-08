@@ -1,14 +1,14 @@
 import type { Metadata } from 'next'
-import { Inter, Orbitron } from 'next/font/google'
+import { Inter, Audiowide } from 'next/font/google'
 import { Analytics } from '@vercel/analytics/next'
 import './globals.css'
 import { AuthProvider } from '@/components/providers/AuthProvider'
 
 const inter = Inter({ subsets: ['latin'] })
-const orbitron = Orbitron({ 
+const audiowide = Audiowide({ 
   subsets: ['latin'],
-  variable: '--font-orbitron',
-  weight: ['700']
+  variable: '--font-brand',
+  weight: ['400']
 })
 
 export const metadata: Metadata = {
@@ -51,7 +51,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className="dark">
-      <body className={`${inter.className} ${orbitron.variable} antialiased`}>
+      <body className={`${inter.className} ${audiowide.variable} antialiased`}>
         <AuthProvider>
           {children}
         </AuthProvider>

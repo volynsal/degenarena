@@ -65,7 +65,7 @@ body {
 
 /* Brand font for DegenArena HQ logo */
 .font-brand {
-  font-family: var(--font-orbitron), sans-serif;
+  font-family: var(--font-brand), sans-serif;
 }
 
 /* Glass morphism card */
