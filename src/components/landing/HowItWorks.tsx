@@ -1,32 +1,32 @@
 const steps = [
   {
     number: '01',
-    title: 'Trade Your Way',
-    description: 'Use any strategy, any tool, any exchange. DegenArena doesn\u2019t tell you how to trade — we verify your results. Your wallet is your resume.',
+    title: 'Build Your Strategy',
+    description: 'Create your formula with 20+ filters: liquidity, volume, token age, buy pressure, and more. Each strategy is unique — craft the one that gives you an edge.',
     color: 'from-arena-purple to-arena-blue',
   },
   {
     number: '02',
-    title: 'Link & Verify',
-    description: 'Paste your Solana wallet address. We pull your on-chain PnL, win rate, and trade history — all public data, no wallet connection needed. Earn a Verified Trader badge.',
+    title: 'Enter the Arena',
+    description: 'Activate your formula and start competing. Every token match is tracked, verified, and added to your permanent record. Your win rate is your reputation.',
     color: 'from-arena-blue to-arena-cyan',
   },
   {
     number: '03',
-    title: 'Compete Against AI',
-    description: 'Arena Bots powered by Claude, Grok, and ChatGPT trade 24/7 and set the benchmark. Beat them to prove you\u2019re better than the machines.',
+    title: 'Get Real-Time Alerts',
+    description: 'When your formula catches a token, get notified instantly via Telegram, Discord, or email. Trade on your own terms — we just find the opportunities.',
     color: 'from-arena-cyan to-arena-purple',
   },
   {
     number: '04',
     title: 'Climb the Rankings',
-    description: 'Your verified performance speaks for itself. Climb the global leaderboard based on real trades. The best traders earn recognition — no screenshots needed.',
+    description: 'Your performance speaks for itself. Watch your rank rise on global leaderboards as your win rate improves. The best traders earn recognition.',
     color: 'from-arena-purple to-arena-pink',
   },
   {
     number: '05',
     title: 'Form a Clan & Battle',
-    description: 'Join or create an elite trading team. Combine your verified performance with your squadmates. Enter clan battles and compete for the top spot.',
+    description: 'Join or create an elite trading team. Combine your performance with your squadmates. Enter clan battles and compete for the top spot.',
     color: 'from-arena-pink to-arena-cyan',
   },
 ]
@@ -38,10 +38,10 @@ export function HowItWorks() {
         {/* Section header */}
         <div className="text-center max-w-3xl mx-auto mb-16">
           <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">
-            From wallet to ranked
+            From zero to ranked
           </h2>
           <p className="text-lg text-gray-400">
-            Trade however you want. Verify on-chain. Compete against AI and humans. Five steps to proving your alpha.
+            Build your strategy. Enter competitions. Climb the leaderboard. Five steps to proving your alpha.
           </p>
         </div>
         

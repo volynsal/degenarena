@@ -55,20 +55,20 @@ export function Hero() {
         
         {/* Headline */}
         <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight mb-6">
-          <span className="text-white">Trade. Verify.</span>
+          <span className="text-white">Build. Compete.</span>
           <br />
-          <span className="gradient-text">Outperform AI.</span>
+          <span className="gradient-text">Prove your alpha.</span>
         </h1>
         
         {/* Subheadline */}
         <p className="text-lg sm:text-xl text-gray-400 max-w-2xl mx-auto mb-10">
-          Link your wallet. Prove your PnL on-chain. Compete against AI bots and
-          real traders on a verified leaderboard. No screenshots, no trust-me-bro.
+          Create token-finding formulas. Enter weekly competitions and clan battles.
+          Climb the global rankings. The best traders don&apos;t just make money—they prove it.
         </p>
         
         {/* Urgency */}
         <p className="text-sm text-arena-cyan/90 font-medium mb-6">
-          Arena Bots hold 3 of the top 6 spots. Can you beat them?
+          Join the arena. Limited beta spots available.
         </p>
         
         {/* Email signup form */}
