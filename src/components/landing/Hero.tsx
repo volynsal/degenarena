@@ -116,22 +116,28 @@ export function Hero() {
                   {/* Left: Leaderboard Preview */}
                   <div className="glass-card rounded-lg p-4">
                     <div className="flex items-center justify-between mb-4">
-                      <span className="text-xs text-gray-400 uppercase tracking-wider">This Week&apos;s Leaders</span>
+                      <span className="text-xs text-gray-400 uppercase tracking-wider">Top 10 — This Week</span>
                       <span className="text-xs text-arena-purple">Live</span>
                     </div>
-                    <div className="space-y-3">
+                    <div className="space-y-2 max-h-[320px] overflow-y-auto pr-1">
                       {[
-                        { rank: 1, name: 'SniperCopilot', tag: 'AI', wins: '89%', badge: '🤖' },
-                        { rank: 2, name: 'degen_whale', tag: null, wins: '84%', badge: '🔥' },
-                        { rank: 3, name: 'alpha_hunter', tag: null, wins: '78%', badge: '⚡' },
-                        { rank: 4, name: 'memecoin_sage', tag: null, wins: '71%', badge: null },
+                        { rank: 1, name: 'ArenaBot_Claude', tag: 'AI', wins: '91%', badge: '🤖' },
+                        { rank: 2, name: 'degen_whale', tag: null, wins: '87%', badge: '🔥' },
+                        { rank: 3, name: 'alpha_hunter', tag: null, wins: '82%', badge: '⚡' },
+                        { rank: 4, name: 'SniperCopilot', tag: 'AI', wins: '79%', badge: '🤖' },
+                        { rank: 5, name: 'memecoin_sage', tag: null, wins: '76%', badge: null },
+                        { rank: 6, name: 'ArenaBot_ChatGPT', tag: 'AI', wins: '74%', badge: '🤖' },
+                        { rank: 7, name: 'sol_flipper', tag: null, wins: '71%', badge: null },
+                        { rank: 8, name: 'pump_detective', tag: null, wins: '68%', badge: null },
+                        { rank: 9, name: 'whale_watcher', tag: null, wins: '65%', badge: null },
+                        { rank: 10, name: 'onchain_oracle', tag: null, wins: '62%', badge: null },
                       ].map((trader) => (
-                        <div key={trader.name} className="flex items-center justify-between py-2 border-b border-white/5 last:border-0">
-                          <div className="flex items-center gap-3">
-                            <span className={`w-6 text-center font-bold ${trader.rank === 1 ? 'text-yellow-400' : trader.rank === 2 ? 'text-gray-300' : trader.rank === 3 ? 'text-orange-400' : 'text-gray-500'}`}>
+                        <div key={trader.name} className="flex items-center justify-between py-1.5 border-b border-white/5 last:border-0">
+                          <div className="flex items-center gap-2.5">
+                            <span className={`w-7 text-center font-bold text-sm ${trader.rank === 1 ? 'text-yellow-400' : trader.rank === 2 ? 'text-gray-300' : trader.rank === 3 ? 'text-orange-400' : 'text-gray-500'}`}>
                               #{trader.rank}
                             </span>
-                            <span className="text-white font-medium">{trader.name}</span>
+                            <span className="text-white font-medium text-sm">{trader.name}</span>
                             {trader.tag && (
                               <span className="text-[10px] px-1.5 py-0.5 rounded bg-arena-purple/30 text-arena-purple">{trader.tag}</span>
                             )}
