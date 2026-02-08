@@ -67,11 +67,11 @@ body {
 .shimmer-text {
   background: linear-gradient(
     90deg,
-    var(--arena-purple) 0%,
-    var(--arena-cyan) 25%,
-    #ffffff 50%,
-    var(--arena-cyan) 75%,
-    var(--arena-purple) 100%
+    #FF2D2D 0%,
+    #FF6B35 25%,
+    #FFFFFF 50%,
+    #FF6B35 75%,
+    #FF2D2D 100%
   );
   background-size: 200% 100%;
   -webkit-background-clip: text;
