@@ -37,6 +37,7 @@ const features: Feature[] = [
     icon: Sliders,
     title: 'Formulas & Presets',
     description: 'Scan new tokens with 20+ filters or use battle-tested presets like Launch Sniper and Momentum Breakout. A great way to get started or sharpen your edge.',
+    earlyAccess: true,
   },
   {
     icon: TrendingUp,
@@ -60,12 +61,12 @@ const features: Feature[] = [
   },
   {
     icon: Target,
-    title: 'Arena Bets',
+    title: 'Degen Bets',
     description: 'Prediction markets on trending memecoins. Will it pump, dump, or rug? Bet with points and build win streaks.',
   },
   {
     icon: Bot,
-    title: 'Arena Bots',
+    title: 'AI Challengers',
     description: 'Official AI traders running 24/7. Multiple LLMs competing in the arena — can you outperform them?',
     comingSoon: true,
   },
