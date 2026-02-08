@@ -2,12 +2,8 @@
 
 import { useEffect, useRef } from 'react'
 
-// Crypto color palette (HSL hues)
-const COLORS = [270, 175, 45, 145] // purple, cyan, gold, green
-
-// Matrix/crypto characters
-const MATRIX_CHARS = '₿ΞΣ◎$01234567890ABCDEFabcdef{}[]<>:;/|\\+=*&^%#@!~'
-const HEX_CHARS = '0123456789ABCDEF'
+// Arena palette: heavy on purple/cyan, hint of gold
+const COLORS = [270, 270, 175, 175, 270, 45] // weighted toward purple & cyan
 
 export function FlowField() {
   const canvasRef = useRef<HTMLCanvasElement>(null)
@@ -40,7 +36,7 @@ export function FlowField() {
     window.addEventListener('resize', resize)
     
     // === FLOW PARTICLES ===
-    const count = isMobile ? 50 : 200
+    const count = isMobile ? 60 : 220
     
     interface Particle {
       x: number; y: number; vx: number; vy: number
@@ -56,54 +52,21 @@ export function FlowField() {
       hue: COLORS[Math.floor(Math.random() * COLORS.length)] + (Math.random() - 0.5) * 20,
       size: isMobile ? 2.5 : 2,
       age: 0,
-      maxAge: 200 + Math.random() * 200
+      maxAge: 250 + Math.random() * 250
     })
     
     for (let i = 0; i < count; i++) particles.push(spawn())
     
-    // === MATRIX RAIN COLUMNS ===
-    const fontSize = isMobile ? 12 : 14
-    const columnWidth = fontSize * 1.2
-    const numColumns = Math.floor(width / columnWidth)
-    const matrixDrops: number[] = new Array(numColumns).fill(0).map(() => -Math.random() * height / fontSize)
-    const matrixSpeeds: number[] = new Array(numColumns).fill(0).map(() => 0.3 + Math.random() * 0.8)
-    const matrixChars: string[] = new Array(numColumns).fill('').map(() => MATRIX_CHARS[Math.floor(Math.random() * MATRIX_CHARS.length)])
-    // Only render a fraction of columns for subtlety
-    const activeColumns: boolean[] = new Array(numColumns).fill(false).map(() => Math.random() < (isMobile ? 0.06 : 0.10))
-    
-    // === DATA STREAM BLOCKS (floating hex fragments) ===
-    interface DataBlock {
-      x: number; y: number; vy: number
-      text: string; alpha: number; fadeSpeed: number
-      color: string
+    // === ENERGY PULSES ===
+    interface EnergyPulse {
+      x: number; y: number
+      radius: number; maxRadius: number
+      alpha: number
+      hue: number // 270=purple, 175=cyan
     }
     
-    const dataBlocks: DataBlock[] = []
-    const maxDataBlocks = isMobile ? 3 : 8
-    
-    const spawnDataBlock = () => {
-      const colors = ['20, 241, 149', '153, 69, 255', '255, 200, 55', '100, 200, 255']
-      const hexLen = 4 + Math.floor(Math.random() * 8)
-      let text = '0x'
-      for (let i = 0; i < hexLen; i++) text += HEX_CHARS[Math.floor(Math.random() * 16)]
-      
-      // Occasionally use crypto-style text
-      if (Math.random() < 0.3) {
-        const phrases = ['BLOCK #', 'TX: 0x', 'GAS: ', 'SOL: ', 'HASH: ', 'MINT: ', 'SWAP: ']
-        text = phrases[Math.floor(Math.random() * phrases.length)]
-        for (let i = 0; i < 6; i++) text += HEX_CHARS[Math.floor(Math.random() * 16)]
-      }
-      
-      return {
-        x: 20 + Math.random() * (width - 200),
-        y: Math.random() * height,
-        vy: -0.2 - Math.random() * 0.5,
-        text,
-        alpha: 0,
-        fadeSpeed: 0.005 + Math.random() * 0.01,
-        color: colors[Math.floor(Math.random() * colors.length)],
-      }
-    }
+    const pulses: EnergyPulse[] = []
+    let nextPulseIn = 300 + Math.random() * 200 // frames (~5-8 seconds)
     
     // === MOUSE ===
     let mx = 0, my = 0, mActive = false
@@ -116,11 +79,12 @@ export function FlowField() {
     }, { passive: true })
     window.addEventListener('touchend', onEnd)
     
-    // === GLITCH STATE ===
+    // === GLITCH STATE (rare + minimal) ===
     let glitchTimer = 0
     let glitchActive = false
     let glitchDuration = 0
-    let nextGlitchIn = 60 + Math.random() * 180 // frames until next glitch burst
+    // 480-720 frames = ~8-12 seconds at 60fps
+    let nextGlitchIn = 480 + Math.random() * 240
     
     // === ANIMATION ===
     let lastTime = performance.now()
@@ -136,57 +100,19 @@ export function FlowField() {
       frameCount++
       
       // Fade trails
-      ctx.fillStyle = 'rgba(8, 8, 8, 0.07)'
+      ctx.fillStyle = 'rgba(8, 8, 8, 0.06)'
       ctx.fillRect(0, 0, width, height)
       
-      // === MATRIX RAIN ===
-      ctx.font = `${fontSize}px monospace`
-      for (let col = 0; col < numColumns; col++) {
-        if (!activeColumns[col]) continue
-        
-        matrixDrops[col] += matrixSpeeds[col] * (delta * 0.06)
-        
-        const y = matrixDrops[col] * fontSize
-        
-        if (y > 0 && y < height) {
-          // Head character (bright)
-          matrixChars[col] = MATRIX_CHARS[Math.floor(Math.random() * MATRIX_CHARS.length)]
-          const x = col * columnWidth
-          
-          // Bright green/cyan head
-          ctx.fillStyle = `rgba(20, 241, 149, ${0.7 + Math.random() * 0.3})`
-          ctx.fillText(matrixChars[col], x, y)
-          
-          // Trail characters (fading)
-          const trailLen = isMobile ? 4 : 8
-          for (let t = 1; t <= trailLen; t++) {
-            const trailY = y - t * fontSize
-            if (trailY < 0) break
-            const trailAlpha = (1 - t / trailLen) * 0.25
-            const char = MATRIX_CHARS[Math.floor(Math.random() * MATRIX_CHARS.length)]
-            
-            // Alternate between green and purple
-            if (t % 3 === 0) {
-              ctx.fillStyle = `rgba(153, 69, 255, ${trailAlpha})`
-            } else {
-              ctx.fillStyle = `rgba(20, 241, 149, ${trailAlpha})`
-            }
-            ctx.fillText(char, x, trailY)
-          }
-        }
-        
-        // Reset column when it reaches bottom
-        if (y > height + fontSize * 10) {
-          matrixDrops[col] = -Math.random() * 20
-          matrixSpeeds[col] = 0.3 + Math.random() * 0.8
-          // Randomly toggle columns for variety
-          if (Math.random() < 0.3) {
-            activeColumns[col] = false
-            // Activate a different column
-            const newCol = Math.floor(Math.random() * numColumns)
-            activeColumns[newCol] = true
-          }
-        }
+      // === VIGNETTE (drawn rarely for performance, accumulates via trail fade) ===
+      if (frameCount % 60 === 0) {
+        const vignette = ctx.createRadialGradient(
+          width / 2, height / 2, height * 0.25,
+          width / 2, height / 2, Math.max(width, height) * 0.75
+        )
+        vignette.addColorStop(0, 'rgba(8, 8, 8, 0)')
+        vignette.addColorStop(1, 'rgba(8, 8, 8, 0.15)')
+        ctx.fillStyle = vignette
+        ctx.fillRect(0, 0, width, height)
       }
       
       // === FLOW PARTICLES ===
@@ -202,12 +128,13 @@ export function FlowField() {
         p.vx += Math.cos(angle) * speed * 5
         p.vy += Math.sin(angle) * speed * 5 - speed * 1.5
         
+        // Mouse attraction
         if (mActive) {
           const dx = mx - p.x
           const dy = my - p.y
           const d = Math.sqrt(dx * dx + dy * dy)
-          if (d < 100 && d > 1) {
-            const f = (100 - d) / 100 * speed * 15
+          if (d < 120 && d > 1) {
+            const f = (120 - d) / 120 * speed * 15
             p.vx += (dx / d) * f
             p.vy += (dy / d) * f
           }
@@ -220,10 +147,11 @@ export function FlowField() {
         p.age += delta * 0.06
         
         const lifeRatio = p.age / p.maxAge
-        let alpha = 0.6
-        if (lifeRatio < 0.15) alpha = lifeRatio / 0.15 * 0.6
-        else if (lifeRatio > 0.8) alpha = (1 - lifeRatio) / 0.2 * 0.6
+        let alpha = 0.55
+        if (lifeRatio < 0.15) alpha = lifeRatio / 0.15 * 0.55
+        else if (lifeRatio > 0.8) alpha = (1 - lifeRatio) / 0.2 * 0.55
         
+        // HSL to RGB approximation
         const h = p.hue
         const r = h < 60 ? 255 : h < 180 ? Math.round((180 - h) / 120 * 255) : h > 300 ? 255 : h > 240 ? Math.round((h - 240) / 60 * 255) : 0
         const g = h < 60 ? Math.round(h / 60 * 255) : h < 180 ? 255 : h < 240 ? Math.round((240 - h) / 60 * 255) : 0
@@ -234,6 +162,7 @@ export function FlowField() {
         ctx.fillStyle = `rgba(${r}, ${g}, ${b}, ${alpha})`
         ctx.fill()
         
+        // Reset if out of bounds or old
         if (p.x < -30 || p.x > width + 30 || p.y < -30 || p.y > height + 30 || p.age > p.maxAge) {
           const newP = spawn()
           if (Math.random() > 0.4) newP.y = height + 15
@@ -241,10 +170,14 @@ export function FlowField() {
         }
       }
       
-      // === CONNECTION LINES (desktop only) ===
+      // === CONNECTION LINES (pulsing network) ===
       if (!isMobile) {
-        ctx.lineWidth = 0.4
-        const maxDistSq = 70 * 70
+        const maxDist = 80
+        const maxDistSq = maxDist * maxDist
+        // Subtle pulsing glow on line opacity
+        const linePulse = 1 + Math.sin(frameCount * 0.02) * 0.3
+        
+        ctx.lineWidth = 0.5
         for (let i = 0; i < count; i += 2) {
           const p1 = particles[i]
           for (let j = i + 2; j < count; j += 2) {
@@ -253,7 +186,7 @@ export function FlowField() {
             const dy = p1.y - p2.y
             const distSq = dx * dx + dy * dy
             if (distSq < maxDistSq) {
-              const alpha = (1 - distSq / maxDistSq) * 0.1
+              const alpha = (1 - distSq / maxDistSq) * 0.12 * linePulse
               const avgHue = (p1.hue + p2.hue) / 2
               const lr = avgHue < 60 ? 200 : avgHue < 180 ? Math.round((180 - avgHue) / 120 * 200) : avgHue > 300 ? 200 : avgHue > 240 ? Math.round((avgHue - 240) / 60 * 200) : 50
               const lg = avgHue < 60 ? Math.round(avgHue / 60 * 200) : avgHue < 180 ? 200 : avgHue < 240 ? Math.round((240 - avgHue) / 60 * 200) : 50
@@ -268,166 +201,133 @@ export function FlowField() {
         }
       }
       
-      // === FLOATING DATA BLOCKS ===
-      // Spawn new blocks occasionally
-      if (dataBlocks.length < maxDataBlocks && Math.random() < 0.015) {
-        dataBlocks.push(spawnDataBlock())
-      }
-      
-      ctx.font = `${isMobile ? 9 : 11}px monospace`
-      for (let i = dataBlocks.length - 1; i >= 0; i--) {
-        const db = dataBlocks[i]
-        db.y += db.vy
-        
-        // Fade in then out
-        if (db.alpha < 0.3) {
-          db.alpha += db.fadeSpeed * delta
+      // === ENERGY PULSES (arena-style radial bursts) ===
+      nextPulseIn--
+      if (nextPulseIn <= 0) {
+        const isFromParticle = Math.random() < 0.6 && count > 0
+        let px: number, py: number
+        if (isFromParticle) {
+          const srcP = particles[Math.floor(Math.random() * count)]
+          px = srcP.x
+          py = srcP.y
         } else {
-          db.alpha -= db.fadeSpeed * 0.3 * delta
+          px = width * (0.15 + Math.random() * 0.7)
+          py = height * (0.15 + Math.random() * 0.7)
         }
         
-        if (db.alpha <= 0 || db.y < -20) {
-          dataBlocks.splice(i, 1)
+        pulses.push({
+          x: px, y: py,
+          radius: 0,
+          maxRadius: isMobile ? 120 + Math.random() * 80 : 180 + Math.random() * 150,
+          alpha: isMobile ? 0.12 : 0.15,
+          hue: Math.random() < 0.6 ? 270 : 175, // purple or cyan
+        })
+        
+        nextPulseIn = (isMobile ? 350 : 300) + Math.random() * (isMobile ? 200 : 180)
+      }
+      
+      // Draw pulses
+      for (let i = pulses.length - 1; i >= 0; i--) {
+        const pulse = pulses[i]
+        pulse.radius += delta * (isMobile ? 0.08 : 0.1)
+        pulse.alpha *= 0.985
+        
+        if (pulse.alpha < 0.003 || pulse.radius > pulse.maxRadius) {
+          pulses.splice(i, 1)
           continue
         }
         
-        ctx.fillStyle = `rgba(${db.color}, ${Math.min(db.alpha, 0.35)})`
-        ctx.fillText(db.text, db.x, db.y)
+        // Radial gradient glow
+        const grad = ctx.createRadialGradient(
+          pulse.x, pulse.y, 0,
+          pulse.x, pulse.y, pulse.radius
+        )
         
-        // Randomly mutate a character
-        if (Math.random() < 0.02) {
-          const chars = db.text.split('')
-          const idx = 2 + Math.floor(Math.random() * (chars.length - 2))
-          chars[idx] = HEX_CHARS[Math.floor(Math.random() * 16)]
-          db.text = chars.join('')
-        }
+        const isPurple = pulse.hue === 270
+        const coreColor = isPurple ? '153, 69, 255' : '20, 200, 220'
+        
+        grad.addColorStop(0, `rgba(${coreColor}, ${pulse.alpha * 0.8})`)
+        grad.addColorStop(0.4, `rgba(${coreColor}, ${pulse.alpha * 0.3})`)
+        grad.addColorStop(1, `rgba(${coreColor}, 0)`)
+        
+        ctx.fillStyle = grad
+        ctx.beginPath()
+        ctx.arc(pulse.x, pulse.y, pulse.radius, 0, 6.28)
+        ctx.fill()
+        
+        // Faint ring at the edge
+        ctx.beginPath()
+        ctx.arc(pulse.x, pulse.y, pulse.radius, 0, 6.28)
+        ctx.strokeStyle = `rgba(${coreColor}, ${pulse.alpha * 0.5})`
+        ctx.lineWidth = 1.5
+        ctx.stroke()
       }
       
-      // === GLITCH SYSTEM ===
-      nextGlitchIn -= 1
+      // === NEON HORIZON GLOW (bottom edge, like arena stage lighting) ===
+      if (frameCount % 4 === 0) {
+        const glowHeight = isMobile ? 60 : 100
+        const horizonGrad = ctx.createLinearGradient(0, height - glowHeight, 0, height)
+        
+        // Slowly shift between purple and cyan
+        const horizonPhase = Math.sin(frameCount * 0.005) * 0.5 + 0.5
+        const pr = Math.round(153 * (1 - horizonPhase) + 20 * horizonPhase)
+        const pg = Math.round(69 * (1 - horizonPhase) + 200 * horizonPhase)
+        const pb = Math.round(255 * (1 - horizonPhase) + 220 * horizonPhase)
+        
+        horizonGrad.addColorStop(0, 'rgba(8, 8, 8, 0)')
+        horizonGrad.addColorStop(0.7, `rgba(${pr}, ${pg}, ${pb}, 0.015)`)
+        horizonGrad.addColorStop(1, `rgba(${pr}, ${pg}, ${pb}, 0.04)`)
+        ctx.fillStyle = horizonGrad
+        ctx.fillRect(0, height - glowHeight, width, glowHeight)
+      }
+      
+      // === GLITCH (rare, brief, broadcast-style) ===
+      nextGlitchIn--
       
       if (nextGlitchIn <= 0 && !glitchActive) {
         glitchActive = true
-        glitchDuration = 3 + Math.floor(Math.random() * 12) // 3-15 frames of glitch
+        glitchDuration = 2 + Math.floor(Math.random() * 2) // 2-3 frames only
         glitchTimer = 0
-        nextGlitchIn = (isMobile ? 120 : 80) + Math.random() * (isMobile ? 300 : 200)
+        nextGlitchIn = 480 + Math.random() * 300 // 8-13 seconds
       }
       
       if (glitchActive) {
         glitchTimer++
-        const intensity = Math.random()
         
-        // --- HORIZONTAL SLICE DISPLACEMENT ---
-        const numSlices = 2 + Math.floor(Math.random() * (intensity > 0.5 ? 10 : 5))
+        // Small horizontal slice displacement only
+        const numSlices = 1 + Math.floor(Math.random() * 3)
         for (let g = 0; g < numSlices; g++) {
           const sliceY = Math.floor(Math.random() * height)
-          const sliceH = Math.floor(2 + Math.random() * (isMobile ? 12 : 25))
-          const shiftX = Math.floor((Math.random() - 0.5) * (isMobile ? 30 : 80))
+          const sliceH = Math.floor(2 + Math.random() * (isMobile ? 6 : 10))
+          const shiftX = Math.floor((Math.random() - 0.5) * (isMobile ? 15 : 30))
           
           try {
-            const imgData = ctx.getImageData(0, Math.max(0, sliceY), width, Math.min(sliceH, height - sliceY))
-            ctx.putImageData(imgData, shiftX, sliceY)
+            const safeY = Math.max(0, Math.min(sliceY, height - 1))
+            const safeH = Math.min(sliceH, height - safeY)
+            if (safeH > 0) {
+              const imgData = ctx.getImageData(0, safeY, width, safeH)
+              ctx.putImageData(imgData, shiftX, safeY)
+            }
           } catch(e) { /* ignore */ }
         }
         
-        // --- CHROMATIC ABERRATION (RGB channel split) ---
-        if (!isMobile && intensity > 0.3) {
-          const aberrationSize = 2 + Math.floor(Math.random() * 4)
-          try {
-            const fullImage = ctx.getImageData(0, 0, width, height)
-            const shifted = ctx.createImageData(width, height)
-            
-            // Only shift a horizontal band for performance
-            const bandY = Math.floor(Math.random() * height)
-            const bandH = 30 + Math.floor(Math.random() * 100)
-            
-            for (let y = bandY; y < Math.min(bandY + bandH, height); y++) {
-              for (let x = 0; x < width; x++) {
-                const idx = (y * width + x) * 4
-                const rIdx = (y * width + Math.min(x + aberrationSize, width - 1)) * 4
-                const bIdx = (y * width + Math.max(x - aberrationSize, 0)) * 4
-                
-                shifted.data[idx] = fullImage.data[rIdx]       // Red shifted right
-                shifted.data[idx + 1] = fullImage.data[idx + 1] // Green stays
-                shifted.data[idx + 2] = fullImage.data[bIdx + 2] // Blue shifted left
-                shifted.data[idx + 3] = 255
-              }
-            }
-            
-            // Copy non-band area
-            for (let y = 0; y < height; y++) {
-              if (y >= bandY && y < bandY + bandH) continue
-              for (let x = 0; x < width; x++) {
-                const idx = (y * width + x) * 4
-                shifted.data[idx] = fullImage.data[idx]
-                shifted.data[idx + 1] = fullImage.data[idx + 1]
-                shifted.data[idx + 2] = fullImage.data[idx + 2]
-                shifted.data[idx + 3] = fullImage.data[idx + 3]
-              }
-            }
-            
-            ctx.putImageData(shifted, 0, 0)
-          } catch(e) { /* ignore */ }
-        }
-        
-        // --- SCAN LINE FLASH ---
-        if (intensity > 0.2) {
-          const numLines = 1 + Math.floor(Math.random() * 3)
-          for (let l = 0; l < numLines; l++) {
-            const lineY = Math.floor(Math.random() * height)
-            const lineColor = Math.random() < 0.5 
-              ? `rgba(20, 241, 149, ${0.08 + Math.random() * 0.15})`
-              : `rgba(153, 69, 255, ${0.06 + Math.random() * 0.12})`
-            ctx.fillStyle = lineColor
-            ctx.fillRect(0, lineY, width, 1 + Math.floor(Math.random() * 2))
-          }
-        }
-        
-        // --- GLITCH TEXT FLASH ---
-        if (intensity > 0.6 && Math.random() < 0.5) {
-          ctx.font = `bold ${isMobile ? 10 : 13}px monospace`
-          const texts = ['ERR:0x', 'BLOCK_', 'SYNC..', '>>>>>>',  '██████', '▓▓▓▓▓▓', 'VERIFY', 'HASH: ', 'MINT: ']
-          const text = texts[Math.floor(Math.random() * texts.length)] + 
-            Array.from({length: 4}, () => HEX_CHARS[Math.floor(Math.random() * 16)]).join('')
-          const tx = Math.random() * (width - 150)
-          const ty = Math.random() * height
-          ctx.fillStyle = `rgba(20, 241, 149, ${0.15 + Math.random() * 0.25})`
-          ctx.fillText(text, tx, ty)
-        }
-        
-        // --- BLOCK CORRUPTION (rectangle artifacts) ---
-        if (intensity > 0.7) {
-          const numBlocks = 1 + Math.floor(Math.random() * 3)
-          for (let b = 0; b < numBlocks; b++) {
-            const bx = Math.random() * width
-            const by = Math.random() * height
-            const bw = 10 + Math.random() * (isMobile ? 40 : 80)
-            const bh = 2 + Math.random() * (isMobile ? 6 : 12)
-            const colors = ['20, 241, 149', '153, 69, 255', '255, 200, 55']
-            ctx.fillStyle = `rgba(${colors[Math.floor(Math.random() * colors.length)]}, ${0.05 + Math.random() * 0.1})`
-            ctx.fillRect(bx, by, bw, bh)
-          }
-        }
+        // Single faint scan line
+        const lineY = Math.floor(Math.random() * height)
+        const lineColor = Math.random() < 0.5 ? '153, 69, 255' : '20, 200, 220'
+        ctx.fillStyle = `rgba(${lineColor}, ${0.06 + Math.random() * 0.06})`
+        ctx.fillRect(0, lineY, width, 1)
         
         if (glitchTimer >= glitchDuration) {
           glitchActive = false
         }
       }
       
-      // === SUBTLE PERSISTENT EFFECTS ===
-      // Dim scan lines overlay (very subtle CRT feel)
-      if (!isMobile && frameCount % 3 === 0) {
+      // === SUBTLE SCAN LINES (desktop only, very faint CRT) ===
+      if (!isMobile && frameCount % 5 === 0) {
         for (let y = 0; y < height; y += 4) {
-          ctx.fillStyle = 'rgba(0, 0, 0, 0.02)'
+          ctx.fillStyle = 'rgba(0, 0, 0, 0.012)'
           ctx.fillRect(0, y, width, 1)
         }
-      }
-      
-      // Occasional single scan line sweep
-      if (Math.random() < 0.01) {
-        const sweepY = Math.floor(Math.random() * height)
-        ctx.fillStyle = 'rgba(255, 255, 255, 0.02)'
-        ctx.fillRect(0, sweepY, width, 2)
       }
       
       animId = requestAnimationFrame(loop)
