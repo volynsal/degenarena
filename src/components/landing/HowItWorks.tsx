@@ -2,19 +2,19 @@ const steps = [
   {
     number: '01',
     title: 'Build Your Strategy',
-    description: 'Create your formula with 20+ filters: liquidity, volume, token age, buy pressure, and more. Each strategy is unique — craft the one that gives you an edge.',
+    description: 'Trade your way — or use our optional formula builder with 20+ filters to scan for new tokens. Liquidity, volume, token age, buy pressure, and more.',
     color: 'from-arena-purple to-arena-blue',
   },
   {
     number: '02',
     title: 'Enter the Arena',
-    description: 'Activate your formula and start competing. Every token match is tracked, verified, and added to your permanent record. Your win rate is your reputation.',
+    description: 'Start competing. Every trade is tracked, verified, and added to your permanent record. Your win rate is your reputation.',
     color: 'from-arena-blue to-arena-cyan',
   },
   {
     number: '03',
     title: 'Get Real-Time Alerts',
-    description: 'When your formula catches a token, get notified instantly via Telegram, Discord, or email. Trade on your own terms — we just find the opportunities.',
+    description: 'Get notified instantly via Telegram, Discord, or email when tokens match your criteria. Trade on your own terms — we just surface opportunities.',
     color: 'from-arena-cyan to-arena-purple',
   },
   {

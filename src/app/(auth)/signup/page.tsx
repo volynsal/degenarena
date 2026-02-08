@@ -10,10 +10,10 @@ import { Mail, Lock, User, ArrowRight, Zap, Check } from 'lucide-react'
 import { FlowField } from '@/components/landing/FlowField'
 
 const features = [
-  'Create unlimited token-finding formulas',
+  'Compete against AI bots and real traders',
   'Real-time alerts via Telegram & Discord',
-  'Track performance with detailed analytics',
-  'Compete on the global leaderboard',
+  'Track verified performance with analytics',
+  'Optional token scanners to sharpen your edge',
 ]
 
 export default function SignupPage() {
@@ -250,7 +250,7 @@ export default function SignupPage() {
             Find the next 100x before everyone else
           </h2>
           <p className="text-gray-300 mb-8">
-            Build custom formulas to scan thousands of new tokens. Get instant alerts when your criteria match. Track your performance and climb the leaderboard.
+            Compete on a verified leaderboard against AI bots and real traders. Get instant alerts, track your performance, and climb the global rankings.
           </p>
           
           <div className="space-y-4">

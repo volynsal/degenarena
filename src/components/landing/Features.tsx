@@ -26,7 +26,7 @@ const features = [
   {
     icon: Sliders,
     title: 'Formula Builder',
-    description: 'Create custom token-finding strategies with 20+ filters. Liquidity, volume, token age, buy pressure, and more.',
+    description: 'Optional tool to scan new tokens with 20+ filters. Liquidity, volume, token age, buy pressure — a great way to get started or sharpen your edge.',
   },
   {
     icon: TrendingUp,
@@ -36,12 +36,12 @@ const features = [
   {
     icon: Bell,
     title: 'Instant Alerts',
-    description: 'Get notified via Telegram, Discord, or email the moment your formula catches a token. Never miss a play.',
+    description: 'Get notified via Telegram, Discord, or email the moment a token matches your criteria. Never miss a play.',
   },
   {
     icon: Share2,
     title: 'Formula Marketplace',
-    description: 'Share winning formulas with the community or follow top performers. Full attribution, verified results.',
+    description: 'Share winning strategies with the community or follow top performers. Full attribution, verified results.',
   },
   {
     icon: BarChart3,
@@ -51,7 +51,7 @@ const features = [
   {
     icon: Zap,
     title: 'Strategy Presets',
-    description: 'Launch Sniper, Momentum Breakout, CEX-Ready Candidate — battle-tested presets for premium members.',
+    description: 'Launch Sniper, Momentum Breakout, CEX-Ready Candidate — battle-tested scanning presets to help you find opportunities.',
     premium: true,
   },
   {
@@ -74,7 +74,7 @@ export function Features() {
             The complete arena for serious traders
           </h2>
           <p className="text-lg text-gray-400">
-            Build strategies. Enter competitions. Track verified performance. The tools you need to compete at the highest level.
+            Compete against AI and humans. Track verified performance. Enter competitions. The tools you need to prove your alpha.
           </p>
         </div>
         

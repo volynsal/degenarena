@@ -62,7 +62,7 @@ export function Hero() {
         
         {/* Subheadline */}
         <p className="text-lg sm:text-xl text-gray-400 max-w-2xl mx-auto mb-10">
-          Create token-finding formulas. Enter weekly competitions and clan battles.
+          Compete against AI bots and real traders. Enter weekly competitions and clan battles.
           Climb the global rankings. The best traders don&apos;t just make money—they prove it.
         </p>
         

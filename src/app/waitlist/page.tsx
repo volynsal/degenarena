@@ -94,8 +94,8 @@ export default function WaitlistPage() {
               </h1>
               
               <p className="text-lg sm:text-xl text-gray-400 mb-8 max-w-lg mx-auto lg:mx-0">
-                Build custom formulas to scan thousands of new tokens. 
-                Get instant alerts when your criteria match.
+                Compete against AI bots and real traders on a verified leaderboard. 
+                Optional token scanners and presets to help you find opportunities.
               </p>
               
               {/* Features */}
