@@ -204,7 +204,8 @@ export async function generateMarkets(): Promise<{ created: number; skipped: num
   let created = 0
   let skipped = 0
 
-  for (const [address, match] of uniqueTokens) {
+  const entries = Array.from(uniqueTokens.entries())
+  for (const [address, match] of entries) {
     if (existingSet.has(address)) {
       skipped++
       continue
