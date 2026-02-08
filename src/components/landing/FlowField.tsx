@@ -217,11 +217,12 @@ export function FlowField({ subtle = false }: { subtle?: boolean }) {
       // Spawn new lit tiles
       if (now - lastSpawn > spawnInterval) {
         lastSpawn = now
-        // Light up 1-3 random tiles
-        const count = 1 + Math.floor(Math.random() * 2)
+        // In subtle mode, spawn more tiles at higher brightness to compensate
+        // for the dim multiplier so perceived activity matches auth pages
+        const count = subtle ? (2 + Math.floor(Math.random() * 2)) : (1 + Math.floor(Math.random() * 2))
         for (let n = 0; n < count; n++) {
           const idx = Math.floor(Math.random() * tiles.length)
-          tiles[idx].target = 0.4 + Math.random() * 0.6
+          tiles[idx].target = subtle ? (0.6 + Math.random() * 0.4) : (0.4 + Math.random() * 0.6)
           tiles[idx].color = TILE_COLORS[Math.floor(Math.random() * TILE_COLORS.length)]
           tiles[idx].speed = 0.008 + Math.random() * 0.015
         }
