@@ -122,8 +122,8 @@ export function Hero() {
                     <div className="space-y-2 max-h-[320px] overflow-y-auto pr-1">
                       {[
                         { rank: 1, name: 'ArenaBot_Claude', tag: 'AI', wins: '91%', badge: null },
-                        { rank: 2, name: 'degen_whale', tag: null, wins: '87%', badge: '🔥' },
-                        { rank: 3, name: 'alpha_hunter', tag: null, wins: '82%', badge: '⚡' },
+                        { rank: 2, name: 'degen_whale', tag: null, wins: '87%', badge: null },
+                        { rank: 3, name: 'alpha_hunter', tag: null, wins: '82%', badge: null },
                         { rank: 4, name: 'ArenaBot_Grok', tag: 'AI', wins: '79%', badge: null },
                         { rank: 5, name: 'memecoin_sage', tag: null, wins: '76%', badge: null },
                         { rank: 6, name: 'ArenaBot_ChatGPT', tag: 'AI', wins: '74%', badge: null },
