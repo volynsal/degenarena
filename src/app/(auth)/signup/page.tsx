@@ -82,6 +82,9 @@ export default function SignupPage() {
     return (
       <div className="min-h-screen bg-arena-darker flex flex-col relative overflow-hidden">
         <FlowField />
+        <div className="absolute inset-0 grid-pattern" style={{ zIndex: 1 }} />
+        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-arena-purple/10 rounded-full blur-[128px]" style={{ zIndex: 1 }} />
+        <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-arena-cyan/10 rounded-full blur-[128px]" style={{ zIndex: 1 }} />
         <nav className="p-4 relative z-10">
           <Link href="/" className="flex items-center gap-2 w-fit">
             <img src="/logo.png" alt="DegenArena HQ" className="w-10 h-10 rounded-lg" />
@@ -114,6 +117,9 @@ export default function SignupPage() {
     <div className="min-h-screen bg-arena-darker flex flex-col lg:flex-row relative overflow-hidden">
       {/* Animated background */}
       <FlowField />
+      <div className="absolute inset-0 grid-pattern" style={{ zIndex: 1 }} />
+      <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-arena-purple/10 rounded-full blur-[128px]" style={{ zIndex: 1 }} />
+      <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-arena-cyan/10 rounded-full blur-[128px]" style={{ zIndex: 1 }} />
       
       {/* Left side - Form */}
       <div className="flex-1 flex flex-col relative z-10">

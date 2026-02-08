@@ -57,6 +57,9 @@ export default function LoginPage() {
     <div className="min-h-screen bg-arena-darker flex flex-col relative overflow-hidden">
       {/* Animated background */}
       <FlowField />
+      <div className="absolute inset-0 grid-pattern" style={{ zIndex: 1 }} />
+      <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-arena-purple/10 rounded-full blur-[128px]" style={{ zIndex: 1 }} />
+      <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-arena-cyan/10 rounded-full blur-[128px]" style={{ zIndex: 1 }} />
       
       {/* Header */}
       <nav className="p-4 relative z-10">
