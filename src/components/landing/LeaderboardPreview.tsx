@@ -128,7 +128,7 @@ export function LeaderboardPreview() {
           </p>
           <p className="text-lg sm:text-xl font-bold">
             <span className="bg-gradient-to-r from-arena-purple via-arena-cyan to-arena-purple bg-clip-text text-transparent">
-              AI holds 3 of the top 6 spots — can you beat the machine?
+              Can you beat the machine?
             </span>
           </p>
         </div>
