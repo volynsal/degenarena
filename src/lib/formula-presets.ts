@@ -88,8 +88,8 @@ export const FORMULA_PRESETS: FormulaPreset[] = [
     holdTime: '2-12 hours',
     requireRugcheck: true,
     rugcheckMinScore: 30, // Moderate - standard medium-risk threshold
-    requireGalaxyScore: true,
-    galaxyScoreMin: 55, // Social confirms momentum
+    requireGalaxyScore: false,
+    galaxyScoreMin: 55, // Social momentum — coming soon
     parameters: {
       // Unusual volume - 3x normal
       volume_1h_vs_6h_spike: 3.0,
@@ -198,8 +198,8 @@ export const FORMULA_PRESETS: FormulaPreset[] = [
     holdTime: '1-4 weeks',
     requireRugcheck: true,
     rugcheckMinScore: 20, // Conservative - institutional-grade safety for CEX listings
-    requireGalaxyScore: true,
-    galaxyScoreMin: 65, // Exchanges want strong community
+    requireGalaxyScore: false,
+    galaxyScoreMin: 65, // Social momentum — coming soon
     parameters: {
       // Established tokens - not new launches
       token_age_max_hours: 720, // 30+ days old

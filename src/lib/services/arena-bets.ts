@@ -52,23 +52,19 @@ const MARKET_TEMPLATES: MarketTemplate[] = [
 ]
 
 // =============================================
-// MARKET GENERATION FILTERS (3-layer)
+// MARKET GENERATION FILTERS (2-layer, no LunarCrush dependency)
 // =============================================
 
-// Layer 1 — PRIMARY: Social signal (GalaxyScore from LunarCrush)
-// High GalaxyScore = people are talking about it = worth creating a market for
-const PRIMARY_GALAXY_SCORE_MIN = 50
-
-// Layer 2 — SECONDARY: On-chain safety floor (DexScreener data)
-// Prevents markets on socially buzzy tokens with no real trading activity
-const SECONDARY_FILTER = {
+// Layer 1 — SAFETY: On-chain floor (DexScreener data)
+// Prevents markets on dead tokens with no real trading activity
+const SAFETY_FILTER = {
   minLiquidityUsd: 5000,  // $5K+ liquidity — can't be easily manipulated
-  minTx1h: 20,            // At least 20 txs in the last hour — real activity
+  minTx1h: 15,            // At least 15 txs in the last hour — real activity
 }
 
-// Layer 3 — TERTIARY: Momentum / volatility (makes the market interesting to bet on)
+// Layer 2 — MOMENTUM: Volatility / interest (makes the market interesting to bet on)
 // At least one of these must be true — ensures the token isn't flat-lining
-const TERTIARY_FILTER = {
+const MOMENTUM_FILTER = {
   minPriceChangeAbsolute1h: 3, // 3%+ swing in either direction
   minVolumeSpike1hVs6h: 1.5,  // 1h vol is 1.5x the 6h average
   minBuySellRatio: 1.3,       // Buy pressure: buys > 1.3x sells (or inverse)
@@ -79,25 +75,19 @@ interface FilterResult {
   reason?: string
 }
 
-function passesFilter(pair: DexScreenerPair, galaxyScore: number | null): FilterResult {
-  // Layer 1: GalaxyScore gate
-  const gs = galaxyScore ?? 0
-  if (gs < PRIMARY_GALAXY_SCORE_MIN) {
-    return { passes: false, reason: `GalaxyScore ${gs} < ${PRIMARY_GALAXY_SCORE_MIN}` }
-  }
-
-  // Layer 2: On-chain safety
+function passesFilter(pair: DexScreenerPair): FilterResult {
+  // Layer 1: On-chain safety
   const liq = pair.liquidity?.usd ?? 0
   const tx1h = (pair.txns?.h1?.buys ?? 0) + (pair.txns?.h1?.sells ?? 0)
 
-  if (liq < SECONDARY_FILTER.minLiquidityUsd) {
-    return { passes: false, reason: `Liquidity $${liq} < $${SECONDARY_FILTER.minLiquidityUsd}` }
+  if (liq < SAFETY_FILTER.minLiquidityUsd) {
+    return { passes: false, reason: `Liquidity $${liq} < $${SAFETY_FILTER.minLiquidityUsd}` }
   }
-  if (tx1h < SECONDARY_FILTER.minTx1h) {
-    return { passes: false, reason: `Txs ${tx1h} < ${SECONDARY_FILTER.minTx1h}` }
+  if (tx1h < SAFETY_FILTER.minTx1h) {
+    return { passes: false, reason: `Txs ${tx1h} < ${SAFETY_FILTER.minTx1h}` }
   }
 
-  // Layer 3: At least ONE momentum signal must fire
+  // Layer 2: At least ONE momentum signal must fire
   const priceAbs = Math.abs(pair.priceChange?.h1 ?? 0)
   const vol1h = pair.volume?.h1 ?? 0
   const vol6h = pair.volume?.h6 ?? 0
@@ -107,9 +97,9 @@ function passesFilter(pair: DexScreenerPair, galaxyScore: number | null): Filter
   const buySellRatio = buys1h / sells1h
   const inverseBuySellRatio = sells1h / (buys1h || 1)
 
-  const hasVolatility = priceAbs >= TERTIARY_FILTER.minPriceChangeAbsolute1h
-  const hasVolumeSpike = vol6h > 0 && vol6hAvg >= TERTIARY_FILTER.minVolumeSpike1hVs6h
-  const hasBuyPressure = buySellRatio >= TERTIARY_FILTER.minBuySellRatio || inverseBuySellRatio >= TERTIARY_FILTER.minBuySellRatio
+  const hasVolatility = priceAbs >= MOMENTUM_FILTER.minPriceChangeAbsolute1h
+  const hasVolumeSpike = vol6h > 0 && vol6hAvg >= MOMENTUM_FILTER.minVolumeSpike1hVs6h
+  const hasBuyPressure = buySellRatio >= MOMENTUM_FILTER.minBuySellRatio || inverseBuySellRatio >= MOMENTUM_FILTER.minBuySellRatio
 
   if (!hasVolatility && !hasVolumeSpike && !hasBuyPressure) {
     return { passes: false, reason: 'No momentum signal (price flat, no volume spike, balanced buys/sells)' }
@@ -161,63 +151,118 @@ function generateBotPredictions(pair: DexScreenerPair, marketType: MarketType): 
 // =============================================
 
 /**
- * Generate markets from currently active token matches.
- * Called by the cron job. Taps into our existing token monitoring pipeline.
+ * Generate markets from DexScreener trending/boosted tokens + token_matches.
+ * Two sources:
+ *   1. DexScreener boosted tokens (social signal — people are promoting/trading them)
+ *   2. Our own token_matches table (formula monitoring pipeline)
+ * No LunarCrush dependency — uses DexScreener trending as the social signal.
  */
-export async function generateMarkets(): Promise<{ created: number; skipped: number }> {
+export async function generateMarkets(): Promise<{ created: number; skipped: number; source: string }> {
   const supabase = getServiceClient()
   const dex = new DexScreenerService()
 
-  // 1. Get recent token matches from the last 2 hours (already surfaced by our monitoring cron)
-  //    Pull galaxy_score — it's our primary filter for market-worthy tokens
-  const twoHoursAgo = new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString()
-  const { data: recentMatches } = await supabase
-    .from('token_matches')
-    .select('token_address, token_name, token_symbol, dexscreener_url, liquidity, volume_24h, matched_at, rugcheck_score, galaxy_score')
-    .gte('matched_at', twoHoursAgo)
-    .order('matched_at', { ascending: false })
-    .limit(50)
+  // Collect candidate pairs from multiple sources
+  const candidatePairs: Map<string, DexScreenerPair> = new Map()
 
-  if (!recentMatches?.length) {
-    return { created: 0, skipped: 0 }
-  }
+  // ── SOURCE 1: DexScreener trending/boosted tokens (primary social signal) ──
+  try {
+    console.log('📡 Fetching DexScreener trending tokens...')
+    const boostedResponse = await fetch('https://api.dexscreener.com/token-boosts/top/v1', {
+      headers: { 'Accept': 'application/json' },
+    })
 
-  // 2. De-duplicate by token address
-  const uniqueTokens = new Map<string, typeof recentMatches[0]>()
-  for (const m of recentMatches) {
-    if (!uniqueTokens.has(m.token_address)) {
-      uniqueTokens.set(m.token_address, m)
+    if (boostedResponse.ok) {
+      const boostedTokens = await boostedResponse.json()
+      // Filter to Solana tokens only
+      const solanaTokens = (boostedTokens || [])
+        .filter((t: any) => t.chainId === 'solana')
+        .slice(0, 20)
+
+      // Batch-fetch full pair data
+      const addresses = solanaTokens.map((t: any) => t.tokenAddress).filter(Boolean)
+      for (let i = 0; i < addresses.length; i += 15) {
+        const batch = addresses.slice(i, i + 15).join(',')
+        try {
+          const res = await fetch(`https://api.dexscreener.com/latest/dex/tokens/${batch}`, {
+            headers: { 'Accept': 'application/json' },
+          })
+          if (res.ok) {
+            const data = await res.json()
+            for (const pair of (data.pairs || [])) {
+              if (pair.chainId === 'solana' && !candidatePairs.has(pair.baseToken.address)) {
+                candidatePairs.set(pair.baseToken.address, pair)
+              }
+            }
+          }
+        } catch {}
+      }
+      console.log(`  → ${candidatePairs.size} trending Solana pairs found`)
     }
+  } catch (err) {
+    console.error('DexScreener trending fetch error:', err)
   }
 
-  // 3. Check which tokens already have active markets (avoid duplicates)
-  const addresses = Array.from(uniqueTokens.keys())
+  // ── SOURCE 2: Recent token_matches from our monitoring pipeline ──
+  try {
+    const twoHoursAgo = new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString()
+    const { data: recentMatches } = await supabase
+      .from('token_matches')
+      .select('token_address, token_name, token_symbol, dexscreener_url, rugcheck_score')
+      .gte('matched_at', twoHoursAgo)
+      .order('matched_at', { ascending: false })
+      .limit(30)
+
+    if (recentMatches?.length) {
+      console.log(`📊 Found ${recentMatches.length} recent token matches`)
+      for (const match of recentMatches) {
+        if (!candidatePairs.has(match.token_address)) {
+          try {
+            const pair = await dex.getTokenByAddress(match.token_address)
+            if (pair) {
+              candidatePairs.set(match.token_address, pair)
+            }
+          } catch {}
+        }
+      }
+    }
+  } catch (err) {
+    console.error('Token matches fetch error:', err)
+  }
+
+  if (candidatePairs.size === 0) {
+    console.log('⚠️ No candidate tokens from any source')
+    return { created: 0, skipped: 0, source: 'none' }
+  }
+
+  console.log(`🔍 Filtering ${candidatePairs.size} total candidates...`)
+
+  // ── CHECK EXISTING ACTIVE MARKETS (avoid duplicates) ──
+  const allAddresses = Array.from(candidatePairs.keys())
   const { data: existingMarkets } = await supabase
     .from('arena_markets')
     .select('token_address')
-    .in('token_address', addresses)
+    .in('token_address', allAddresses)
     .eq('status', 'active')
 
   const existingSet = new Set((existingMarkets || []).map(m => m.token_address))
 
-  // 4. Fetch fresh DexScreener data for candidates
+  // ── CREATE MARKETS ──
   let created = 0
   let skipped = 0
+  const maxNewMarkets = 5 // Cap per cron run to avoid flooding
 
-  const entries = Array.from(uniqueTokens.entries())
-  for (const [address, match] of entries) {
-    if (existingSet.has(address)) {
+  for (const [address, pair] of candidatePairs.entries()) {
+    if (created >= maxNewMarkets) break
+    if (existingSet.has(address)) { skipped++; continue }
+
+    const filterResult = passesFilter(pair)
+    if (!filterResult.passes) {
+      console.log(`  ✗ ${pair.baseToken.symbol}: ${filterResult.reason}`)
       skipped++
       continue
     }
 
     try {
-      const pair = await dex.getTokenByAddress(address)
-      if (!pair) { skipped++; continue }
-
-      const filterResult = passesFilter(pair, match.galaxy_score ?? null)
-      if (!filterResult.passes) { skipped++; continue }
-
       // Pick a random market template weighted toward up_down
       const weights = [3, 4, 1, 2] // 15min, 1hr, moonshot, rug
       const totalWeight = weights.reduce((a, b) => a + b, 0)
@@ -241,32 +286,37 @@ export async function generateMarkets(): Promise<{ created: number; skipped: num
 
       const { error } = await supabase.from('arena_markets').insert({
         token_address: address,
-        token_name: match.token_name,
-        token_symbol: match.token_symbol,
+        token_name: pair.baseToken.name,
+        token_symbol: pair.baseToken.symbol,
         chain: 'solana',
         market_type: template.type,
-        question: template.question(match.token_symbol, ''),
-        description: template.description(match.token_symbol, '', timeframeStr),
+        question: template.question(pair.baseToken.symbol, ''),
+        description: template.description(pair.baseToken.symbol, '', timeframeStr),
         price_at_creation: price,
         liquidity: pair.liquidity?.usd ?? null,
         volume_24h: pair.volume?.h24 ?? null,
         holder_count: null,
-        rugcheck_score: match.rugcheck_score ?? null,
+        rugcheck_score: null,
         resolve_at: resolveAt,
         status: 'active',
         bot_predictions: botPredictions,
-        dexscreener_url: match.dexscreener_url,
+        dexscreener_url: pair.url,
       })
 
-      if (!error) created++
-      else { console.error('Market insert error:', error); skipped++ }
+      if (!error) {
+        console.log(`  ✓ Created market: ${pair.baseToken.symbol} (${template.type}, ${timeframeStr})`)
+        created++
+      } else {
+        console.error('Market insert error:', error)
+        skipped++
+      }
     } catch (err) {
       console.error(`Error processing ${address}:`, err)
       skipped++
     }
   }
 
-  return { created, skipped }
+  return { created, skipped, source: `trending:${candidatePairs.size}` }
 }
 
 /**

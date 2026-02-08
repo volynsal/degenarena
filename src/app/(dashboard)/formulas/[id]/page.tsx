@@ -1006,93 +1006,23 @@ export default function EditFormulaPage({ params }: { params: { id: string } }) 
         </CardContent>
       </Card>
       
-      {/* LunarCrush Galaxy Score */}
-      <Card>
+      {/* Social Momentum — Coming Soon */}
+      <Card className="opacity-60">
         <CardHeader>
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <TrendingUp className="w-5 h-5 text-arena-purple" />
-              <CardTitle>Social Momentum (LunarCrush)</CardTitle>
+              <TrendingUp className="w-5 h-5 text-gray-500" />
+              <CardTitle className="text-gray-400">Social Momentum</CardTitle>
             </div>
-            {formParams.requireGalaxyScore && (
-              <span className="text-xs px-2 py-1 rounded-full bg-arena-purple/20 text-arena-purple border border-arena-purple/30">
-                Enabled
-              </span>
-            )}
+            <span className="text-xs px-2 py-1 rounded-full bg-white/5 text-gray-500 border border-white/10">
+              Coming Soon
+            </span>
           </div>
         </CardHeader>
-        <CardContent className="space-y-4">
-          <p className="text-sm text-gray-400">
-            Filter tokens using LunarCrush Galaxy Score — a social momentum indicator combining mentions, sentiment, and engagement.
+        <CardContent>
+          <p className="text-sm text-gray-500">
+            Filter tokens by social engagement — mentions, sentiment, and trending activity across crypto social media. This feature is being integrated with new data providers.
           </p>
-          
-          <div className="flex items-center justify-between p-4 rounded-lg bg-white/5">
-            <div>
-              <p className="text-white font-medium">Require Social Momentum</p>
-              <p className="text-sm text-gray-400">
-                {formParams.requireGalaxyScore 
-                  ? 'Tokens must meet Galaxy Score threshold' 
-                  : 'No social filtering'}
-              </p>
-            </div>
-            <button
-              type="button"
-              onClick={() => updateParam('requireGalaxyScore', !formParams.requireGalaxyScore)}
-              className={`w-12 h-7 rounded-full p-1 transition-colors ${
-                formParams.requireGalaxyScore ? 'bg-arena-purple' : 'bg-white/20'
-              }`}
-            >
-              <div className={`w-5 h-5 rounded-full bg-white transition-transform ${
-                formParams.requireGalaxyScore ? 'translate-x-5' : 'translate-x-0'
-              }`} />
-            </button>
-          </div>
-          
-          {formParams.requireGalaxyScore && (
-            <div className="space-y-4 pt-2">
-              <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">
-                  Minimum Galaxy Score (0-100)
-                </label>
-                <div className="flex items-center gap-4">
-                  <input
-                    type="range"
-                    min="20"
-                    max="80"
-                    step="5"
-                    value={formParams.galaxyScoreMin}
-                    onChange={(e) => updateParam('galaxyScoreMin', Number(e.target.value))}
-                    className="flex-1 h-2 bg-white/10 rounded-lg appearance-none cursor-pointer accent-arena-purple"
-                  />
-                  <span className={`text-lg font-bold min-w-[3rem] text-center ${
-                    formParams.galaxyScoreMin >= 60 ? 'text-arena-purple' :
-                    formParams.galaxyScoreMin >= 40 ? 'text-yellow-400' :
-                    'text-gray-400'
-                  }`}>
-                    {formParams.galaxyScoreMin}
-                  </span>
-                </div>
-                <div className="flex justify-between text-xs text-gray-500 mt-1">
-                  <span>Low (20-40)</span>
-                  <span>Moderate (40-60)</span>
-                  <span>Strong (60+)</span>
-                </div>
-              </div>
-              
-              <div className="p-3 rounded-lg bg-arena-purple/10 border border-arena-purple/20">
-                <p className="text-sm text-arena-purple font-medium mb-1">What Galaxy Score measures:</p>
-                <ul className="text-xs text-gray-400 space-y-0.5">
-                  <li>• Social mentions &amp; engagement</li>
-                  <li>• Sentiment (positive vs negative)</li>
-                  <li>• Unique contributors</li>
-                  <li>• Social dominance in crypto</li>
-                </ul>
-                <p className="text-xs text-gray-500 mt-2">
-                  Note: New/small tokens may not be tracked by LunarCrush yet.
-                </p>
-              </div>
-            </div>
-          )}
         </CardContent>
       </Card>
       
