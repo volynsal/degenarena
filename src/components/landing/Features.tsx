@@ -62,7 +62,7 @@ const features: Feature[] = [
   {
     icon: Orbit,
     title: 'Galaxy Arena',
-    description: 'Prediction markets on trending memecoins. Will it pump, dump, or rug? Bet with points and build win streaks.',
+    description: 'Prediction markets on proper memecoins and even shitcoins. Bet with points and build win streaks to unlock go live and clans.',
   },
   {
     icon: Bot,
