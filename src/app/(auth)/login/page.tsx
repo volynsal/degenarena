@@ -188,7 +188,7 @@ export default function LoginPage() {
             {/* Feature highlights */}
             <div className="flex justify-center gap-1.5">
               {[
-                'Arena Bets',
+                'Galaxy Arena',
                 'Instant Alerts',
                 '24hr Flip Battles',
                 'Clan Wars',

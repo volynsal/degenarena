@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import { useUserStats } from '@/lib/hooks/use-user-stats'
 import { useRecentMatches } from '@/lib/hooks/use-matches'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card'
-import { TrendingUp, Target, Trophy, Zap, ArrowUpRight, ExternalLink, Loader2, Radio } from 'lucide-react'
+import { TrendingUp, Target, Trophy, Zap, ArrowUpRight, ExternalLink, Loader2, Radio, Orbit } from 'lucide-react'
 import Link from 'next/link'
 
 // Twitch icon component
@@ -152,16 +152,16 @@ export default function DashboardPage() {
         </CardContent>
       </Card>
       
-      {/* Arena Bets widget */}
-      <Card className="border-arena-purple/20">
+      {/* Galaxy Arena widget */}
+      <Card className="border-rose-500/20">
         <CardContent className="p-4 sm:p-6">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-lg bg-arena-purple/20 flex items-center justify-center">
-                <Target className="w-5 h-5 text-arena-purple" />
+              <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-amber-500/20 to-violet-500/20 flex items-center justify-center">
+                <Orbit className="w-5 h-5 text-rose-400" />
               </div>
               <div>
-                <p className="text-white font-medium">Arena Bets</p>
+                <p className="text-white font-medium">Galaxy Arena</p>
                 <p className="text-sm text-gray-400">
                   Predict memecoin moves, earn points
                 </p>
@@ -169,7 +169,7 @@ export default function DashboardPage() {
             </div>
             <Link
               href="/arena-bets"
-              className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-gradient-to-r from-arena-purple to-arena-cyan text-white text-sm font-medium hover:opacity-90 transition-opacity"
+              className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-gradient-to-r from-amber-500 via-rose-500 to-violet-500 text-white text-sm font-medium hover:opacity-90 transition-opacity"
             >
               <Zap className="w-3.5 h-3.5" />
               Play Now

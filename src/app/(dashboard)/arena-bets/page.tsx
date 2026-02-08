@@ -88,7 +88,7 @@ function getMarketTypeColor(type: string): string {
   switch (type) {
     case 'rug_call': return 'text-red-400 bg-red-500/10 border-red-500/20'
     case 'moonshot': return 'text-yellow-400 bg-yellow-500/10 border-yellow-500/20'
-    default: return 'text-arena-cyan bg-arena-cyan/10 border-arena-cyan/20'
+    default: return 'text-rose-400 bg-rose-500/10 border-rose-500/20'
   }
 }
 
@@ -123,7 +123,7 @@ function PointsBar({
           <p className="text-xs text-gray-500 uppercase tracking-wider">Balance</p>
           <p className="text-2xl font-bold text-white">
             {points ? formatPoints(points.balance) : '—'}{' '}
-            <span className="text-sm text-arena-cyan font-normal">pts</span>
+            <span className="text-sm text-rose-400 font-normal">pts</span>
           </p>
         </div>
         <div className="hidden sm:block w-px h-10 bg-white/10" />
@@ -150,7 +150,7 @@ function PointsBar({
       <button
         onClick={onClaimDaily}
         disabled={claimLoading}
-        className="flex items-center gap-2 px-4 py-2 rounded-lg bg-gradient-to-r from-arena-purple to-arena-cyan text-white text-sm font-medium hover:opacity-90 transition-opacity disabled:opacity-50"
+        className="flex items-center gap-2 px-4 py-2 rounded-lg bg-gradient-to-r from-amber-500 via-rose-500 to-violet-500 text-white text-sm font-medium hover:opacity-90 transition-opacity disabled:opacity-50"
       >
         {claimLoading ? <Loader2 size={14} className="animate-spin" /> : <Gift size={14} />}
         {claimMessage || 'Claim Daily +100'}
@@ -232,7 +232,7 @@ function MarketCard({
                     : 'border-red-500/20 bg-red-500/5 text-red-400'
                 }`}
               >
-                <span className="bg-arena-purple/30 text-arena-purple px-1 rounded text-[9px]">AI</span>
+                <span className="bg-rose-500/30 text-rose-400 px-1 rounded text-[9px]">AI</span>
                 {bot.replace('ArenaBot_', '')}:{' '}
                 <span className="font-bold">{(pred as string).toUpperCase()}</span>
               </span>
@@ -314,7 +314,7 @@ function MarketCard({
                       onClick={() => setBetAmount(amt)}
                       className={`flex-1 py-1.5 rounded text-xs font-medium transition-colors ${
                         betAmount === amt
-                          ? 'bg-arena-purple/30 text-arena-purple border border-arena-purple/40'
+                          ? 'bg-rose-500/20 text-rose-400 border border-rose-500/40'
                           : 'bg-white/5 text-gray-400 hover:bg-white/10 border border-transparent'
                       }`}
                     >
@@ -481,11 +481,15 @@ export default function ArenaBetsPage() {
   }
 
   return (
-    <div className="max-w-5xl mx-auto space-y-6">
+    <div className="space-y-8">
       {/* Page Header */}
       <div>
-        <h1 className="text-2xl font-bold gradient-text">Arena Bets</h1>
-        <p className="text-gray-400 text-sm mt-1">
+        <h1 className="text-2xl sm:text-3xl font-semibold">
+          <span className="bg-gradient-to-r from-amber-400 via-rose-400 to-violet-500 bg-clip-text text-transparent">
+            Galaxy Arena
+          </span>
+        </h1>
+        <p className="text-gray-400 text-sm sm:text-base">
           Predict memecoin moves. Earn points. Climb the ranks.
         </p>
       </div>
@@ -517,7 +521,7 @@ export default function ArenaBetsPage() {
               onClick={() => setTab(t.key as any)}
               className={`px-4 py-1.5 rounded-md text-sm font-medium transition-colors ${
                 tab === t.key
-                  ? 'bg-arena-purple/20 text-white'
+                  ? 'bg-rose-500/20 text-white'
                   : 'text-gray-400 hover:text-white'
               }`}
             >
@@ -551,7 +555,7 @@ export default function ArenaBetsPage() {
       {/* Market Grid */}
       {loading ? (
         <div className="flex items-center justify-center py-20">
-          <Loader2 size={24} className="animate-spin text-arena-purple" />
+          <Loader2 size={24} className="animate-spin text-rose-400" />
         </div>
       ) : markets.length === 0 ? (
         <Card className="text-center py-12">
@@ -580,7 +584,7 @@ export default function ArenaBetsPage() {
       {/* How it works (below fold) */}
       <Card className="!bg-white/[0.01]">
         <CardContent className="py-6 px-6">
-          <h3 className="text-sm font-semibold text-white mb-4">How Arena Bets Work</h3>
+          <h3 className="text-sm font-semibold text-white mb-4">How Galaxy Arena Works</h3>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs text-gray-400">
             <div>
               <p className="text-white font-medium mb-1">1. Markets auto-generate</p>
@@ -588,7 +592,7 @@ export default function ArenaBetsPage() {
             </div>
             <div>
               <p className="text-white font-medium mb-1">2. Place your bet</p>
-              <p>Bet YES or NO using DegenArena points. Arena Bots place their own AI predictions so you can see who agrees or disagrees.</p>
+              <p>Bet YES or NO using DegenArena points. AI Challengers place their own predictions so you can see who agrees or disagrees.</p>
             </div>
             <div>
               <p className="text-white font-medium mb-1">3. Winner takes the pool</p>
