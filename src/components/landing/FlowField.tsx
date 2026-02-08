@@ -63,13 +63,29 @@ export function VideoBackground() {
         pointerEvents: 'none',
       }}
     >
+      {/* Hide Safari / WebKit native video controls & play button */}
+      <style>{`
+        .vid-bg::-webkit-media-controls,
+        .vid-bg::-webkit-media-controls-panel,
+        .vid-bg::-webkit-media-controls-play-button,
+        .vid-bg::-webkit-media-controls-start-playback-button,
+        .vid-bg::-webkit-media-controls-overlay-play-button {
+          display: none !important;
+          -webkit-appearance: none !important;
+          opacity: 0 !important;
+          pointer-events: none !important;
+        }
+      `}</style>
       <video
         ref={videoRef}
+        className="vid-bg"
         autoPlay
         loop
         muted
         playsInline
         preload="auto"
+        controls={false}
+        disablePictureInPicture
         style={{
           position: 'absolute',
           top: '50%',
