@@ -364,7 +364,7 @@ export default function ProfilePage({ params }: { params: { username: string } }
       })()}
       
       {/* Stats Grid */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
+      <div className={`grid ${profile.is_own_profile ? 'grid-cols-2 sm:grid-cols-4' : 'grid-cols-3'} gap-3 sm:gap-4`}>
         <Card>
           <CardContent className="p-4 text-center">
             <Zap className="w-6 h-6 mx-auto mb-2 text-arena-cyan" />
@@ -386,13 +386,15 @@ export default function ProfilePage({ params }: { params: { username: string } }
             <p className="text-xs sm:text-sm text-gray-500">Wins</p>
           </CardContent>
         </Card>
-        <Card>
-          <CardContent className="p-4 text-center">
-            <Trophy className="w-6 h-6 mx-auto mb-2 text-arena-purple" />
-            <p className="text-2xl font-bold text-white">{profile.win_rate}%</p>
-            <p className="text-xs sm:text-sm text-gray-500">Win Rate</p>
-          </CardContent>
-        </Card>
+        {profile.is_own_profile && (
+          <Card>
+            <CardContent className="p-4 text-center">
+              <Trophy className="w-6 h-6 mx-auto mb-2 text-arena-purple" />
+              <p className="text-2xl font-bold text-white">{profile.win_rate}%</p>
+              <p className="text-xs sm:text-sm text-gray-500">Win Rate</p>
+            </CardContent>
+          </Card>
+        )}
       </div>
       
       {/* Wallet Stats - shown if verified */}
@@ -412,18 +414,20 @@ export default function ProfilePage({ params }: { params: { username: string } }
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-4">
+            <div className={`grid ${profile.is_own_profile ? 'grid-cols-2 sm:grid-cols-4' : 'grid-cols-3'} gap-4 mb-4`}>
               <div className="p-3 rounded-lg bg-white/5">
                 <p className="text-xs text-gray-500 mb-1">Total PnL</p>
                 <p className={`text-lg font-bold ${profile.wallet_stats.total_pnl_usd >= 0 ? 'text-green-400' : 'text-red-400'}`}>
                   ${profile.wallet_stats.total_pnl_usd >= 0 ? '+' : ''}{Number(profile.wallet_stats.total_pnl_usd).toFixed(2)}
                 </p>
               </div>
-              <div className="p-3 rounded-lg bg-white/5">
-                <p className="text-xs text-gray-500 mb-1">Win Rate</p>
-                <p className="text-lg font-bold text-white">{profile.wallet_stats.win_rate}%</p>
-                <p className="text-xs text-gray-600">{profile.wallet_stats.winning_tokens}W / {profile.wallet_stats.losing_tokens}L</p>
-              </div>
+              {profile.is_own_profile && (
+                <div className="p-3 rounded-lg bg-white/5">
+                  <p className="text-xs text-gray-500 mb-1">Win Rate</p>
+                  <p className="text-lg font-bold text-white">{profile.wallet_stats.win_rate}%</p>
+                  <p className="text-xs text-gray-600">{profile.wallet_stats.winning_tokens}W / {profile.wallet_stats.losing_tokens}L</p>
+                </div>
+              )}
               <div className="p-3 rounded-lg bg-white/5">
                 <p className="text-xs text-gray-500 mb-1">Tokens Traded</p>
                 <p className="text-lg font-bold text-white">{profile.wallet_stats.total_tokens_traded}</p>
