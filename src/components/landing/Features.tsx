@@ -36,7 +36,7 @@ const features: Feature[] = [
   {
     icon: Sliders,
     title: 'Formulas & Presets',
-    description: 'Scan new tokens with 20+ filters or use battle-tested presets. We offer these as a starting point but feel free to BYO; but our platform is tool-agnostic.',
+    description: 'Scan new tokens with 20+ filters or use battle-tested presets. We offer these as a starting point but feel free to BYO; our platform is tool-agnostic.',
     earlyAccess: true,
   },
   {
