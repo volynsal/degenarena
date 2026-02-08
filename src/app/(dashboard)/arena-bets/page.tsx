@@ -195,9 +195,8 @@ function MarketCard({
         <div className="flex items-start justify-between gap-3 mb-3">
           <div className="flex items-center gap-2">
             {market.pinned && (
-              <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider border border-yellow-500/30 bg-yellow-500/10 text-yellow-400">
-                <Pin size={10} className="rotate-45" />
-                Pinned
+              <span className="inline-flex items-center px-1.5 py-0.5 rounded border border-yellow-500/30 bg-yellow-500/10 text-yellow-400" title="Pinned">
+                <Pin size={11} className="rotate-45" />
               </span>
             )}
             <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider border ${getMarketTypeColor(market.market_type)}`}>
