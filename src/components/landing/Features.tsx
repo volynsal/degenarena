@@ -15,7 +15,7 @@ import {
 interface Feature {
   icon: React.ComponentType<{ className?: string }>
   title: string
-  description: string
+  description: React.ReactNode
   comingSoon?: boolean
   premium?: boolean
   earlyAccess?: boolean
@@ -62,7 +62,7 @@ const features: Feature[] = [
   {
     icon: Orbit,
     title: 'GalaxyArena',
-    description: 'Prediction markets on proper memecoins and even shitcoins. Bet with points and build win streaks to unlock go live and clans.',
+    description: <>Prediction markets on proper memecoins and even <em className="line-through italic">shit</em>coins. Bet with points and build win streaks to unlock go live and clans.</>,
   },
   {
     icon: Bot,
