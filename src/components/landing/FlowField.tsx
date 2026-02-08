@@ -121,7 +121,7 @@ interface Tile {
   speed: number        // fade speed
 }
 
-export function FlowField() {
+export function FlowField({ subtle = false }: { subtle?: boolean }) {
   const canvasRef = useRef<HTMLCanvasElement>(null)
 
   useEffect(() => {
@@ -133,6 +133,9 @@ export function FlowField() {
 
     const isMobile = window.innerWidth < 768 ||
       /iPhone|iPad|iPod|Android/i.test(navigator.userAgent)
+
+    // Intensity multiplier — subtle mode dims everything for use behind content
+    const dim = subtle ? 0.45 : 1
 
     // Grid config
     const tileSize = isMobile ? 40 : 50
@@ -193,7 +196,7 @@ export function FlowField() {
       }
 
       // Draw grid lines (very faint, Tron-style)
-      ctx.strokeStyle = 'rgba(168, 85, 247, 0.04)'
+      ctx.strokeStyle = `rgba(168, 85, 247, ${0.04 * dim})`
       ctx.lineWidth = 1
       for (let c = 0; c <= cols; c++) {
         const x = c * (tileSize + gap)
@@ -237,20 +240,20 @@ export function FlowField() {
           const a = tile.brightness
 
           // Tile fill
-          ctx.fillStyle = `rgba(${cr}, ${cg}, ${cb}, ${a * 0.15})`
+          ctx.fillStyle = `rgba(${cr}, ${cg}, ${cb}, ${a * 0.15 * dim})`
           ctx.fillRect(x, y, tileSize - gap, tileSize - gap)
 
           // Tile border (brighter)
-          ctx.strokeStyle = `rgba(${cr}, ${cg}, ${cb}, ${a * 0.4})`
+          ctx.strokeStyle = `rgba(${cr}, ${cg}, ${cb}, ${a * 0.4 * dim})`
           ctx.lineWidth = 1
           ctx.strokeRect(x, y, tileSize - gap, tileSize - gap)
 
           // Glow effect for bright tiles
           if (a > 0.5) {
-            const glow = a * 0.12
+            const glow = a * 0.12 * dim
             ctx.shadowColor = `rgba(${cr}, ${cg}, ${cb}, ${glow})`
             ctx.shadowBlur = 15
-            ctx.fillStyle = `rgba(${cr}, ${cg}, ${cb}, ${a * 0.08})`
+            ctx.fillStyle = `rgba(${cr}, ${cg}, ${cb}, ${a * 0.08 * dim})`
             ctx.fillRect(x, y, tileSize - gap, tileSize - gap)
             ctx.shadowBlur = 0
           }
@@ -266,7 +269,7 @@ export function FlowField() {
       cancelAnimationFrame(animId)
       window.removeEventListener('resize', initGrid)
     }
-  }, [])
+  }, [subtle])
 
   return (
     <canvas

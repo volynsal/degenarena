@@ -9,7 +9,7 @@ import type { FeatureGateStatus } from '@/lib/hooks/use-feature-gate'
 interface FeatureGateProps {
   status: FeatureGateStatus
   featureName: string
-  children: React.ReactNode
+  children?: React.ReactNode
 }
 
 /**
