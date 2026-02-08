@@ -1,42 +1,9 @@
-'use client'
-
-import { useState } from 'react'
+import Link from 'next/link'
 import { Button } from '@/components/ui/Button'
-import { Input } from '@/components/ui/Input'
 import { ArrowRight } from 'lucide-react'
 import { VideoBackground } from './FlowField'
 
 export function Hero() {
-  const [email, setEmail] = useState('')
-  const [isSubmitting, setIsSubmitting] = useState(false)
-  const [isSubmitted, setIsSubmitted] = useState(false)
-  const [message, setMessage] = useState('')
-  
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    if (!email) return
-    
-    setIsSubmitting(true)
-    
-    try {
-      const res = await fetch('/api/waitlist', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email }),
-      })
-      
-      const data = await res.json()
-      
-      setMessage(data.message || 'You\'re on the list!')
-      setIsSubmitted(true)
-      setEmail('')
-    } catch (err) {
-      setMessage('Something went wrong. Please try again.')
-    } finally {
-      setIsSubmitting(false)
-    }
-  }
-  
   return (
     <section className="relative min-h-screen flex items-center justify-center pt-16 overflow-hidden">
       {/* Animated Flow Field Background */}
@@ -68,35 +35,18 @@ export function Hero() {
           The best traders don&apos;t just make money—they prove it.
         </p>
         
-        {/* Urgency */}
-        <p className="text-sm text-arena-cyan font-medium mb-6">
-          Join the arena. Limited beta spots available.
+        {/* BETA IS LIVE */}
+        <p className="text-sm font-bold tracking-widest mb-6 bg-gradient-to-r from-arena-cyan via-arena-purple to-arena-cyan bg-clip-text text-transparent">
+          BETA IS LIVE
         </p>
         
-        {/* Email signup form */}
-        {!isSubmitted ? (
-          <form onSubmit={handleSubmit} className="flex flex-col items-center sm:flex-row sm:items-stretch gap-3 max-w-md mx-auto">
-            <Input
-              type="email"
-              placeholder="Enter your email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="flex-1 w-full sm:w-auto"
-              required
-            />
-            <Button type="submit" variant="primary" size="lg" loading={isSubmitting}>
-              Join Waitlist
-              <ArrowRight className="ml-2 w-4 h-4" />
-            </Button>
-          </form>
-        ) : (
-          <div className="flex items-center justify-center gap-2 text-arena-cyan">
-            <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-              <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-            </svg>
-            <span className="text-lg">{message}</span>
-          </div>
-        )}
+        {/* Sign Up CTA */}
+        <Link href="/signup">
+          <Button variant="primary" size="lg">
+            Sign Up Now
+            <ArrowRight className="ml-2 w-4 h-4" />
+          </Button>
+        </Link>
         
         {/* Preview image/mockup */}
         <div className="mt-16 relative">

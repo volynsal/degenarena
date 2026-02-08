@@ -195,7 +195,7 @@ export default function WaitlistPage() {
               {/* Social proof */}
               <div className="mt-6 text-center">
                 <p className="text-sm text-gray-300">
-                  <span className="text-arena-cyan font-medium">Beta access</span> coming soon
+                  <span className="font-bold tracking-widest bg-gradient-to-r from-arena-cyan via-arena-purple to-arena-cyan bg-clip-text text-transparent">BETA IS LIVE</span>
                 </p>
               </div>
             </div>

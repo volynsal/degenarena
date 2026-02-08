@@ -163,9 +163,9 @@ export default function SignupPage() {
         <div className="flex-1 flex items-start sm:items-center justify-center p-4 overflow-y-auto">
           <div className="w-full max-w-md">
             <div className="mb-8">
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-arena-cyan/10 border border-arena-cyan/20 text-arena-cyan text-xs mb-4">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-arena-cyan/10 border border-arena-cyan/20 text-arena-cyan text-xs font-bold tracking-widest mb-4">
                 <Zap className="w-3 h-3" />
-                Early Access
+                BETA IS LIVE
               </div>
               <h1 className="text-2xl font-bold text-white mb-2">Create your account</h1>
               <p className="text-gray-400">Welcome to DegenArena HQ. Let&apos;s get you set up.</p>
@@ -305,11 +305,11 @@ export default function SignupPage() {
             ))}
           </div>
           
-          {/* Early access note */}
+          {/* Beta note */}
           <div className="mt-12 pt-8 border-t border-white/10">
             <p className="text-sm text-gray-400">
-              You&apos;re getting <span className="text-arena-cyan font-medium">early access</span> to DegenArena HQ. 
-              This link was shared with approved waitlist members.
+              Welcome to the <span className="font-bold tracking-widest bg-gradient-to-r from-arena-cyan to-arena-purple bg-clip-text text-transparent">BETA</span> of DegenArena HQ. 
+              Jump in and start competing.
             </p>
           </div>
         </div>
