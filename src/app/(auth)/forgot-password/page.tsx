@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
 import { ArrowLeft, Mail, CheckCircle } from 'lucide-react'
 import { createBrowserClient } from '@supabase/ssr'
+import { FlowField } from '@/components/landing/FlowField'
 
 export default function ForgotPasswordPage() {
   const [email, setEmail] = useState('')
@@ -39,8 +40,9 @@ export default function ForgotPasswordPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 bg-arena-darker">
-      <div className="w-full max-w-md">
+    <div className="min-h-screen flex items-center justify-center p-4 bg-arena-darker relative overflow-hidden">
+      <FlowField />
+      <div className="w-full max-w-md relative z-10">
         {/* Logo */}
         <div className="text-center mb-8">
           <Link href="/">

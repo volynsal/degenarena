@@ -7,6 +7,7 @@ import { createClient } from '@/lib/supabase/client'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
 import { Mail, Lock, User, ArrowRight, Zap, Check } from 'lucide-react'
+import { FlowField } from '@/components/landing/FlowField'
 
 const features = [
   'Create unlimited token-finding formulas',
@@ -79,15 +80,16 @@ export default function SignupPage() {
   
   if (success) {
     return (
-      <div className="min-h-screen bg-arena-darker flex flex-col">
-        <nav className="p-4">
+      <div className="min-h-screen bg-arena-darker flex flex-col relative overflow-hidden">
+        <FlowField />
+        <nav className="p-4 relative z-10">
           <Link href="/" className="flex items-center gap-2 w-fit">
             <img src="/logo.png" alt="DegenArena HQ" className="w-10 h-10 rounded-lg" />
             <span className="text-xl font-bold gradient-text font-brand">DegenArena HQ</span>
           </Link>
         </nav>
         
-        <div className="flex-1 flex items-center justify-center p-4">
+        <div className="flex-1 flex items-center justify-center p-4 relative z-10">
           <div className="w-full max-w-md text-center">
             <div className="w-16 h-16 mx-auto mb-6 rounded-full bg-gradient-to-br from-arena-purple to-arena-cyan flex items-center justify-center">
               <Check className="w-8 h-8 text-white" />
@@ -109,9 +111,12 @@ export default function SignupPage() {
   }
   
   return (
-    <div className="min-h-screen bg-arena-darker flex flex-col lg:flex-row">
+    <div className="min-h-screen bg-arena-darker flex flex-col lg:flex-row relative overflow-hidden">
+      {/* Animated background */}
+      <FlowField />
+      
       {/* Left side - Form */}
-      <div className="flex-1 flex flex-col">
+      <div className="flex-1 flex flex-col relative z-10">
         <nav className="p-4">
           <Link href="/" className="flex items-center gap-2 w-fit">
             <img src="/logo.png" alt="DegenArena HQ" className="w-10 h-10 rounded-lg" />
@@ -233,7 +238,7 @@ export default function SignupPage() {
       </div>
       
       {/* Right side - Features */}
-      <div className="hidden lg:flex flex-1 bg-gradient-to-br from-arena-purple/20 to-arena-cyan/20 items-center justify-center p-12">
+      <div className="hidden lg:flex flex-1 bg-gradient-to-br from-arena-purple/20 to-arena-cyan/20 items-center justify-center p-12 relative z-10">
         <div className="max-w-md">
           <h2 className="text-3xl font-bold text-white mb-6">
             Find the next 100x before everyone else

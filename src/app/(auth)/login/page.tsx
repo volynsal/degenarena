@@ -7,6 +7,7 @@ import { createClient } from '@/lib/supabase/client'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
 import { Mail, Lock, ArrowRight, Zap } from 'lucide-react'
+import { FlowField } from '@/components/landing/FlowField'
 
 export default function LoginPage() {
   const router = useRouter()
@@ -53,9 +54,12 @@ export default function LoginPage() {
   }
   
   return (
-    <div className="min-h-screen bg-arena-darker flex flex-col">
+    <div className="min-h-screen bg-arena-darker flex flex-col relative overflow-hidden">
+      {/* Animated background */}
+      <FlowField />
+      
       {/* Header */}
-      <nav className="p-4">
+      <nav className="p-4 relative z-10">
         <Link href="/" className="flex items-center gap-2 w-fit">
           <img src="/logo.png" alt="DegenArena HQ" className="w-10 h-10 rounded-lg" />
           <span className="text-xl font-bold gradient-text font-brand">DegenArena HQ</span>
@@ -63,7 +67,7 @@ export default function LoginPage() {
       </nav>
       
       {/* Main content */}
-      <div className="flex-1 flex items-center justify-center p-4">
+      <div className="flex-1 flex items-center justify-center p-4 relative z-10">
         <div className="w-full max-w-md">
           {/* Card */}
           <div className="bg-arena-dark/50 border border-white/10 rounded-2xl p-8 backdrop-blur-xl">
