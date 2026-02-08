@@ -223,29 +223,35 @@ export default function ProfilePage({ params }: { params: { username: string } }
                     <span>{tierInfo.name}</span>
                   </span>
                 )}
-                {profile.twitch_url && (
-                  <a
-                    href={profile.twitch_url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium transition-colors ${
-                      streamInfo?.isLive
-                        ? 'bg-red-500/20 border border-red-500/40 text-red-400 hover:bg-red-500/30'
-                        : 'bg-[#9146FF]/20 border border-[#9146FF]/30 text-[#9146FF] hover:bg-[#9146FF]/30'
-                    }`}
-                    title={streamInfo?.isLive ? `LIVE: ${streamInfo.title || 'Streaming'}` : 'Watch on Twitch'}
-                  >
-                    {streamInfo?.isLive && (
+                {profile.twitch_url && (() => {
+                  const twitchUsername = profile.twitch_url!.replace(/https?:\/\/(www\.)?twitch\.tv\//i, '').split('/')[0].split('?')[0]
+                  return streamInfo?.isLive ? (
+                    <Link
+                      href={`/live?channel=${twitchUsername}`}
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium transition-colors bg-red-500/20 border border-red-500/40 text-red-400 hover:bg-red-500/30"
+                      title={`LIVE: ${streamInfo.title || 'Streaming'}`}
+                    >
                       <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
-                    )}
-                    <TwitchIcon className="w-4 h-4" />
-                    <span>{streamInfo?.isLive ? 'LIVE' : 'Twitch'}</span>
-                    {streamInfo?.isLive && streamInfo.viewerCount !== undefined && (
-                      <span className="text-xs opacity-75">{streamInfo.viewerCount}</span>
-                    )}
-                    {!streamInfo?.isLive && <ExternalLink className="w-3 h-3" />}
-                  </a>
-                )}
+                      <TwitchIcon className="w-4 h-4" />
+                      <span>GO LIVE</span>
+                      {streamInfo.viewerCount !== undefined && (
+                        <span className="text-xs opacity-75">{streamInfo.viewerCount}</span>
+                      )}
+                    </Link>
+                  ) : (
+                    <a
+                      href={profile.twitch_url!}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium transition-colors bg-[#9146FF]/20 border border-[#9146FF]/30 text-[#9146FF] hover:bg-[#9146FF]/30"
+                      title="Watch on Twitch"
+                    >
+                      <TwitchIcon className="w-4 h-4" />
+                      <span>Twitch</span>
+                      <ExternalLink className="w-3 h-3" />
+                    </a>
+                  )
+                })()}
               </div>
               
               {/* Bio */}
@@ -295,12 +301,23 @@ export default function ProfilePage({ params }: { params: { username: string } }
                   </span>
                 )}
               </div>
-              <div className="relative w-full" style={{ paddingBottom: '56.25%' }}>
-                <iframe
-                  src={`https://player.twitch.tv/?channel=${twitchUser}&parent=${parentDomain}&muted=true`}
-                  className="absolute inset-0 w-full h-full"
-                  allowFullScreen
-                />
+              {/* Stream + Chat layout */}
+              <div className="flex flex-col lg:flex-row">
+                {/* Video player */}
+                <div className="relative w-full lg:flex-1" style={{ paddingBottom: '56.25%' }}>
+                  <iframe
+                    src={`https://player.twitch.tv/?channel=${twitchUser}&parent=${parentDomain}&muted=true`}
+                    className="absolute inset-0 w-full h-full"
+                    allowFullScreen
+                  />
+                </div>
+                {/* Chat */}
+                <div className="w-full lg:w-[340px] h-[400px] lg:h-auto border-t lg:border-t-0 lg:border-l border-white/10">
+                  <iframe
+                    src={`https://www.twitch.tv/embed/${twitchUser}/chat?parent=${parentDomain}&darkpopout`}
+                    className="w-full h-full"
+                  />
+                </div>
               </div>
             </CardContent>
           </Card>

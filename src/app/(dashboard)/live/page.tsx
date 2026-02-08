@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
+import { useSearchParams } from 'next/navigation'
 import { Card, CardContent } from '@/components/ui/Card'
 import { FeatureGate } from '@/components/ui/FeatureGate'
 import { useFeatureGate } from '@/lib/hooks/use-feature-gate'
@@ -41,9 +42,11 @@ function formatDuration(startedAt: string): string {
 
 export default function LivePage() {
   const gateStatus = useFeatureGate('goLive')
+  const searchParams = useSearchParams()
+  const channelParam = searchParams.get('channel')
   const [liveUsers, setLiveUsers] = useState<LiveUser[]>([])
   const [isLoading, setIsLoading] = useState(true)
-  const [selectedStream, setSelectedStream] = useState<string | null>(null)
+  const [selectedStream, setSelectedStream] = useState<string | null>(channelParam)
   const [userTwitchUrl, setUserTwitchUrl] = useState<string | null>(null)
   const [userIsLive, setUserIsLive] = useState(false)
 
