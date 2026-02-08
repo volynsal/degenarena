@@ -4,74 +4,17 @@ import { useEffect, useRef } from 'react'
 
 // =============================================
 // VIDEO BACKGROUND (landing page / waitlist)
-// Renders video to canvas — no native controls, no play button
+// Native <video> element — reliable autoplay, no controls
 // =============================================
 
 export function VideoBackground() {
-  const canvasRef = useRef<HTMLCanvasElement>(null)
-  const videoRef = useRef<HTMLVideoElement | null>(null)
+  const videoRef = useRef<HTMLVideoElement>(null)
 
   useEffect(() => {
-    const canvas = canvasRef.current
-    if (!canvas) return
+    const video = videoRef.current
+    if (!video) return
 
-    const ctx = canvas.getContext('2d')
-    if (!ctx) return
-
-    // Create hidden video element (never added to DOM visually)
-    const video = document.createElement('video')
-    videoRef.current = video
-    video.src = '/grok-video-246d9a09-191b-4cbf-ad90-1e78efe57863-2.mp4'
-    video.muted = true
-    video.loop = true
-    video.playsInline = true
-    video.preload = 'auto'
-    video.setAttribute('muted', 'true')
-    video.setAttribute('playsinline', 'true')
-    video.setAttribute('webkit-playsinline', 'true')
-
-    let width = window.innerWidth
-    let height = window.innerHeight
-    canvas.width = width
-    canvas.height = height
-
-    // Fill black initially
-    ctx.fillStyle = '#080808'
-    ctx.fillRect(0, 0, width, height)
-
-    const resize = () => {
-      width = window.innerWidth
-      height = window.innerHeight
-      canvas.width = width
-      canvas.height = height
-    }
-    window.addEventListener('resize', resize)
-
-    let animId = 0
-    let playing = false
-
-    const drawFrame = () => {
-      if (video.readyState >= 2 && !video.paused) {
-        // Draw video frame scaled to cover the canvas
-        const vw = video.videoWidth
-        const vh = video.videoHeight
-        if (vw && vh) {
-          const scale = Math.max(width / vw, height / vh)
-          const sw = vw * scale
-          const sh = vh * scale
-          const sx = (width - sw) / 2
-          const sy = (height - sh) / 2
-          ctx.drawImage(video, sx, sy, sw, sh)
-        }
-        playing = true
-      } else if (!playing) {
-        // Keep dark until video is ready
-        ctx.fillStyle = '#080808'
-        ctx.fillRect(0, 0, width, height)
-      }
-      animId = requestAnimationFrame(drawFrame)
-    }
-
+    // Force play after mount — handles browsers that block autoplay attribute
     const tryPlay = () => {
       if (video.paused) {
         video.muted = true
@@ -79,42 +22,35 @@ export function VideoBackground() {
       }
     }
 
-    video.addEventListener('loadeddata', tryPlay)
-    video.addEventListener('canplay', tryPlay)
-
-    // Staggered play attempts
+    // Try immediately + staggered retries
     tryPlay()
-    const t1 = setTimeout(tryPlay, 200)
+    const t1 = setTimeout(tryPlay, 300)
     const t2 = setTimeout(tryPlay, 1000)
+    const t3 = setTimeout(tryPlay, 3000)
 
-    // Fallback on interaction
+    // Also try on any user interaction as a last resort
     const handleInteraction = () => {
       tryPlay()
       document.removeEventListener('click', handleInteraction)
       document.removeEventListener('touchstart', handleInteraction)
+      document.removeEventListener('scroll', handleInteraction)
     }
     document.addEventListener('click', handleInteraction)
     document.addEventListener('touchstart', handleInteraction)
-
-    animId = requestAnimationFrame(drawFrame)
+    document.addEventListener('scroll', handleInteraction, { passive: true })
 
     return () => {
-      cancelAnimationFrame(animId)
       clearTimeout(t1)
       clearTimeout(t2)
-      video.pause()
-      video.src = ''
-      window.removeEventListener('resize', resize)
-      video.removeEventListener('loadeddata', tryPlay)
-      video.removeEventListener('canplay', tryPlay)
+      clearTimeout(t3)
       document.removeEventListener('click', handleInteraction)
       document.removeEventListener('touchstart', handleInteraction)
+      document.removeEventListener('scroll', handleInteraction)
     }
   }, [])
 
   return (
-    <canvas
-      ref={canvasRef}
+    <div
       style={{
         position: 'fixed',
         top: 0,
@@ -122,10 +58,36 @@ export function VideoBackground() {
         width: '100vw',
         height: '100vh',
         zIndex: 0,
-        pointerEvents: 'none',
+        overflow: 'hidden',
         background: '#080808',
+        pointerEvents: 'none',
       }}
-    />
+    >
+      <video
+        ref={videoRef}
+        autoPlay
+        loop
+        muted
+        playsInline
+        preload="auto"
+        style={{
+          position: 'absolute',
+          top: '50%',
+          left: '50%',
+          transform: 'translate(-50%, -50%)',
+          minWidth: '100%',
+          minHeight: '100%',
+          width: 'auto',
+          height: 'auto',
+          objectFit: 'cover',
+        }}
+      >
+        <source
+          src="/grok-video-246d9a09-191b-4cbf-ad90-1e78efe57863-2.mp4"
+          type="video/mp4"
+        />
+      </video>
+    </div>
   )
 }
 
