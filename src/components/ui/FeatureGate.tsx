@@ -33,8 +33,8 @@ export function FeatureGate({ status, featureName, children }: FeatureGateProps)
   const pnlOk = !status.requiresVerifiedPnl || status.walletVerified
 
   return (
-    <div className="space-y-8">
-      <div>
+    <div className="space-y-8 flex flex-col items-center">
+      <div className="text-center w-full">
         <h1 className="text-2xl sm:text-3xl font-semibold">
           <span className="bg-gradient-to-r from-violet-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
             {featureName}
@@ -45,7 +45,7 @@ export function FeatureGate({ status, featureName, children }: FeatureGateProps)
         </p>
       </div>
 
-      <Card className="max-w-2xl">
+      <Card className="max-w-2xl w-full">
         <CardContent className="p-8 sm:p-12 text-center">
           <div className="w-16 h-16 mx-auto mb-6 rounded-full bg-gradient-to-br from-arena-purple/20 to-arena-cyan/20 border border-white/10 flex items-center justify-center">
             <Lock className="w-8 h-8 text-gray-400" />

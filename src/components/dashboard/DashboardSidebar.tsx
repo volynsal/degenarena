@@ -35,7 +35,7 @@ export function DashboardSidebar() {
   const pathname = usePathname()
   
   return (
-    <aside className="fixed left-0 top-14 bottom-0 w-64 z-20 bg-arena-darker border-r border-white/5 hidden lg:block">
+    <aside className="fixed left-0 top-14 bottom-0 w-64 z-20 bg-arena-darker/80 backdrop-blur-sm border-r border-white/5 hidden lg:block">
       <div className="flex flex-col h-full p-4">
         {/* Main navigation */}
         <nav className="flex-1 space-y-1">
