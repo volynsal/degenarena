@@ -12,7 +12,16 @@ import {
   Target
 } from 'lucide-react'
 
-const features = [
+interface Feature {
+  icon: React.ComponentType<{ className?: string }>
+  title: string
+  description: string
+  comingSoon?: boolean
+  premium?: boolean
+  earlyAccess?: boolean
+}
+
+const features: Feature[] = [
   {
     icon: Trophy,
     title: 'Weekly Competitions',
@@ -83,17 +92,17 @@ export function Features() {
           {features.map((feature, index) => (
             <Card key={index} hover className="group relative">
               <CardContent>
-                {'comingSoon' in feature && feature.comingSoon && (
+                {feature.comingSoon && (
                   <span className="absolute top-4 right-4 text-xs px-2 py-1 rounded-full bg-gradient-to-r from-arena-purple to-arena-cyan text-white font-medium">
                     Coming Soon
                   </span>
                 )}
-                {'premium' in feature && feature.premium && (
+                {feature.premium && (
                   <span className="absolute top-4 right-4 text-xs px-2 py-1 rounded-full bg-yellow-500/20 text-yellow-400 border border-yellow-500/30 font-medium">
                     Premium
                   </span>
                 )}
-                {'earlyAccess' in feature && feature.earlyAccess && (
+                {feature.earlyAccess && (
                   <span className="absolute top-4 right-4 text-xs px-2 py-1 rounded-full bg-green-500/20 text-green-400 border border-green-500/30 font-medium">
                     Free for early users
                   </span>
