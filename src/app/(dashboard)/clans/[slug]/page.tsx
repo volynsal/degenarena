@@ -48,6 +48,7 @@ interface ClanMember {
   username: string
   avatar_url: string | null
   twitch_url: string | null
+  wallet_verified: boolean
   role: string
   win_rate: number
   total_matches: number
@@ -636,6 +637,13 @@ export default function ClanPage({ params }: { params: { slug: string } }) {
                       )}
                       {member.role === 'admin' && (
                         <Star className="w-4 h-4 text-arena-purple" />
+                      )}
+                      {member.wallet_verified && (
+                        <span className="inline-flex items-center" title="Verified Trader">
+                          <svg className="w-4 h-4 text-green-400" viewBox="0 0 20 20" fill="currentColor">
+                            <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 00-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 10-1.06 1.061l2.5 2.5a.75.75 0 001.137-.089l4-5.5z" clipRule="evenodd" />
+                          </svg>
+                        </span>
                       )}
                       {member.twitch_url && (
                         <a

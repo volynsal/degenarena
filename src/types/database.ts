@@ -14,8 +14,40 @@ export interface Profile {
   avatar_url?: string | null
   bio?: string | null
   twitch_url?: string | null
+  wallet_address?: string | null
+  wallet_verified?: boolean
+  wallet_verified_at?: string | null
   subscription_tier: SubscriptionTier
   badges: EarnedBadge[]
+  created_at: string
+  updated_at: string
+}
+
+export interface WalletStats {
+  id: string
+  user_id: string
+  wallet_address: string
+  total_pnl_usd: number
+  total_invested_usd: number
+  total_sold_usd: number
+  realized_pnl_usd: number
+  unrealized_pnl_usd: number
+  total_tokens_traded: number
+  total_buy_transactions: number
+  total_sell_transactions: number
+  total_transactions: number
+  winning_tokens: number
+  losing_tokens: number
+  win_rate: number
+  pnl_1d: number
+  pnl_7d: number
+  pnl_30d: number
+  best_trade_token: string | null
+  best_trade_pnl: number
+  worst_trade_token: string | null
+  worst_trade_pnl: number
+  data_source: 'birdeye' | 'solanatracker'
+  last_refreshed_at: string
   created_at: string
   updated_at: string
 }

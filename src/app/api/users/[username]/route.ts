@@ -23,6 +23,21 @@ interface PublicProfile extends Profile {
     logo_url: string | null
   } | null
   is_own_profile: boolean
+  wallet_stats?: {
+    total_pnl_usd: number
+    realized_pnl_usd: number
+    unrealized_pnl_usd: number
+    total_tokens_traded: number
+    total_transactions: number
+    winning_tokens: number
+    losing_tokens: number
+    win_rate: number
+    best_trade_token: string | null
+    best_trade_pnl: number
+    worst_trade_token: string | null
+    worst_trade_pnl: number
+    last_refreshed_at: string
+  } | null
 }
 
 // GET /api/users/[username] - Get public profile data
@@ -81,11 +96,27 @@ export async function GET(
     .eq('user_id', profile.id)
     .single()
   
+  // Fetch wallet stats if wallet is linked and verified
+  let walletStats = null
+  if (profile.wallet_address && profile.wallet_verified) {
+    const { data: stats } = await serviceClient
+      .from('wallet_stats')
+      .select('total_pnl_usd, realized_pnl_usd, unrealized_pnl_usd, total_tokens_traded, total_transactions, winning_tokens, losing_tokens, win_rate, best_trade_token, best_trade_pnl, worst_trade_token, worst_trade_pnl, last_refreshed_at')
+      .eq('user_id', profile.id)
+      .maybeSingle()
+    
+    walletStats = stats
+  }
+  
   // Build response
   const publicProfile: PublicProfile = {
     ...profile,
     // Hide email for non-owners
     email: session?.user?.id === profile.id ? profile.email : '',
+    // Hide wallet address partially (show first 4 + last 4)
+    wallet_address: profile.wallet_address 
+      ? `${profile.wallet_address.slice(0, 4)}...${profile.wallet_address.slice(-4)}`
+      : null,
     subscription_tier: profile.subscription_tier || 'free',
     badges: profile.badges || [],
     total_matches: totalMatches,
@@ -95,6 +126,7 @@ export async function GET(
     public_formulas: publicFormulas,
     clan: membership?.clan || null,
     is_own_profile: session?.user?.id === profile.id,
+    wallet_stats: walletStats,
   }
   
   return NextResponse.json<ApiResponse<PublicProfile>>({

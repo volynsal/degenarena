@@ -14,7 +14,12 @@ import {
   ExternalLink,
   Info,
   User,
-  Tv
+  Tv,
+  Wallet,
+  RefreshCw,
+  CheckCircle2,
+  XCircle,
+  TrendingUp
 } from 'lucide-react'
 
 // Twitch icon component
@@ -37,6 +42,18 @@ export default function SettingsPage() {
   const [profileError, setProfileError] = useState<string | null>(null)
   const [profileSuccess, setProfileSuccess] = useState(false)
   
+  // Wallet state
+  const [walletAddress, setWalletAddress] = useState('')
+  const [walletData, setWalletData] = useState<{
+    wallet_address: string | null
+    wallet_verified: boolean
+    stats: any | null
+  } | null>(null)
+  const [walletSaving, setWalletSaving] = useState(false)
+  const [walletRefreshing, setWalletRefreshing] = useState(false)
+  const [walletError, setWalletError] = useState<string | null>(null)
+  const [walletSuccess, setWalletSuccess] = useState<string | null>(null)
+  
   const [formData, setFormData] = useState({
     telegram_enabled: false,
     telegram_chat_id: '',
@@ -47,7 +64,7 @@ export default function SettingsPage() {
     daily_limit: 100,
   })
   
-  // Fetch profile data
+  // Fetch profile data + wallet data
   useEffect(() => {
     const fetchProfile = async () => {
       try {
@@ -67,7 +84,26 @@ export default function SettingsPage() {
         setProfileLoading(false)
       }
     }
+    
+    const fetchWallet = async () => {
+      try {
+        const res = await fetch('/api/user/wallet')
+        if (res.ok) {
+          const data = await res.json()
+          if (data.data) {
+            setWalletData(data.data)
+            if (data.data.wallet_address) {
+              setWalletAddress(data.data.wallet_address)
+            }
+          }
+        }
+      } catch (e) {
+        console.error('Failed to fetch wallet:', e)
+      }
+    }
+    
     fetchProfile()
+    fetchWallet()
   }, [])
   
   // Update form when settings load
@@ -110,6 +146,61 @@ export default function SettingsPage() {
       setProfileError('Failed to save profile')
     } finally {
       setProfileSaving(false)
+    }
+  }
+  
+  // Save wallet
+  const handleWalletSave = async () => {
+    setWalletSaving(true)
+    setWalletError(null)
+    setWalletSuccess(null)
+    
+    try {
+      const res = await fetch('/api/user/wallet', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ wallet_address: walletAddress.trim() || null }),
+      })
+      
+      const data = await res.json()
+      
+      if (!res.ok) {
+        setWalletError(data.error || 'Failed to save wallet')
+      } else {
+        setWalletSuccess(data.message || 'Wallet saved!')
+        setWalletData(data.data)
+        setTimeout(() => setWalletSuccess(null), 5000)
+      }
+    } catch (e) {
+      setWalletError('Failed to save wallet')
+    } finally {
+      setWalletSaving(false)
+    }
+  }
+  
+  // Refresh wallet stats
+  const handleWalletRefresh = async () => {
+    setWalletRefreshing(true)
+    setWalletError(null)
+    setWalletSuccess(null)
+    
+    try {
+      const res = await fetch('/api/user/wallet', { method: 'PATCH' })
+      const data = await res.json()
+      
+      if (!res.ok) {
+        setWalletError(data.error || 'Failed to refresh')
+      } else {
+        setWalletSuccess(data.message || 'Stats refreshed!')
+        if (data.data) {
+          setWalletData(prev => prev ? { ...prev, ...data.data } : data.data)
+        }
+        setTimeout(() => setWalletSuccess(null), 5000)
+      }
+    } catch (e) {
+      setWalletError('Failed to refresh wallet')
+    } finally {
+      setWalletRefreshing(false)
     }
   }
   
@@ -216,6 +307,136 @@ export default function SettingsPage() {
               <Save className="w-4 h-4 mr-2" />
               Save Profile
             </Button>
+          </div>
+        </CardContent>
+      </Card>
+      
+      {/* Wallet Verification */}
+      <Card>
+        <CardHeader>
+          <div className="flex items-center gap-2">
+            <Wallet className="w-5 h-5 text-arena-cyan" />
+            <CardTitle>Wallet Verification</CardTitle>
+            {walletData?.wallet_verified && (
+              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-green-500/10 border border-green-500/30 text-green-400">
+                <CheckCircle2 className="w-3 h-3" />
+                Verified
+              </span>
+            )}
+          </div>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          {walletError && (
+            <div className="p-3 rounded-lg bg-red-500/10 border border-red-500/20 text-red-400 text-sm">
+              {walletError}
+            </div>
+          )}
+          {walletSuccess && (
+            <div className="p-3 rounded-lg bg-green-500/10 border border-green-500/20 text-green-400 text-sm">
+              {walletSuccess}
+            </div>
+          )}
+          
+          <div className="p-4 rounded-lg bg-arena-cyan/5 border border-arena-cyan/20">
+            <p className="text-sm text-gray-300 mb-1 font-medium">How it works</p>
+            <p className="text-sm text-gray-400">
+              Paste your public Solana wallet address. We read your on-chain trading history (read-only, no wallet connection needed) to verify your performance and display your stats.
+            </p>
+          </div>
+          
+          <div>
+            <label className="block text-sm font-medium text-gray-300 mb-2">
+              Solana Wallet Address
+            </label>
+            <Input
+              placeholder="e.g., 7xKXtg2CW87d97TXJSDpbD5jBkheTqA83TZRuJosgAsU"
+              value={walletAddress}
+              onChange={(e) => setWalletAddress(e.target.value)}
+              className="font-mono text-sm"
+            />
+            <p className="text-xs text-gray-500 mt-1">
+              Your public wallet address — no connection or signing required
+            </p>
+          </div>
+          
+          {/* Wallet stats preview */}
+          {walletData?.stats && (
+            <div className="p-4 rounded-lg bg-white/5 border border-white/10 space-y-3">
+              <div className="flex items-center justify-between">
+                <span className="text-sm font-medium text-gray-300">Trading Stats</span>
+                <span className="text-xs text-gray-500">
+                  Updated {new Date(walletData.stats.last_refreshed_at).toLocaleDateString()}
+                </span>
+              </div>
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                <div>
+                  <p className="text-xs text-gray-500">Total PnL</p>
+                  <p className={`text-sm font-bold ${walletData.stats.total_pnl_usd >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+                    ${walletData.stats.total_pnl_usd >= 0 ? '+' : ''}{Number(walletData.stats.total_pnl_usd).toFixed(2)}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-xs text-gray-500">Win Rate</p>
+                  <p className="text-sm font-bold text-white">{walletData.stats.win_rate}%</p>
+                </div>
+                <div>
+                  <p className="text-xs text-gray-500">Tokens Traded</p>
+                  <p className="text-sm font-bold text-white">{walletData.stats.total_tokens_traded}</p>
+                </div>
+                <div>
+                  <p className="text-xs text-gray-500">Total Trades</p>
+                  <p className="text-sm font-bold text-white">{walletData.stats.total_transactions}</p>
+                </div>
+              </div>
+              
+              {!walletData.wallet_verified && (
+                <div className="flex items-start gap-2 p-2 rounded bg-yellow-500/10 border border-yellow-500/20">
+                  <Info className="w-4 h-4 text-yellow-400 mt-0.5 flex-shrink-0" />
+                  <p className="text-xs text-yellow-400">
+                    Need 10+ trades across 3+ tokens for Verified Trader badge
+                  </p>
+                </div>
+              )}
+            </div>
+          )}
+          
+          <div className="flex items-center gap-3">
+            <Button 
+              type="button" 
+              variant="secondary" 
+              onClick={handleWalletSave}
+              loading={walletSaving}
+            >
+              <Save className="w-4 h-4 mr-2" />
+              {walletData?.wallet_address ? 'Update Wallet' : 'Link Wallet'}
+            </Button>
+            
+            {walletData?.wallet_address && (
+              <Button 
+                type="button" 
+                variant="ghost" 
+                onClick={handleWalletRefresh}
+                loading={walletRefreshing}
+              >
+                <RefreshCw className={`w-4 h-4 mr-2 ${walletRefreshing ? 'animate-spin' : ''}`} />
+                Refresh Stats
+              </Button>
+            )}
+            
+            {walletData?.wallet_address && (
+              <Button 
+                type="button" 
+                variant="ghost"
+                className="text-red-400 hover:text-red-300 hover:bg-red-500/10"
+                onClick={() => {
+                  setWalletAddress('')
+                  handleWalletSave()
+                }}
+              >
+                <XCircle className="w-4 h-4 mr-2" />
+                Unlink
+              </Button>
+            )}
           </div>
         </CardContent>
       </Card>

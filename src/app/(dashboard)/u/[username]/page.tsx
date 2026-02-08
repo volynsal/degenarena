@@ -24,6 +24,22 @@ const TwitchIcon = ({ className }: { className?: string }) => (
 import { BADGE_DEFINITIONS, RARITY_COLORS, TIER_INFO, BADGE_CATEGORIES, getBadge } from '@/lib/badges'
 import type { EarnedBadge, SubscriptionTier } from '@/types/database'
 
+interface WalletStatsData {
+  total_pnl_usd: number
+  realized_pnl_usd: number
+  unrealized_pnl_usd: number
+  total_tokens_traded: number
+  total_transactions: number
+  winning_tokens: number
+  losing_tokens: number
+  win_rate: number
+  best_trade_token: string | null
+  best_trade_pnl: number
+  worst_trade_token: string | null
+  worst_trade_pnl: number
+  last_refreshed_at: string
+}
+
 interface ProfileData {
   id: string
   username: string
@@ -31,6 +47,8 @@ interface ProfileData {
   avatar_url: string | null
   bio: string | null
   twitch_url: string | null
+  wallet_address: string | null
+  wallet_verified: boolean
   subscription_tier: SubscriptionTier
   badges: EarnedBadge[]
   created_at: string
@@ -45,6 +63,7 @@ interface ProfileData {
     logo_url: string | null
   } | null
   is_own_profile: boolean
+  wallet_stats: WalletStatsData | null
 }
 
 interface TwitchStreamInfo {
@@ -167,9 +186,17 @@ export default function ProfilePage({ params }: { params: { username: string } }
             
             {/* Info */}
             <div className="flex-1 min-w-0">
-              {/* Username + Tier Badge + Twitch */}
+              {/* Username + Verified + Tier Badge + Twitch */}
               <div className="flex flex-wrap items-center gap-2 mb-2">
                 <h1 className="text-2xl sm:text-3xl font-bold text-white">@{profile.username}</h1>
+                {profile.wallet_verified && (
+                  <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium bg-green-500/10 border border-green-500/30 text-green-400" title="Verified on-chain trader">
+                    <svg className="w-3.5 h-3.5" viewBox="0 0 20 20" fill="currentColor">
+                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 00-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 10-1.06 1.061l2.5 2.5a.75.75 0 001.137-.089l4-5.5z" clipRule="evenodd" />
+                    </svg>
+                    <span>Verified Trader</span>
+                  </span>
+                )}
                 {profile.subscription_tier !== 'free' && (
                   <span className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium border ${tierInfo.color}`}>
                     <span>{tierInfo.icon}</span>
@@ -291,6 +318,77 @@ export default function ProfilePage({ params }: { params: { username: string } }
           </CardContent>
         </Card>
       </div>
+      
+      {/* Wallet Stats - shown if verified */}
+      {profile.wallet_verified && profile.wallet_stats && (
+        <Card className="border-green-500/20">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <svg className="w-5 h-5 text-green-400" viewBox="0 0 20 20" fill="currentColor">
+                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 00-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 10-1.06 1.061l2.5 2.5a.75.75 0 001.137-.089l4-5.5z" clipRule="evenodd" />
+              </svg>
+              <span>On-Chain Performance</span>
+              {profile.wallet_address && (
+                <span className="text-xs font-mono text-gray-500 font-normal">
+                  {profile.wallet_address}
+                </span>
+              )}
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-4">
+              <div className="p-3 rounded-lg bg-white/5">
+                <p className="text-xs text-gray-500 mb-1">Total PnL</p>
+                <p className={`text-lg font-bold ${profile.wallet_stats.total_pnl_usd >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+                  ${profile.wallet_stats.total_pnl_usd >= 0 ? '+' : ''}{Number(profile.wallet_stats.total_pnl_usd).toFixed(2)}
+                </p>
+              </div>
+              <div className="p-3 rounded-lg bg-white/5">
+                <p className="text-xs text-gray-500 mb-1">Win Rate</p>
+                <p className="text-lg font-bold text-white">{profile.wallet_stats.win_rate}%</p>
+                <p className="text-xs text-gray-600">{profile.wallet_stats.winning_tokens}W / {profile.wallet_stats.losing_tokens}L</p>
+              </div>
+              <div className="p-3 rounded-lg bg-white/5">
+                <p className="text-xs text-gray-500 mb-1">Tokens Traded</p>
+                <p className="text-lg font-bold text-white">{profile.wallet_stats.total_tokens_traded}</p>
+              </div>
+              <div className="p-3 rounded-lg bg-white/5">
+                <p className="text-xs text-gray-500 mb-1">Total Trades</p>
+                <p className="text-lg font-bold text-white">{profile.wallet_stats.total_transactions}</p>
+              </div>
+            </div>
+            
+            <div className="grid grid-cols-2 gap-4">
+              {profile.wallet_stats.best_trade_token && (
+                <div className="p-3 rounded-lg bg-green-500/5 border border-green-500/10">
+                  <p className="text-xs text-gray-500 mb-1">Best Trade</p>
+                  <p className="text-sm font-medium text-green-400">
+                    {profile.wallet_stats.best_trade_token}
+                  </p>
+                  <p className="text-xs text-green-400/70">
+                    +${Number(profile.wallet_stats.best_trade_pnl).toFixed(2)}
+                  </p>
+                </div>
+              )}
+              {profile.wallet_stats.worst_trade_token && (
+                <div className="p-3 rounded-lg bg-red-500/5 border border-red-500/10">
+                  <p className="text-xs text-gray-500 mb-1">Worst Trade</p>
+                  <p className="text-sm font-medium text-red-400">
+                    {profile.wallet_stats.worst_trade_token}
+                  </p>
+                  <p className="text-xs text-red-400/70">
+                    ${Number(profile.wallet_stats.worst_trade_pnl).toFixed(2)}
+                  </p>
+                </div>
+              )}
+            </div>
+            
+            <p className="text-xs text-gray-600 mt-3">
+              Last updated {new Date(profile.wallet_stats.last_refreshed_at).toLocaleDateString()}
+            </p>
+          </CardContent>
+        </Card>
+      )}
       
       {/* Badges Section */}
       <Card>

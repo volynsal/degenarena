@@ -83,10 +83,10 @@ export async function GET(
   // Get member details and stats
   const memberStats: any[] = []
   for (const member of members || []) {
-    // Get profile separately (including twitch_url)
+    // Get profile separately (including twitch_url, wallet_verified)
     const { data: profile } = await serviceClient
       .from('profiles')
-      .select('username, avatar_url, twitch_url')
+      .select('username, avatar_url, twitch_url, wallet_verified')
       .eq('id', member.user_id)
       .single()
     
@@ -106,6 +106,7 @@ export async function GET(
       username: profile?.username || 'Unknown User',
       avatar_url: profile?.avatar_url || null,
       twitch_url: profile?.twitch_url || null,
+      wallet_verified: profile?.wallet_verified || false,
       role: member.role,
       win_rate: Math.round(avgWinRate * 10) / 10,
       total_matches: totalMatches,

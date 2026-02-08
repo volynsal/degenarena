@@ -173,6 +173,14 @@ export const BADGE_DEFINITIONS: Record<string, BadgeDefinition> = {
     category: 'special',
     rarity: 'legendary',
   },
+  verified_trader: {
+    id: 'verified_trader',
+    name: 'Verified Trader',
+    description: 'Linked wallet with 10+ trades across 3+ tokens',
+    icon: '✅',
+    category: 'performance',
+    rarity: 'epic',
+  },
 }
 
 // Rarity colors for UI
