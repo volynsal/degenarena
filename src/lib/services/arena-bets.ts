@@ -251,7 +251,7 @@ export async function generateMarkets(): Promise<{ created: number; skipped: num
   let skipped = 0
   const maxNewMarkets = 5 // Cap per cron run to avoid flooding
 
-  for (const [address, pair] of candidatePairs.entries()) {
+  for (const [address, pair] of Array.from(candidatePairs.entries())) {
     if (created >= maxNewMarkets) break
     if (existingSet.has(address)) { skipped++; continue }
 
