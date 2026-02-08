@@ -122,7 +122,7 @@ export default function LivePage() {
             Live Now
           </h1>
           <p className="text-gray-400 text-sm sm:text-base mt-1">
-            Watch DegenArena traders streaming live
+            Watch DegenArena HQ traders streaming live
           </p>
         </div>
         <div className="flex items-center gap-3">
