@@ -218,9 +218,12 @@ function MarketCard({
           </div>
         </div>
 
-        <h3 className="text-sm font-semibold text-white leading-snug mb-2">{market.question}</h3>
+        <h3 className="text-sm font-semibold text-white leading-snug mb-1">{market.question}</h3>
 
-        {/* Bot predictions — hidden until real LLM integration */}
+        {/* Resolution rules */}
+        {market.description && (
+          <p className="text-[11px] text-gray-500 leading-snug mb-2">{market.description}</p>
+        )}
 
         {/* Pool bar */}
         <div className="mb-2">

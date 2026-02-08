@@ -30,6 +30,7 @@ export async function GET(request: NextRequest) {
     .from('arena_markets')
     .select('*')
     .eq('status', status)
+    .order('pinned', { ascending: false, nullsFirst: false })
     .order(status === 'active' ? 'resolve_at' : 'resolved_at', { ascending: status === 'active' })
     .range(offset, offset + limit - 1)
 
