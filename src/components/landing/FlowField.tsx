@@ -8,35 +8,12 @@ import { useEffect, useRef } from 'react'
 // =============================================
 
 export function VideoBackground() {
-  const canvasRef = useRef<HTMLCanvasElement>(null)
   const videoRef = useRef<HTMLVideoElement>(null)
 
   useEffect(() => {
-    const canvas = canvasRef.current
     const video = videoRef.current
-    if (!canvas || !video) return
+    if (!video) return
 
-    const ctx = canvas.getContext('2d')
-    if (!ctx) return
-
-    let width = window.innerWidth
-    let height = window.innerHeight
-    canvas.width = width
-    canvas.height = height
-
-    // Fill dark while video loads
-    ctx.fillStyle = '#080808'
-    ctx.fillRect(0, 0, width, height)
-
-    const resize = () => {
-      width = window.innerWidth
-      height = window.innerHeight
-      canvas.width = width
-      canvas.height = height
-    }
-    window.addEventListener('resize', resize)
-
-    // Force play attempts
     const tryPlay = () => {
       if (video.paused) {
         video.muted = true
@@ -49,7 +26,6 @@ export function VideoBackground() {
     const t2 = setTimeout(tryPlay, 1000)
     const t3 = setTimeout(tryPlay, 3000)
 
-    // Fallback on user interaction
     const handleInteraction = () => {
       tryPlay()
       document.removeEventListener('click', handleInteraction)
@@ -58,48 +34,10 @@ export function VideoBackground() {
     document.addEventListener('click', handleInteraction)
     document.addEventListener('touchstart', handleInteraction)
 
-    // Draw video frames to canvas
-    let animId = 0
-    let hasPlayed = false
-
-    const drawFrame = () => {
-      if (video.readyState >= 2 && !video.paused) {
-        hasPlayed = true
-        const vw = video.videoWidth
-        const vh = video.videoHeight
-        if (vw && vh) {
-          // Cover-fit: scale to fill canvas, center
-          const scale = Math.max(width / vw, height / vh)
-          const sw = vw * scale
-          const sh = vh * scale
-          const sx = (width - sw) / 2
-          const sy = (height - sh) / 2
-          ctx.drawImage(video, sx, sy, sw, sh)
-
-          // Dark overlay gradient for text readability
-          const grad = ctx.createLinearGradient(0, 0, 0, height)
-          grad.addColorStop(0, 'rgba(8,8,8,0.55)')
-          grad.addColorStop(0.4, 'rgba(8,8,8,0.35)')
-          grad.addColorStop(0.6, 'rgba(8,8,8,0.35)')
-          grad.addColorStop(1, 'rgba(8,8,8,0.6)')
-          ctx.fillStyle = grad
-          ctx.fillRect(0, 0, width, height)
-        }
-      } else if (!hasPlayed) {
-        ctx.fillStyle = '#080808'
-        ctx.fillRect(0, 0, width, height)
-      }
-      animId = requestAnimationFrame(drawFrame)
-    }
-
-    animId = requestAnimationFrame(drawFrame)
-
     return () => {
-      cancelAnimationFrame(animId)
       clearTimeout(t1)
       clearTimeout(t2)
       clearTimeout(t3)
-      window.removeEventListener('resize', resize)
       document.removeEventListener('click', handleInteraction)
       document.removeEventListener('touchstart', handleInteraction)
     }
@@ -119,7 +57,7 @@ export function VideoBackground() {
         pointerEvents: 'none',
       }}
     >
-      {/* Hidden video element — in the DOM so autoplay works, but invisible */}
+      {/* Full-screen video */}
       <video
         ref={videoRef}
         autoPlay
@@ -127,12 +65,17 @@ export function VideoBackground() {
         muted
         playsInline
         preload="auto"
+        controls={false}
         style={{
           position: 'absolute',
-          width: '1px',
-          height: '1px',
-          opacity: 0,
-          pointerEvents: 'none',
+          top: '50%',
+          left: '50%',
+          transform: 'translate(-50%, -50%)',
+          minWidth: '100%',
+          minHeight: '100%',
+          width: 'auto',
+          height: 'auto',
+          objectFit: 'cover',
         }}
       >
         <source
@@ -140,14 +83,18 @@ export function VideoBackground() {
           type="video/mp4"
         />
       </video>
-      {/* Canvas renders video frames — no native controls, no play button */}
-      <canvas
-        ref={canvasRef}
+      {/*
+        Overlay sits ON TOP of the video — covers Safari's play button
+        and darkens the video for text readability.
+        pointer-events: none so clicks pass through to page content.
+      */}
+      <div
         style={{
           position: 'absolute',
           inset: 0,
-          width: '100%',
-          height: '100%',
+          zIndex: 1,
+          background: 'linear-gradient(to bottom, rgba(8,8,8,0.55) 0%, rgba(8,8,8,0.35) 40%, rgba(8,8,8,0.35) 60%, rgba(8,8,8,0.6) 100%)',
+          pointerEvents: 'none',
         }}
       />
     </div>
