@@ -385,7 +385,13 @@ export default function ArenaBetsPage() {
       const data = await res.json()
 
       if (data.error) throw new Error(data.error)
-      setMarkets(data.data || [])
+      const fetched: Market[] = data.data || []
+      // Hide expired markets that haven't been resolved yet by the cron
+      const now = Date.now()
+      const filtered = tab === 'active'
+        ? fetched.filter(m => new Date(m.resolve_at).getTime() > now)
+        : fetched
+      setMarkets(filtered)
       if (data.balance !== undefined && points) {
         setPoints(prev => prev ? { ...prev, balance: data.balance } : prev)
       }
