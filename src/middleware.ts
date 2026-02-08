@@ -54,7 +54,10 @@ export async function middleware(request: NextRequest) {
     }
   )
 
-  const { data: { session } } = await supabase.auth.getSession()
+  // IMPORTANT: getUser() validates the JWT with Supabase Auth and triggers
+  // a token refresh if expired. getSession() only reads from the cookie
+  // without refreshing, which causes silent auth failures after ~1 hour.
+  const { data: { user } } = await supabase.auth.getUser()
 
   // Protected routes - redirect to login if not authenticated
   const protectedPaths = ['/dashboard', '/formulas', '/leaderboard', '/settings', '/clans', '/community', '/live', '/competitions', '/matches', '/arena-bets']
@@ -62,7 +65,7 @@ export async function middleware(request: NextRequest) {
     request.nextUrl.pathname.startsWith(path)
   )
 
-  if (isProtectedPath && !session) {
+  if (isProtectedPath && !user) {
     const redirectUrl = new URL('/login', request.url)
     redirectUrl.searchParams.set('redirect', request.nextUrl.pathname)
     return NextResponse.redirect(redirectUrl)
@@ -74,7 +77,7 @@ export async function middleware(request: NextRequest) {
     request.nextUrl.pathname === path
   )
 
-  if (isAuthPath && session) {
+  if (isAuthPath && user) {
     return NextResponse.redirect(new URL('/dashboard', request.url))
   }
 
