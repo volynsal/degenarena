@@ -74,11 +74,22 @@ interface TwitchStreamInfo {
   startedAt?: string
 }
 
+interface ApiBadge {
+  id: string
+  name: string
+  description: string
+  icon: string
+  category: string
+  rarity: string
+  earned_at: string
+}
+
 export default function ProfilePage({ params }: { params: { username: string } }) {
   const [profile, setProfile] = useState<ProfileData | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [streamInfo, setStreamInfo] = useState<TwitchStreamInfo | null>(null)
+  const [badges, setBadges] = useState<ApiBadge[]>([])
   
   useEffect(() => {
     fetchProfile()
@@ -97,6 +108,17 @@ export default function ProfilePage({ params }: { params: { username: string } }
       }
       
       setProfile(data.data)
+      
+      // Fetch badges from the correct endpoint (triggers check_and_award_badges)
+      try {
+        const badgeRes = await fetch(`/api/profiles/${params.username}/badges`)
+        const badgeData = await badgeRes.json()
+        if (badgeData.data) {
+          setBadges(badgeData.data)
+        }
+      } catch {
+        // Non-critical
+      }
       
       // Check Twitch live status if user has a Twitch URL
       if (data.data?.twitch_url) {
@@ -150,15 +172,13 @@ export default function ProfilePage({ params }: { params: { username: string } }
     year: 'numeric' 
   })
   
-  // Group badges by category
-  const badgesByCategory = profile.badges.reduce((acc, earned) => {
-    const badge = getBadge(earned.id)
-    if (badge) {
-      if (!acc[badge.category]) acc[badge.category] = []
-      acc[badge.category].push({ ...badge, earned_at: earned.earned_at })
-    }
+  // Group badges by category (from API data)
+  const badgesByCategory = badges.reduce((acc, badge) => {
+    const cat = badge.category || 'special'
+    if (!acc[cat]) acc[cat] = []
+    acc[cat].push(badge)
     return acc
-  }, {} as Record<string, Array<typeof BADGE_DEFINITIONS[string] & { earned_at: string }>>)
+  }, {} as Record<string, ApiBadge[]>)
   
   return (
     <div className="max-w-4xl mx-auto space-y-6">
@@ -397,12 +417,12 @@ export default function ProfilePage({ params }: { params: { username: string } }
             <span>🏅</span>
             <span>Badges</span>
             <span className="text-sm font-normal text-gray-500">
-              ({profile.badges.length} earned)
+              ({badges.length} earned)
             </span>
           </CardTitle>
         </CardHeader>
         <CardContent>
-          {profile.badges.length === 0 ? (
+          {badges.length === 0 ? (
             <div className="text-center py-8">
               <p className="text-gray-500">No badges earned yet</p>
               <p className="text-sm text-gray-600 mt-1">
@@ -414,18 +434,19 @@ export default function ProfilePage({ params }: { params: { username: string } }
             </div>
           ) : (
             <div className="space-y-6">
-              {Object.entries(BADGE_CATEGORIES).map(([category, label]) => {
-                const badges = badgesByCategory[category]
-                if (!badges || badges.length === 0) return null
+              {Object.entries(badgesByCategory).map(([category, catBadges]) => {
+                if (!catBadges || catBadges.length === 0) return null
+                const label = BADGE_CATEGORIES[category as keyof typeof BADGE_CATEGORIES] 
+                  || category.charAt(0).toUpperCase() + category.slice(1)
                 
                 return (
                   <div key={category}>
                     <h3 className="text-sm font-medium text-gray-400 mb-3">{label}</h3>
                     <div className="flex flex-wrap gap-2">
-                      {badges.map((badge) => (
+                      {catBadges.map((badge) => (
                         <div
                           key={badge.id}
-                          className={`inline-flex items-center gap-2 px-3 py-2 rounded-lg border ${RARITY_COLORS[badge.rarity]}`}
+                          className={`inline-flex items-center gap-2 px-3 py-2 rounded-lg border ${RARITY_COLORS[badge.rarity as keyof typeof RARITY_COLORS] || RARITY_COLORS.common}`}
                           title={`${badge.description} - Earned ${new Date(badge.earned_at).toLocaleDateString()}`}
                         >
                           <span className="text-lg">{badge.icon}</span>
