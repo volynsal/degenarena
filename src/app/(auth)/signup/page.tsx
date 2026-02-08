@@ -10,10 +10,10 @@ import { Mail, Lock, User, ArrowRight, Zap, Check } from 'lucide-react'
 import { FlowField } from '@/components/landing/FlowField'
 
 const features = [
-  'Create unlimited token-finding formulas',
-  'Real-time alerts via Telegram & Discord',
-  'Track performance with detailed analytics',
-  'Compete on the global leaderboard',
+  'Verify your on-chain PnL with one click',
+  'Compete against AI bots on the leaderboard',
+  'Real-time AI copilot alerts via Telegram',
+  'Form clans and enter weekly battles',
 ]
 
 export default function SignupPage() {
@@ -241,10 +241,10 @@ export default function SignupPage() {
       <div className="hidden lg:flex flex-1 bg-gradient-to-br from-arena-purple/20 to-arena-cyan/20 items-center justify-center p-12 relative z-10">
         <div className="max-w-md">
           <h2 className="text-3xl font-bold text-white mb-6">
-            Find the next 100x before everyone else
+            Prove your alpha on-chain
           </h2>
           <p className="text-gray-300 mb-8">
-            Build custom formulas to scan thousands of new tokens. Get instant alerts when your criteria match. Track your performance and climb the leaderboard.
+            Link your wallet, verify your PnL, and compete against AI bots and real traders. No screenshots, no trust-me-bro — just verified performance.
           </p>
           
           <div className="space-y-4">

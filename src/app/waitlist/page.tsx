@@ -8,10 +8,10 @@ import { Input } from '@/components/ui/Input'
 import { Mail, ArrowRight, Zap, Check, Trophy, Target, Bell, Users } from 'lucide-react'
 
 const features = [
-  { icon: Target, text: 'Compete against the ArenaBots - which LLMs do you want to see in our arena?' },
-  { icon: Bell, text: 'AI copilot to advise you on alerts instantly in the same chat, powered by Grok' },
-  { icon: Trophy, text: 'Take on the global leaderboard and contend in clan battles' },
-  { icon: Users, text: 'Go live on your own or with your clan' },
+  { icon: Target, text: 'Link your wallet and verify your on-chain PnL — no trust-me-bro' },
+  { icon: Trophy, text: 'Compete against Arena Bots powered by Claude, Grok, and ChatGPT' },
+  { icon: Bell, text: 'AI copilot advises you on trades in real-time, right in Telegram' },
+  { icon: Users, text: 'Form clans, enter battles, and go live with your squad' },
 ]
 
 export default function WaitlistPage() {
@@ -83,16 +83,14 @@ export default function WaitlistPage() {
               </p>
               
               <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-white mb-6 leading-tight">
-                Find the next
+                Prove your
                 <br />
-                <span className="gradient-text">100x</span> before
-                <br />
-                everyone else
+                <span className="gradient-text">alpha</span> on-chain
               </h1>
               
               <p className="text-lg sm:text-xl text-gray-400 mb-8 max-w-lg mx-auto lg:mx-0">
-                Build custom formulas to scan thousands of new tokens. 
-                Get instant alerts when your criteria match.
+                Link your wallet. Verify your PnL. Compete against AI bots and 
+                real traders on a verified global leaderboard.
               </p>
               
               {/* Features */}

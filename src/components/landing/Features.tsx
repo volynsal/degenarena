@@ -13,9 +13,19 @@ import {
 
 const features = [
   {
+    icon: TrendingUp,
+    title: 'Verified On-Chain PnL',
+    description: 'Link your Solana wallet and prove your performance. Real trades, real PnL — verified on-chain. No screenshots needed.',
+  },
+  {
+    icon: Bot,
+    title: 'Arena Bots',
+    description: 'AI traders powered by Claude, Grok, and ChatGPT competing 24/7. They hold 3 of the top 6 spots — can you beat them?',
+  },
+  {
     icon: Trophy,
     title: 'Weekly Competitions',
-    description: 'Enter 24-hour flips, weekly leagues, and special events. Compete against the best traders for ranking and recognition.',
+    description: 'Enter 24-hour flips, weekly leagues, and special events. Compete against the best traders and AI for ranking and recognition.',
   },
   {
     icon: Swords,
@@ -24,40 +34,31 @@ const features = [
     earlyAccess: true,
   },
   {
-    icon: Sliders,
-    title: 'Formula Builder',
-    description: 'Create custom token-finding strategies with 20+ filters. Liquidity, volume, token age, buy pressure, and more.',
-  },
-  {
-    icon: TrendingUp,
-    title: 'Verified Performance',
-    description: 'Every match is tracked on-chain. Your win rate, average returns, and complete history — no faking, no hiding.',
+    icon: BarChart3,
+    title: 'Global Rankings',
+    description: 'Climb the leaderboard based on verified wallet performance. See where you stand against traders and AI worldwide.',
   },
   {
     icon: Bell,
-    title: 'Instant Alerts',
-    description: 'Get notified via Telegram, Discord, or email the moment your formula catches a token. Never miss a play.',
+    title: 'AI Copilot Alerts',
+    description: 'Get real-time AI analysis on token alerts directly in your Telegram chat. Powered by Grok — your personal trading advisor.',
   },
   {
-    icon: Share2,
-    title: 'Formula Marketplace',
-    description: 'Share winning formulas with the community or follow top performers. Full attribution, verified results.',
-  },
-  {
-    icon: BarChart3,
-    title: 'Global Rankings',
-    description: 'Climb the leaderboard. See where you stand against traders worldwide. The best rise to the top.',
-  },
-  {
-    icon: Zap,
-    title: 'Strategy Presets',
-    description: 'Launch Sniper, Momentum Breakout, CEX-Ready Candidate — battle-tested presets for premium members.',
+    icon: Sliders,
+    title: 'Token Scanners',
+    description: 'Optional formula builder with 20+ filters to find new tokens. Liquidity, volume, token age — a tool to help you get started.',
     premium: true,
   },
   {
-    icon: Bot,
-    title: 'Arena Bots',
-    description: 'Official AI traders running 24/7. Multiple LLMs competing in the arena — can you outperform them?',
+    icon: Zap,
+    title: 'Pro Presets',
+    description: 'Launch Sniper, Momentum Breakout, CEX-Ready Candidate — battle-tested scanning presets for premium members.',
+    premium: true,
+  },
+  {
+    icon: Share2,
+    title: 'Go Live',
+    description: 'Stream your trades with your clan. Link your Twitch, show a live badge, and build your audience from inside the arena.',
     comingSoon: true,
   },
 ]
@@ -71,10 +72,10 @@ export function Features() {
         {/* Section header */}
         <div className="text-center max-w-3xl mx-auto mb-16">
           <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">
-            The complete arena for serious traders
+            The competitive arena for real traders
           </h2>
           <p className="text-lg text-gray-400">
-            Build strategies. Enter competitions. Track verified performance. The tools you need to compete at the highest level.
+            Prove your PnL on-chain. Compete against AI and humans. Climb verified rankings. Optional tools to sharpen your edge.
           </p>
         </div>
         

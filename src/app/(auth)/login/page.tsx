@@ -171,26 +171,26 @@ export default function LoginPage() {
           
           {/* Coming Soon Banner + Features */}
           <div className="mt-6 text-center space-y-4">
-            {/* Coming Soon - Prominent */}
+            {/* Value prop */}
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-arena-purple/20 to-arena-cyan/20 border border-arena-purple/30">
               <Zap className="w-4 h-4 text-arena-cyan animate-pulse" />
               <span className="text-sm">
-                <span className="text-gray-400">Coming Soon:</span>{' '}
+                <span className="text-gray-400">Compete against</span>{' '}
                 <span className="font-semibold bg-gradient-to-r from-arena-purple to-arena-cyan bg-clip-text text-transparent">
-                  AI Copilot
+                  Arena Bots
                 </span>
-                <span className="text-gray-500 text-xs ml-1">— AI that advises you in the same unified chat</span>
+                <span className="text-gray-500 text-xs ml-1">— AI traders powered by Claude, Grok & ChatGPT</span>
               </span>
             </div>
             
             {/* Feature highlights */}
             <div className="flex flex-wrap justify-center gap-1.5">
               {[
-                'Token Filters',
-                'Instant Alerts',
-                '24hr Flip Battles',
-                'Clan Wars',
-                'Pro Presets'
+                'Verified PnL',
+                'AI Copilot',
+                'Clan Battles',
+                'Global Rankings',
+                'Go Live'
               ].map((feature) => (
                 <span
                   key={feature}
