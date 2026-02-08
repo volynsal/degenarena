@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
-import { FlowField } from '@/components/landing/FlowField'
+import { VideoBackground } from '@/components/landing/FlowField'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
 import { Mail, ArrowRight, Zap, Check, Trophy, Target, Bell, Users } from 'lucide-react'
@@ -55,7 +55,7 @@ export default function WaitlistPage() {
   return (
     <div className="min-h-screen bg-arena-darker relative overflow-hidden">
       {/* Animated background */}
-      <FlowField />
+      <VideoBackground />
       <div className="absolute inset-0 grid-pattern" style={{ zIndex: 1 }} />
       <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-arena-purple/10 rounded-full blur-[128px]" style={{ zIndex: 1 }} />
       <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-arena-cyan/10 rounded-full blur-[128px]" style={{ zIndex: 1 }} />

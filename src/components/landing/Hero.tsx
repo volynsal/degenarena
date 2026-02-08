@@ -4,7 +4,7 @@ import { useState } from 'react'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
 import { ArrowRight } from 'lucide-react'
-import { FlowField } from './FlowField'
+import { VideoBackground } from './FlowField'
 
 export function Hero() {
   const [email, setEmail] = useState('')
@@ -40,7 +40,7 @@ export function Hero() {
   return (
     <section className="relative min-h-screen flex items-center justify-center pt-16 overflow-hidden">
       {/* Animated Flow Field Background */}
-      <FlowField />
+      <VideoBackground />
       
       {/* Background effects - subtle glows behind flow field */}
       <div className="absolute inset-0 grid-pattern" style={{ zIndex: 1 }} />
