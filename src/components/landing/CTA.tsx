@@ -15,10 +15,23 @@ export function CTA() {
     if (!email) return
     
     setIsSubmitting(true)
-    await new Promise(resolve => setTimeout(resolve, 1000))
-    setIsSubmitting(false)
-    setIsSubmitted(true)
-    setEmail('')
+    
+    try {
+      const res = await fetch('/api/waitlist', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: email.trim() }),
+      })
+      
+      if (res.ok) {
+        setIsSubmitted(true)
+        setEmail('')
+      }
+    } catch (err) {
+      // Silently fail - user can retry
+    } finally {
+      setIsSubmitting(false)
+    }
   }
   
   return (
