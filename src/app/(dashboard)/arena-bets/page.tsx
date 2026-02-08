@@ -220,25 +220,7 @@ function MarketCard({
 
         <h3 className="text-sm font-semibold text-white leading-snug mb-2">{market.question}</h3>
 
-        {/* Bot predictions */}
-        {Object.keys(market.bot_predictions || {}).length > 0 && (
-          <div className="flex flex-wrap gap-1.5 mb-3">
-            {Object.entries(market.bot_predictions).map(([bot, pred]) => (
-              <span
-                key={bot}
-                className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-medium border ${
-                  pred === 'yes'
-                    ? 'border-green-500/20 bg-green-500/5 text-green-400'
-                    : 'border-red-500/20 bg-red-500/5 text-red-400'
-                }`}
-              >
-                <span className="bg-rose-500/30 text-rose-400 px-1 rounded text-[9px]">AI</span>
-                {bot.replace('ArenaBot_', '')}:{' '}
-                <span className="font-bold">{(pred as string).toUpperCase()}</span>
-              </span>
-            ))}
-          </div>
-        )}
+        {/* Bot predictions — hidden until real LLM integration */}
 
         {/* Pool bar */}
         <div className="mb-2">
@@ -592,7 +574,7 @@ export default function ArenaBetsPage() {
             </div>
             <div>
               <p className="text-white font-medium mb-1">2. Place your bet</p>
-              <p>Bet YES or NO using DegenArena points. AI Challengers place their own predictions so you can see who agrees or disagrees.</p>
+              <p>Bet YES or NO using DegenArena points. Build win streaks and climb the leaderboard.</p>
             </div>
             <div>
               <p className="text-white font-medium mb-1">3. Winner takes the pool</p>
