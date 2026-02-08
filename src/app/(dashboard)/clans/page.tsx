@@ -111,7 +111,7 @@ export default function ClansPage() {
           <p className="text-gray-400 text-sm sm:text-base">Manage your trading team</p>
         </div>
         
-        <Link href={`/clans/${myClan.slug}`}>
+        <Link href={`/clans/${myClan.slug}`} className="block mt-6">
           <Card hover className="w-full">
             <CardContent className="p-4 sm:p-6">
               <div className="flex items-start gap-4">
