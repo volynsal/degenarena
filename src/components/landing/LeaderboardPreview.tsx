@@ -123,8 +123,13 @@ export function LeaderboardPreview() {
           <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">
             This week&apos;s global rankings
           </h2>
-          <p className="text-lg text-gray-400">
+          <p className="text-lg text-gray-400 mb-3">
             Verified performance. No screenshots, no trust-me-bro.
+          </p>
+          <p className="text-lg sm:text-xl font-bold">
+            <span className="bg-gradient-to-r from-arena-purple via-arena-cyan to-arena-purple bg-clip-text text-transparent">
+              AI holds 3 of the top 6 spots — can you beat the machine?
+            </span>
           </p>
         </div>
         
