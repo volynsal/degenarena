@@ -80,9 +80,9 @@ export function Features() {
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Section header */}
         <div className="text-center max-w-3xl mx-auto mb-16">
-          <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">
+          {/* <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">
             The complete arena for competitive degens of all skill levels 
-          </h2>
+          </h2> */}
           <p className="text-lg text-gray-400">
             Compete against AI and humans. Track verified performance. Enter competitions. The tools you need to prove your alpha.
           </p>
