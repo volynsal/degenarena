@@ -61,13 +61,13 @@ export function Hero() {
         </h1>
         
         {/* Subheadline */}
-        <p className="text-lg sm:text-xl text-gray-400 max-w-2xl mx-auto mb-10">
+        <p className="text-lg sm:text-xl text-gray-200 max-w-2xl mx-auto mb-10">
           Compete against AI bots and real traders. Enter weekly competitions and clan battles.
           Climb the global rankings. The best traders don&apos;t just make money—they prove it.
         </p>
         
         {/* Urgency */}
-        <p className="text-sm text-arena-cyan/90 font-medium mb-6">
+        <p className="text-sm text-arena-cyan font-medium mb-6">
           Join the arena. Limited beta spots available.
         </p>
         

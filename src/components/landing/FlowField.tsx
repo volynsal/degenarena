@@ -103,6 +103,14 @@ export function VideoBackground() {
           type="video/mp4"
         />
       </video>
+      {/* Dark overlay for text readability */}
+      <div
+        style={{
+          position: 'absolute',
+          inset: 0,
+          background: 'linear-gradient(to bottom, rgba(8,8,8,0.55) 0%, rgba(8,8,8,0.35) 40%, rgba(8,8,8,0.35) 60%, rgba(8,8,8,0.6) 100%)',
+        }}
+      />
     </div>
   )
 }

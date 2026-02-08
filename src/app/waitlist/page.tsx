@@ -93,7 +93,7 @@ export default function WaitlistPage() {
                 everyone else
               </h1>
               
-              <p className="text-lg sm:text-xl text-gray-400 mb-8 max-w-lg mx-auto lg:mx-0">
+              <p className="text-lg sm:text-xl text-gray-200 mb-8 max-w-lg mx-auto lg:mx-0">
                 Compete against AI bots and real traders on a verified leaderboard. 
                 Optional token scanners and presets to help you find opportunities.
               </p>
@@ -105,7 +105,7 @@ export default function WaitlistPage() {
                     <div className="w-10 h-10 rounded-lg bg-arena-cyan/10 border border-arena-cyan/20 flex items-center justify-center flex-shrink-0">
                       <feature.icon className="w-5 h-5 text-arena-cyan" />
                     </div>
-                    <span className="text-gray-300 text-sm">{feature.text}</span>
+                    <span className="text-gray-100 text-sm">{feature.text}</span>
                   </div>
                 ))}
               </div>
@@ -194,7 +194,7 @@ export default function WaitlistPage() {
               
               {/* Social proof */}
               <div className="mt-6 text-center">
-                <p className="text-sm text-gray-500">
+                <p className="text-sm text-gray-300">
                   <span className="text-arena-cyan font-medium">Beta access</span> coming soon
                 </p>
               </div>
@@ -204,7 +204,7 @@ export default function WaitlistPage() {
         
         {/* Footer */}
         <footer className="p-4 sm:p-6 text-center">
-          <p className="text-sm text-gray-500">
+          <p className="text-sm text-gray-300">
             Already have access?{' '}
             <Link href="/login" className="text-arena-purple hover:text-arena-cyan transition-colors">
               Sign in
