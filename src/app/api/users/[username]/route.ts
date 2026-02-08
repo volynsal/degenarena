@@ -58,12 +58,12 @@ export async function GET(
     .from('profiles')
     .select('*')
     .ilike('username', params.username)
-    .single()
+    .maybeSingle()
   
   if (profileError) {
     console.error('Profile lookup error:', profileError)
     return NextResponse.json<ApiResponse<null>>({
-      error: `User not found: ${profileError.message}`
+      error: 'User not found'
     }, { status: 404 })
   }
   
@@ -94,7 +94,7 @@ export async function GET(
       clan:clans(name, slug, logo_url)
     `)
     .eq('user_id', profile.id)
-    .single()
+    .maybeSingle()
   
   // Fetch wallet stats if wallet is linked and verified
   let walletStats = null
