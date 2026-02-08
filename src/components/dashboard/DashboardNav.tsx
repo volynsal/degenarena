@@ -9,7 +9,7 @@ import { cn } from '@/lib/utils'
 
 const mobileNavigation = [
   { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
-  { name: 'Galaxy Arena', href: '/arena-bets', icon: Orbit },
+  { name: 'GalaxyArena', href: '/arena-bets', icon: Orbit },
   { name: 'My Formulas', href: '/formulas', icon: Sliders },
   { name: 'Competitions', href: '/competitions', icon: Swords },
   { name: 'Clans', href: '/clans', icon: Shield },

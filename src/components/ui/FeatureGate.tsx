@@ -80,7 +80,7 @@ export function FeatureGate({ status, featureName, children }: FeatureGateProps)
               </div>
               <div className="flex-1">
                 <p className={`text-sm font-medium ${winsOk ? 'text-green-400' : 'text-white'}`}>
-                  Win {status.requiredWins} Galaxy Arena predictions
+                  Win {status.requiredWins} GalaxyArena predictions
                 </p>
                 <p className="text-xs text-gray-500 mt-0.5">
                   {winsOk
@@ -130,7 +130,7 @@ export function FeatureGate({ status, featureName, children }: FeatureGateProps)
               <Link href="/arena-bets">
                 <Button variant="primary" size="lg">
                   <Trophy className="w-4 h-4 mr-2" />
-                  Play Galaxy Arena
+                  Play GalaxyArena
                 </Button>
               </Link>
             )}

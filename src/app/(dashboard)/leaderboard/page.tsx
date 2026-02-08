@@ -195,7 +195,7 @@ function TradersTab({ traders }: { traders: TraderEntry[] }) {
           <Trophy className="w-12 h-12 mx-auto mb-4 text-gray-600" />
           <h3 className="text-lg font-medium text-white mb-2">No traders yet</h3>
           <p className="text-gray-400">
-            Start trading on Galaxy Arena to appear on the leaderboard!
+            Start trading on GalaxyArena to appear on the leaderboard!
           </p>
         </CardContent>
       </Card>
