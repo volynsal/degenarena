@@ -211,7 +211,8 @@ function TradersTab({ traders }: { traders: TraderEntry[] }) {
       {traders.map((trader) => (
         <Card key={trader.username} className="!p-0 overflow-hidden" hover>
           <CardContent className="p-0">
-            <div className="flex items-center gap-4 px-5 py-4">
+            {/* Desktop layout */}
+            <div className="hidden sm:flex items-center gap-4 px-5 py-4">
               {/* Rank */}
               <div className="flex-shrink-0 w-10 text-center">
                 {trader.rank <= 3 ? (
@@ -276,6 +277,70 @@ function TradersTab({ traders }: { traders: TraderEntry[] }) {
                 </Link>
               </div>
             </div>
+
+            {/* Mobile layout */}
+            <div className="sm:hidden px-3 py-3">
+              {/* Row 1: Rank + Avatar + Name + PnL */}
+              <div className="flex items-center gap-2.5">
+                <div className="flex-shrink-0 w-7 text-center">
+                  {trader.rank <= 3 ? (
+                    <div className={`w-7 h-7 rounded-full bg-gradient-to-br ${podiumColors[trader.rank]} flex items-center justify-center`}>
+                      <span className="text-white text-xs font-bold">{trader.rank}</span>
+                    </div>
+                  ) : (
+                    <span className="text-gray-500 font-mono text-xs">#{trader.rank}</span>
+                  )}
+                </div>
+
+                <div className="w-7 h-7 rounded-full bg-gradient-to-br from-arena-purple/50 to-arena-cyan/50 flex items-center justify-center flex-shrink-0">
+                  <span className="text-white text-[10px] font-medium">
+                    {trader.username.charAt(0).toUpperCase()}
+                  </span>
+                </div>
+
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-1">
+                    <span className="text-white font-semibold text-sm truncate">{trader.username}</span>
+                    {trader.wallet_verified && (
+                      <svg className="w-3.5 h-3.5 text-green-400 flex-shrink-0" viewBox="0 0 20 20" fill="currentColor">
+                        <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 00-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 10-1.06 1.061l2.5 2.5a.75.75 0 001.137-.089l4-5.5z" clipRule="evenodd" />
+                      </svg>
+                    )}
+                  </div>
+                </div>
+
+                <p className={cn(
+                  'text-sm font-bold flex-shrink-0',
+                  trader.total_pnl_usd >= 0 ? 'text-green-400' : 'text-red-400'
+                )}>
+                  {trader.total_pnl_usd >= 0 ? '+' : ''}{formatPnl(trader.total_pnl_usd)}
+                </p>
+              </div>
+
+              {/* Row 2: Stats */}
+              <div className="flex items-center justify-between mt-2 ml-[3.75rem] text-[11px]">
+                <div className="flex items-center gap-3 text-gray-400">
+                  <span>
+                    <span className="text-white font-medium">{trader.win_rate}%</span> win
+                  </span>
+                  <span className="text-gray-600">
+                    {trader.wins}/{trader.total_bets} bets
+                  </span>
+                  {trader.clan_name && (
+                    <span className="flex items-center gap-0.5">
+                      <Shield className="w-2.5 h-2.5" />
+                      <span className="text-arena-purple truncate max-w-[80px]">{trader.clan_name}</span>
+                    </span>
+                  )}
+                </div>
+                <Link
+                  href={`/u/${trader.username}`}
+                  className="text-gray-500 hover:text-white transition-colors flex-shrink-0"
+                >
+                  Profile →
+                </Link>
+              </div>
+            </div>
           </CardContent>
         </Card>
       ))}
@@ -319,8 +384,8 @@ function ClansTab({ clans }: { clans: ClanEntry[] }) {
       {clans.map((clan) => (
         <Card key={clan.slug} className="!p-0 overflow-hidden" hover>
           <CardContent className="p-0">
-            <div className="flex items-center gap-4 px-5 py-4">
-              {/* Rank */}
+            {/* Desktop layout */}
+            <div className="hidden sm:flex items-center gap-4 px-5 py-4">
               <div className="flex-shrink-0 w-10 text-center">
                 {clan.rank <= 3 ? (
                   <div className={`w-9 h-9 mx-auto rounded-full bg-gradient-to-br ${podiumColors[clan.rank]} flex items-center justify-center`}>
@@ -331,7 +396,6 @@ function ClansTab({ clans }: { clans: ClanEntry[] }) {
                 )}
               </div>
 
-              {/* Clan Info */}
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2 mb-1">
                   <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-arena-purple/30 to-arena-cyan/30 border border-white/10 flex items-center justify-center flex-shrink-0 overflow-hidden">
@@ -344,7 +408,6 @@ function ClansTab({ clans }: { clans: ClanEntry[] }) {
                   <span className="text-white font-semibold text-sm truncate">{clan.name}</span>
                 </div>
 
-                {/* Stats line */}
                 <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-gray-400 ml-10">
                   <span className="flex items-center gap-1">
                     <Users className="w-3 h-3" />
@@ -362,7 +425,6 @@ function ClansTab({ clans }: { clans: ClanEntry[] }) {
                 </div>
               </div>
 
-              {/* View Clan */}
               <div className="flex-shrink-0 text-right">
                 <Link
                   href={`/clans/${clan.slug}`}
@@ -370,6 +432,56 @@ function ClansTab({ clans }: { clans: ClanEntry[] }) {
                 >
                   View Clan
                 </Link>
+              </div>
+            </div>
+
+            {/* Mobile layout */}
+            <div className="sm:hidden px-3 py-3">
+              {/* Row 1: Rank + Logo + Name */}
+              <div className="flex items-center gap-2.5">
+                <div className="flex-shrink-0 w-7 text-center">
+                  {clan.rank <= 3 ? (
+                    <div className={`w-7 h-7 rounded-full bg-gradient-to-br ${podiumColors[clan.rank]} flex items-center justify-center`}>
+                      <span className="text-white text-xs font-bold">{clan.rank}</span>
+                    </div>
+                  ) : (
+                    <span className="text-gray-500 font-mono text-xs">#{clan.rank}</span>
+                  )}
+                </div>
+
+                <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-arena-purple/30 to-arena-cyan/30 border border-white/10 flex items-center justify-center flex-shrink-0 overflow-hidden">
+                  {clan.logo_url ? (
+                    <img src={clan.logo_url} alt={clan.name} className="w-full h-full object-cover" />
+                  ) : (
+                    <Shield className="w-3.5 h-3.5 text-arena-purple" />
+                  )}
+                </div>
+
+                <span className="text-white font-semibold text-sm truncate flex-1 min-w-0">{clan.name}</span>
+
+                <Link
+                  href={`/clans/${clan.slug}`}
+                  className="text-xs text-gray-500 hover:text-white transition-colors flex-shrink-0"
+                >
+                  View →
+                </Link>
+              </div>
+
+              {/* Row 2: Stats */}
+              <div className="flex items-center gap-3 mt-2 ml-[3.75rem] text-[11px] text-gray-400">
+                <span className="flex items-center gap-0.5">
+                  <Users className="w-2.5 h-2.5" />
+                  {clan.member_count}
+                </span>
+                <span>
+                  <span className="text-white font-medium">{clan.avg_win_rate}%</span> win
+                </span>
+                {clan.top_member_username && (
+                  <span className="flex items-center gap-0.5">
+                    <Crown className="w-2.5 h-2.5 text-yellow-400" />
+                    <span className="text-white truncate max-w-[80px]">{clan.top_member_username}</span>
+                  </span>
+                )}
               </div>
             </div>
           </CardContent>
