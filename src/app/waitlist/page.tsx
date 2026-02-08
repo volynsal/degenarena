@@ -86,11 +86,11 @@ export default function WaitlistPage() {
               </p>
               
               <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-white mb-6 leading-tight">
-                Find the next
+                Catch your next
                 <br />
                 <span className="gradient-text">100x</span> before
                 <br />
-                everyone else
+                on stream
               </h1>
               
               <p className="text-lg sm:text-xl text-gray-200 mb-8 max-w-lg mx-auto lg:mx-0">
