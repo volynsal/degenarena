@@ -11,7 +11,8 @@ import {
   Shield,
   Settings,
   Sparkles,
-  Swords
+  Swords,
+  Radio
 } from 'lucide-react'
 
 const navigation = [
@@ -21,6 +22,7 @@ const navigation = [
   { name: 'Competitions', href: '/competitions', icon: Swords },
   { name: 'Clans', href: '/clans', icon: Shield },
   { name: 'Leaderboard', href: '/leaderboard', icon: Trophy },
+  { name: 'Live', href: '/live', icon: Radio },
 ]
 
 const bottomNavigation = [

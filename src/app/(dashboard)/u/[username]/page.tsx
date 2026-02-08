@@ -47,10 +47,19 @@ interface ProfileData {
   is_own_profile: boolean
 }
 
+interface TwitchStreamInfo {
+  isLive: boolean
+  title?: string
+  viewerCount?: number
+  gameName?: string
+  startedAt?: string
+}
+
 export default function ProfilePage({ params }: { params: { username: string } }) {
   const [profile, setProfile] = useState<ProfileData | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [streamInfo, setStreamInfo] = useState<TwitchStreamInfo | null>(null)
   
   useEffect(() => {
     fetchProfile()
@@ -69,6 +78,19 @@ export default function ProfilePage({ params }: { params: { username: string } }
       }
       
       setProfile(data.data)
+      
+      // Check Twitch live status if user has a Twitch URL
+      if (data.data?.twitch_url) {
+        try {
+          const liveRes = await fetch(`/api/twitch/live?username=${params.username}`)
+          const liveData = await liveRes.json()
+          if (liveData.data?.[0]?.stream) {
+            setStreamInfo(liveData.data[0].stream)
+          }
+        } catch {
+          // Non-critical - silently fail
+        }
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load profile')
     } finally {
@@ -159,12 +181,22 @@ export default function ProfilePage({ params }: { params: { username: string } }
                     href={profile.twitch_url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#9146FF]/20 border border-[#9146FF]/30 text-[#9146FF] hover:bg-[#9146FF]/30 transition-colors text-sm font-medium"
-                    title="Watch on Twitch"
+                    className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium transition-colors ${
+                      streamInfo?.isLive
+                        ? 'bg-red-500/20 border border-red-500/40 text-red-400 hover:bg-red-500/30'
+                        : 'bg-[#9146FF]/20 border border-[#9146FF]/30 text-[#9146FF] hover:bg-[#9146FF]/30'
+                    }`}
+                    title={streamInfo?.isLive ? `LIVE: ${streamInfo.title || 'Streaming'}` : 'Watch on Twitch'}
                   >
+                    {streamInfo?.isLive && (
+                      <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
+                    )}
                     <TwitchIcon className="w-4 h-4" />
-                    <span>Twitch</span>
-                    <ExternalLink className="w-3 h-3" />
+                    <span>{streamInfo?.isLive ? 'LIVE' : 'Twitch'}</span>
+                    {streamInfo?.isLive && streamInfo.viewerCount !== undefined && (
+                      <span className="text-xs opacity-75">{streamInfo.viewerCount}</span>
+                    )}
+                    {!streamInfo?.isLive && <ExternalLink className="w-3 h-3" />}
                   </a>
                 )}
               </div>
@@ -194,6 +226,39 @@ export default function ProfilePage({ params }: { params: { username: string } }
           </div>
         </CardContent>
       </Card>
+      
+      {/* Twitch Stream Embed - shown when live */}
+      {streamInfo?.isLive && profile.twitch_url && (() => {
+        // Extract Twitch username from URL for embed
+        const twitchUser = profile.twitch_url!.replace(/https?:\/\/(www\.)?twitch\.tv\//i, '').split('/')[0].split('?')[0]
+        const parentDomain = typeof window !== 'undefined' ? window.location.hostname : 'localhost'
+        return (
+          <Card className="overflow-hidden border-red-500/30">
+            <CardContent className="p-0">
+              <div className="flex items-center gap-2 px-4 py-3 bg-red-500/10 border-b border-red-500/20">
+                <span className="w-2.5 h-2.5 rounded-full bg-red-500 animate-pulse" />
+                <span className="text-sm font-medium text-red-400">LIVE</span>
+                {streamInfo.title && (
+                  <span className="text-sm text-gray-400 truncate">&mdash; {streamInfo.title}</span>
+                )}
+                {streamInfo.viewerCount !== undefined && (
+                  <span className="ml-auto text-xs text-gray-500 flex items-center gap-1">
+                    <Users className="w-3 h-3" />
+                    {streamInfo.viewerCount.toLocaleString()}
+                  </span>
+                )}
+              </div>
+              <div className="relative w-full" style={{ paddingBottom: '56.25%' }}>
+                <iframe
+                  src={`https://player.twitch.tv/?channel=${twitchUser}&parent=${parentDomain}&muted=true`}
+                  className="absolute inset-0 w-full h-full"
+                  allowFullScreen
+                />
+              </div>
+            </CardContent>
+          </Card>
+        )
+      })()}
       
       {/* Stats Grid */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
