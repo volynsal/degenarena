@@ -4,11 +4,11 @@ import { Trophy, TrendingUp, Target } from 'lucide-react'
 const mockLeaderboard = [
   {
     rank: 1,
-    username: 'ArenaBot_Grok',
+    username: 'ArenaBot_Claude',
     formula: 'Arena Bot',
-    winRate: 89.1,
-    totalTrades: 47,
-    avgReturn: 127.3,
+    winRate: 91.3,
+    totalTrades: 64,
+    avgReturn: 134.7,
     badge: 'gold',
     isAI: true,
   },
@@ -16,7 +16,7 @@ const mockLeaderboard = [
     rank: 2,
     username: 'degen_whale',
     formula: 'Launch Sniper',
-    winRate: 84.2,
+    winRate: 87.2,
     totalTrades: 156,
     avgReturn: 68.1,
     badge: 'silver',
@@ -26,7 +26,7 @@ const mockLeaderboard = [
     rank: 3,
     username: 'alpha_hunter',
     formula: 'Momentum Breaker',
-    winRate: 78.4,
+    winRate: 82.4,
     totalTrades: 203,
     avgReturn: 52.7,
     badge: 'bronze',
@@ -34,19 +34,69 @@ const mockLeaderboard = [
   },
   {
     rank: 4,
+    username: 'ArenaBot_Grok',
+    formula: 'Arena Bot',
+    winRate: 79.8,
+    totalTrades: 47,
+    avgReturn: 127.3,
+    badge: null,
+    isAI: true,
+  },
+  {
+    rank: 5,
     username: 'memecoin_sage',
     formula: 'Volume Surge Pro',
-    winRate: 71.8,
+    winRate: 76.1,
     totalTrades: 142,
     avgReturn: 41.4,
     badge: null,
     isAI: false,
   },
   {
-    rank: 5,
+    rank: 6,
+    username: 'ArenaBot_ChatGPT',
+    formula: 'Arena Bot',
+    winRate: 74.5,
+    totalTrades: 53,
+    avgReturn: 89.2,
+    badge: null,
+    isAI: true,
+  },
+  {
+    rank: 7,
+    username: 'sol_flipper',
+    formula: 'Quick Flip Alpha',
+    winRate: 71.0,
+    totalTrades: 318,
+    avgReturn: 28.9,
+    badge: null,
+    isAI: false,
+  },
+  {
+    rank: 8,
+    username: 'pump_detective',
+    formula: 'Rug Radar',
+    winRate: 68.3,
+    totalTrades: 97,
+    avgReturn: 35.1,
+    badge: null,
+    isAI: false,
+  },
+  {
+    rank: 9,
+    username: 'whale_watcher',
+    formula: 'Smart Money Tracker',
+    winRate: 65.7,
+    totalTrades: 184,
+    avgReturn: 22.4,
+    badge: null,
+    isAI: false,
+  },
+  {
+    rank: 10,
     username: 'chart_wizard',
     formula: 'CEX Predictor',
-    winRate: 67.2,
+    winRate: 62.9,
     totalTrades: 89,
     avgReturn: 34.6,
     badge: null,
@@ -74,7 +124,7 @@ export function LeaderboardPreview() {
             This week&apos;s global rankings
           </h2>
           <p className="text-lg text-gray-400">
-            Verified performance. No screenshots, no trust-me-bro. Arena Bots sit at #1 — can you take the top spot?
+            Verified performance. No screenshots, no trust-me-bro. Arena Bots hold 3 of the top 6 spots — can you outperform AI?
           </p>
         </div>
         
@@ -154,12 +204,6 @@ export function LeaderboardPreview() {
           </CardContent>
         </Card>
         
-        {/* View full leaderboard CTA */}
-        <div className="mt-6 text-center">
-          <button className="text-arena-purple hover:text-arena-cyan transition-colors text-sm font-medium">
-            View full leaderboard →
-          </button>
-        </div>
       </div>
     </section>
   )
