@@ -8,13 +8,35 @@ import { useEffect, useRef } from 'react'
 // =============================================
 
 export function VideoBackground() {
+  const canvasRef = useRef<HTMLCanvasElement>(null)
   const videoRef = useRef<HTMLVideoElement>(null)
 
   useEffect(() => {
+    const canvas = canvasRef.current
     const video = videoRef.current
-    if (!video) return
+    if (!canvas || !video) return
 
-    // Force play after mount — handles browsers that block autoplay attribute
+    const ctx = canvas.getContext('2d')
+    if (!ctx) return
+
+    let width = window.innerWidth
+    let height = window.innerHeight
+    canvas.width = width
+    canvas.height = height
+
+    // Fill dark while video loads
+    ctx.fillStyle = '#080808'
+    ctx.fillRect(0, 0, width, height)
+
+    const resize = () => {
+      width = window.innerWidth
+      height = window.innerHeight
+      canvas.width = width
+      canvas.height = height
+    }
+    window.addEventListener('resize', resize)
+
+    // Force play attempts
     const tryPlay = () => {
       if (video.paused) {
         video.muted = true
@@ -22,30 +44,64 @@ export function VideoBackground() {
       }
     }
 
-    // Try immediately + staggered retries
     tryPlay()
     const t1 = setTimeout(tryPlay, 300)
     const t2 = setTimeout(tryPlay, 1000)
     const t3 = setTimeout(tryPlay, 3000)
 
-    // Also try on any user interaction as a last resort
+    // Fallback on user interaction
     const handleInteraction = () => {
       tryPlay()
       document.removeEventListener('click', handleInteraction)
       document.removeEventListener('touchstart', handleInteraction)
-      document.removeEventListener('scroll', handleInteraction)
     }
     document.addEventListener('click', handleInteraction)
     document.addEventListener('touchstart', handleInteraction)
-    document.addEventListener('scroll', handleInteraction, { passive: true })
+
+    // Draw video frames to canvas
+    let animId = 0
+    let hasPlayed = false
+
+    const drawFrame = () => {
+      if (video.readyState >= 2 && !video.paused) {
+        hasPlayed = true
+        const vw = video.videoWidth
+        const vh = video.videoHeight
+        if (vw && vh) {
+          // Cover-fit: scale to fill canvas, center
+          const scale = Math.max(width / vw, height / vh)
+          const sw = vw * scale
+          const sh = vh * scale
+          const sx = (width - sw) / 2
+          const sy = (height - sh) / 2
+          ctx.drawImage(video, sx, sy, sw, sh)
+
+          // Dark overlay gradient for text readability
+          const grad = ctx.createLinearGradient(0, 0, 0, height)
+          grad.addColorStop(0, 'rgba(8,8,8,0.55)')
+          grad.addColorStop(0.4, 'rgba(8,8,8,0.35)')
+          grad.addColorStop(0.6, 'rgba(8,8,8,0.35)')
+          grad.addColorStop(1, 'rgba(8,8,8,0.6)')
+          ctx.fillStyle = grad
+          ctx.fillRect(0, 0, width, height)
+        }
+      } else if (!hasPlayed) {
+        ctx.fillStyle = '#080808'
+        ctx.fillRect(0, 0, width, height)
+      }
+      animId = requestAnimationFrame(drawFrame)
+    }
+
+    animId = requestAnimationFrame(drawFrame)
 
     return () => {
+      cancelAnimationFrame(animId)
       clearTimeout(t1)
       clearTimeout(t2)
       clearTimeout(t3)
+      window.removeEventListener('resize', resize)
       document.removeEventListener('click', handleInteraction)
       document.removeEventListener('touchstart', handleInteraction)
-      document.removeEventListener('scroll', handleInteraction)
     }
   }, [])
 
@@ -63,39 +119,20 @@ export function VideoBackground() {
         pointerEvents: 'none',
       }}
     >
-      {/* Hide Safari / WebKit native video controls & play button */}
-      <style>{`
-        .vid-bg::-webkit-media-controls,
-        .vid-bg::-webkit-media-controls-panel,
-        .vid-bg::-webkit-media-controls-play-button,
-        .vid-bg::-webkit-media-controls-start-playback-button,
-        .vid-bg::-webkit-media-controls-overlay-play-button {
-          display: none !important;
-          -webkit-appearance: none !important;
-          opacity: 0 !important;
-          pointer-events: none !important;
-        }
-      `}</style>
+      {/* Hidden video element — in the DOM so autoplay works, but invisible */}
       <video
         ref={videoRef}
-        className="vid-bg"
         autoPlay
         loop
         muted
         playsInline
         preload="auto"
-        controls={false}
-        disablePictureInPicture
         style={{
           position: 'absolute',
-          top: '50%',
-          left: '50%',
-          transform: 'translate(-50%, -50%)',
-          minWidth: '100%',
-          minHeight: '100%',
-          width: 'auto',
-          height: 'auto',
-          objectFit: 'cover',
+          width: '1px',
+          height: '1px',
+          opacity: 0,
+          pointerEvents: 'none',
         }}
       >
         <source
@@ -103,12 +140,14 @@ export function VideoBackground() {
           type="video/mp4"
         />
       </video>
-      {/* Dark overlay for text readability */}
-      <div
+      {/* Canvas renders video frames — no native controls, no play button */}
+      <canvas
+        ref={canvasRef}
         style={{
           position: 'absolute',
           inset: 0,
-          background: 'linear-gradient(to bottom, rgba(8,8,8,0.55) 0%, rgba(8,8,8,0.35) 40%, rgba(8,8,8,0.35) 60%, rgba(8,8,8,0.6) 100%)',
+          width: '100%',
+          height: '100%',
         }}
       />
     </div>
