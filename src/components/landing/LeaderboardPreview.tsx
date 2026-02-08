@@ -124,7 +124,7 @@ export function LeaderboardPreview() {
             This week&apos;s global rankings
           </h2>
           <p className="text-lg text-gray-400">
-            Verified performance. No screenshots, no trust-me-bro. Arena Bots hold 3 of the top 6 spots — can you outperform AI?
+            Verified performance. No screenshots, no trust-me-bro.
           </p>
         </div>
         
