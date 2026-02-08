@@ -234,9 +234,9 @@ export default function ProfilePage({ params }: { params: { username: string } }
                       <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
                       <TwitchIcon className="w-4 h-4" />
                       <span>GO LIVE</span>
-                      {streamInfo.viewerCount !== undefined && (
+                      {streamInfo.viewerCount ? (
                         <span className="text-xs opacity-75">{streamInfo.viewerCount}</span>
-                      )}
+                      ) : null}
                     </Link>
                   ) : (
                     <a
@@ -280,45 +280,84 @@ export default function ProfilePage({ params }: { params: { username: string } }
         </CardContent>
       </Card>
       
-      {/* Twitch Stream Embed - shown when live */}
-      {streamInfo?.isLive && profile.twitch_url && (() => {
-        // Extract Twitch username from URL for embed
+      {/* Twitch Stream Embed - always shown if user has Twitch linked */}
+      {profile.twitch_url && (() => {
         const twitchUser = profile.twitch_url!.replace(/https?:\/\/(www\.)?twitch\.tv\//i, '').split('/')[0].split('?')[0]
         const parentDomain = typeof window !== 'undefined' ? window.location.hostname : 'localhost'
+        const isLive = streamInfo?.isLive
         return (
-          <Card className="overflow-hidden border-red-500/30">
+          <Card className={`overflow-hidden ${isLive ? 'border-red-500/30' : 'border-white/10'}`}>
             <CardContent className="p-0">
-              <div className="flex items-center gap-2 px-4 py-3 bg-red-500/10 border-b border-red-500/20">
-                <span className="w-2.5 h-2.5 rounded-full bg-red-500 animate-pulse" />
-                <span className="text-sm font-medium text-red-400">LIVE</span>
-                {streamInfo.title && (
-                  <span className="text-sm text-gray-400 truncate">&mdash; {streamInfo.title}</span>
-                )}
-                {streamInfo.viewerCount !== undefined && (
-                  <span className="ml-auto text-xs text-gray-500 flex items-center gap-1">
-                    <Users className="w-3 h-3" />
-                    {streamInfo.viewerCount.toLocaleString()}
-                  </span>
+              <div className={`flex items-center gap-2 px-4 py-3 border-b ${
+                isLive 
+                  ? 'bg-red-500/10 border-red-500/20' 
+                  : 'bg-white/[0.02] border-white/10'
+              }`}>
+                {isLive ? (
+                  <>
+                    <span className="w-2.5 h-2.5 rounded-full bg-red-500 animate-pulse" />
+                    <span className="text-sm font-medium text-red-400">LIVE</span>
+                    {streamInfo?.title && (
+                      <span className="text-sm text-gray-400 truncate">&mdash; {streamInfo.title}</span>
+                    )}
+                    {streamInfo?.viewerCount ? (
+                      <span className="ml-auto text-xs text-gray-500 flex items-center gap-1">
+                        <Users className="w-3 h-3" />
+                        {streamInfo.viewerCount.toLocaleString()}
+                      </span>
+                    ) : null}
+                  </>
+                ) : (
+                  <>
+                    <span className="w-2.5 h-2.5 rounded-full bg-gray-600" />
+                    <span className="text-sm font-medium text-gray-500">OFFLINE</span>
+                    <a
+                      href={profile.twitch_url!}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="ml-auto text-xs text-gray-600 hover:text-[#9146FF] flex items-center gap-1 transition-colors"
+                    >
+                      <TwitchIcon className="w-3 h-3" />
+                      <span>{twitchUser}</span>
+                      <ExternalLink className="w-3 h-3" />
+                    </a>
+                  </>
                 )}
               </div>
-              {/* Stream + Chat layout */}
-              <div className="flex flex-col lg:flex-row">
-                {/* Video player */}
-                <div className="relative w-full lg:flex-1" style={{ paddingBottom: '56.25%' }}>
-                  <iframe
-                    src={`https://player.twitch.tv/?channel=${twitchUser}&parent=${parentDomain}&muted=true`}
-                    className="absolute inset-0 w-full h-full"
-                    allowFullScreen
-                  />
+              {isLive ? (
+                <div className="flex flex-col lg:flex-row">
+                  {/* Video player */}
+                  <div className="relative w-full lg:flex-1" style={{ paddingBottom: '56.25%' }}>
+                    <iframe
+                      src={`https://player.twitch.tv/?channel=${twitchUser}&parent=${parentDomain}&muted=true`}
+                      className="absolute inset-0 w-full h-full"
+                      allowFullScreen
+                    />
+                  </div>
+                  {/* Chat */}
+                  <div className="w-full lg:w-[340px] h-[400px] lg:h-auto border-t lg:border-t-0 lg:border-l border-white/10">
+                    <iframe
+                      src={`https://www.twitch.tv/embed/${twitchUser}/chat?parent=${parentDomain}&darkpopout`}
+                      className="w-full h-full"
+                    />
+                  </div>
                 </div>
-                {/* Chat */}
-                <div className="w-full lg:w-[340px] h-[400px] lg:h-auto border-t lg:border-t-0 lg:border-l border-white/10">
-                  <iframe
-                    src={`https://www.twitch.tv/embed/${twitchUser}/chat?parent=${parentDomain}&darkpopout`}
-                    className="w-full h-full"
-                  />
+              ) : (
+                <div className="relative w-full bg-black/50" style={{ paddingBottom: '36%' }}>
+                  <div className="absolute inset-0 flex flex-col items-center justify-center">
+                    <TwitchIcon className="w-10 h-10 text-gray-700 mb-3" />
+                    <p className="text-gray-600 text-sm font-medium">@{twitchUser} is offline</p>
+                    <a
+                      href={profile.twitch_url!}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="mt-2 text-xs text-gray-500 hover:text-[#9146FF] transition-colors flex items-center gap-1"
+                    >
+                      Visit Twitch channel <ExternalLink className="w-3 h-3" />
+                    </a>
+                  </div>
                 </div>
-              </div>
+              )}
             </CardContent>
           </Card>
         )
