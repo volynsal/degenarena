@@ -1,13 +1,24 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
-import { Mail, Lock, User, ArrowRight, Zap, Check } from 'lucide-react'
+import { Mail, Lock, User, ArrowRight, Zap, Check, ExternalLink } from 'lucide-react'
 import { FlowField } from '@/components/landing/FlowField'
+
+function useIsInAppBrowser() {
+  const [isInApp, setIsInApp] = useState(false)
+  useEffect(() => {
+    const ua = navigator.userAgent || ''
+    // Detect common in-app browsers that break OAuth
+    const inAppPatterns = /FBAN|FBAV|Instagram|Line\/|Twitter|Snapchat|TikTok|BytedanceWebview|Musical_ly/i
+    setIsInApp(inAppPatterns.test(ua))
+  }, [])
+  return isInApp
+}
 
 const features = [
   'Compete against AI bots and real traders',
@@ -18,6 +29,7 @@ const features = [
 
 export default function SignupPage() {
   const router = useRouter()
+  const isInAppBrowser = useIsInAppBrowser()
   
   const [username, setUsername] = useState('')
   const [email, setEmail] = useState('')
@@ -68,31 +80,49 @@ export default function SignupPage() {
   
   const handleGoogleSignUp = async () => {
     setIsLoading(true)
-    const supabase = createClient()
+    setError('')
     
-    await supabase.auth.signInWithOAuth({
-      provider: 'google',
-      options: {
-        redirectTo: `${window.location.origin}/auth/callback`,
-      },
-    })
+    try {
+      const supabase = createClient()
+      
+      // Build redirect URL robustly — in-app browsers (Instagram, TikTok, etc.)
+      // can have issues with window.location.origin on first load
+      const origin = window.location.origin || `${window.location.protocol}//${window.location.host}`
+      
+      const { error: oauthError } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: `${origin}/auth/callback`,
+          skipBrowserRedirect: false,
+        },
+      })
+      
+      if (oauthError) {
+        setError(oauthError.message)
+        setIsLoading(false)
+      }
+      // If successful, the browser redirects — isLoading stays true
+    } catch (err) {
+      setError('Failed to connect to Google. Please try again.')
+      setIsLoading(false)
+    }
   }
   
   if (success) {
     return (
-      <div className="min-h-screen bg-arena-darker flex flex-col relative overflow-hidden">
+      <div className="min-h-screen bg-arena-darker flex flex-col relative">
         <FlowField />
         <div className="absolute inset-0 grid-pattern" style={{ zIndex: 1 }} />
         <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-arena-purple/10 rounded-full blur-[128px]" style={{ zIndex: 1 }} />
         <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-arena-cyan/10 rounded-full blur-[128px]" style={{ zIndex: 1 }} />
-        <nav className="p-4 relative z-10">
+        <nav className="p-4 relative z-10 flex-shrink-0">
           <Link href="/" className="flex items-center gap-2 w-fit">
             <img src="/logo.png" alt="DegenArena HQ" className="w-10 h-10 rounded-lg" />
             <span className="text-xl font-bold gradient-text font-brand">DegenArena HQ</span>
           </Link>
         </nav>
         
-        <div className="flex-1 flex items-center justify-center p-4 relative z-10">
+        <div className="flex-1 flex items-start sm:items-center justify-center p-4 relative z-10 overflow-y-auto">
           <div className="w-full max-w-md text-center">
             <div className="w-16 h-16 mx-auto mb-6 rounded-full bg-gradient-to-br from-arena-purple to-arena-cyan flex items-center justify-center">
               <Check className="w-8 h-8 text-white" />
@@ -114,7 +144,7 @@ export default function SignupPage() {
   }
   
   return (
-    <div className="min-h-screen bg-arena-darker flex flex-col lg:flex-row relative overflow-hidden">
+    <div className="min-h-screen bg-arena-darker flex flex-col lg:flex-row relative">
       {/* Animated background */}
       <FlowField />
       <div className="absolute inset-0 grid-pattern" style={{ zIndex: 1 }} />
@@ -123,14 +153,14 @@ export default function SignupPage() {
       
       {/* Left side - Form */}
       <div className="flex-1 flex flex-col relative z-10">
-        <nav className="p-4">
+        <nav className="p-4 flex-shrink-0">
           <Link href="/" className="flex items-center gap-2 w-fit">
             <img src="/logo.png" alt="DegenArena HQ" className="w-10 h-10 rounded-lg" />
             <span className="text-xl font-bold gradient-text font-brand">DegenArena HQ</span>
           </Link>
         </nav>
         
-        <div className="flex-1 flex items-center justify-center p-4">
+        <div className="flex-1 flex items-start sm:items-center justify-center p-4 overflow-y-auto">
           <div className="w-full max-w-md">
             <div className="mb-8">
               <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-arena-cyan/10 border border-arena-cyan/20 text-arena-cyan text-xs mb-4">
@@ -140,6 +170,17 @@ export default function SignupPage() {
               <h1 className="text-2xl font-bold text-white mb-2">Create your account</h1>
               <p className="text-gray-400">Welcome to DegenArena HQ. Let&apos;s get you set up.</p>
             </div>
+            
+            {/* In-app browser warning */}
+            {isInAppBrowser && (
+              <div className="mb-4 p-3 rounded-lg bg-yellow-500/10 border border-yellow-500/20 text-yellow-300 text-xs">
+                <p className="font-medium mb-1">Open in your browser for best experience</p>
+                <p className="text-yellow-400/70">
+                  In-app browsers (Instagram, TikTok, etc.) can cause issues with Google sign-in.
+                  Tap <ExternalLink className="w-3 h-3 inline" /> or &quot;Open in Safari/Chrome&quot; in the menu.
+                </p>
+              </div>
+            )}
             
             {/* Google Sign Up */}
             <button

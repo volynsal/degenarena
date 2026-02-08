@@ -1,18 +1,29 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
-import { Mail, Lock, ArrowRight, Zap } from 'lucide-react'
+import { Mail, Lock, ArrowRight, Zap, ExternalLink } from 'lucide-react'
 import { FlowField } from '@/components/landing/FlowField'
+
+function useIsInAppBrowser() {
+  const [isInApp, setIsInApp] = useState(false)
+  useEffect(() => {
+    const ua = navigator.userAgent || ''
+    const inAppPatterns = /FBAN|FBAV|Instagram|Line\/|Twitter|Snapchat|TikTok|BytedanceWebview|Musical_ly/i
+    setIsInApp(inAppPatterns.test(ua))
+  }, [])
+  return isInApp
+}
 
 export default function LoginPage() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const redirect = searchParams.get('redirect') || '/dashboard'
+  const isInAppBrowser = useIsInAppBrowser()
   
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -43,18 +54,36 @@ export default function LoginPage() {
   
   const handleGoogleSignIn = async () => {
     setIsLoading(true)
-    const supabase = createClient()
+    setError('')
     
-    await supabase.auth.signInWithOAuth({
-      provider: 'google',
-      options: {
-        redirectTo: `${window.location.origin}/auth/callback?redirect=${redirect}`,
-      },
-    })
+    try {
+      const supabase = createClient()
+      
+      // Build redirect URL robustly — in-app browsers (Instagram, TikTok, etc.)
+      // can have issues with window.location.origin on first load
+      const origin = window.location.origin || `${window.location.protocol}//${window.location.host}`
+      
+      const { error: oauthError } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: `${origin}/auth/callback?redirect=${redirect}`,
+          skipBrowserRedirect: false,
+        },
+      })
+      
+      if (oauthError) {
+        setError(oauthError.message)
+        setIsLoading(false)
+      }
+      // If successful, the browser redirects — isLoading stays true
+    } catch (err) {
+      setError('Failed to connect to Google. Please try again.')
+      setIsLoading(false)
+    }
   }
   
   return (
-    <div className="min-h-screen bg-arena-darker flex flex-col relative overflow-hidden">
+    <div className="min-h-screen bg-arena-darker flex flex-col relative">
       {/* Animated background */}
       <FlowField />
       <div className="absolute inset-0 grid-pattern" style={{ zIndex: 1 }} />
@@ -62,7 +91,7 @@ export default function LoginPage() {
       <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-arena-cyan/10 rounded-full blur-[128px]" style={{ zIndex: 1 }} />
       
       {/* Header */}
-      <nav className="p-4 relative z-10">
+      <nav className="p-4 relative z-10 flex-shrink-0">
         <Link href="/" className="flex items-center gap-2 w-fit">
           <img src="/logo.png" alt="DegenArena HQ" className="w-10 h-10 rounded-lg" />
           <span className="text-xl font-bold gradient-text font-brand">DegenArena HQ</span>
@@ -70,7 +99,7 @@ export default function LoginPage() {
       </nav>
       
       {/* Main content */}
-      <div className="flex-1 flex items-center justify-center p-4 relative z-10">
+      <div className="flex-1 flex items-start sm:items-center justify-center px-4 py-6 sm:py-4 relative z-10 overflow-y-auto">
         <div className="w-full max-w-md">
           {/* Card */}
           <div className="bg-arena-dark/50 border border-white/10 rounded-2xl p-8 backdrop-blur-xl">
@@ -78,6 +107,17 @@ export default function LoginPage() {
               <h1 className="text-2xl font-bold text-white mb-2">Welcome back</h1>
               <p className="text-gray-400">Sign in to continue to DegenArena HQ</p>
             </div>
+            
+            {/* In-app browser warning */}
+            {isInAppBrowser && (
+              <div className="mb-4 p-3 rounded-lg bg-yellow-500/10 border border-yellow-500/20 text-yellow-300 text-xs">
+                <p className="font-medium mb-1">Open in your browser for best experience</p>
+                <p className="text-yellow-400/70">
+                  In-app browsers (Instagram, TikTok, etc.) can cause issues with Google sign-in.
+                  Tap <ExternalLink className="w-3 h-3 inline" /> or &quot;Open in Safari/Chrome&quot; in the menu.
+                </p>
+              </div>
+            )}
             
             {/* Google Sign In */}
             <button
@@ -173,7 +213,7 @@ export default function LoginPage() {
           </div>
           
           {/* Coming Soon Banner + Features */}
-          <div className="mt-6 text-center space-y-4">
+          <div className="mt-6 text-center space-y-3 pb-4">
             {/* Coming Soon - Prominent */}
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-arena-purple/20 to-arena-cyan/20 border border-arena-purple/30">
               <Zap className="w-4 h-4 text-arena-cyan animate-pulse" />
@@ -186,7 +226,7 @@ export default function LoginPage() {
             </div>
             
             {/* Feature highlights */}
-            <div className="flex justify-center gap-1.5">
+            <div className="flex flex-wrap justify-center gap-1.5">
               {[
                 'GalaxyArena',
                 'Instant Alerts',
