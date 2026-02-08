@@ -116,11 +116,24 @@ export function VideoBackground() {
 }
 
 // =============================================
-// PARTICLE BACKGROUND (auth pages)
-// Lightweight canvas animation — no video download
+// TRON GRID BACKGROUND (auth pages)
+// Digital tiles that take turns lighting up
 // =============================================
 
-const COLORS = [270, 175, 45, 145]
+// Color palette: purple and cyan to match the brand
+const TILE_COLORS = [
+  [168, 85, 247],  // arena-purple
+  [6, 182, 212],   // arena-cyan
+  [139, 92, 246],  // purple-lighter
+  [34, 211, 238],  // cyan-lighter
+]
+
+interface Tile {
+  brightness: number   // 0 = dark, 1 = fully lit
+  target: number       // target brightness (fading toward this)
+  color: number[]      // [r, g, b]
+  speed: number        // fade speed
+}
 
 export function FlowField() {
   const canvasRef = useRef<HTMLCanvasElement>(null)
@@ -129,146 +142,131 @@ export function FlowField() {
     const canvas = canvasRef.current
     if (!canvas) return
 
-    canvas.style.opacity = '1'
-    canvas.style.visibility = 'visible'
-
     const ctx = canvas.getContext('2d', { alpha: false })
     if (!ctx) return
 
     const isMobile = window.innerWidth < 768 ||
       /iPhone|iPad|iPod|Android/i.test(navigator.userAgent)
 
+    // Grid config
+    const tileSize = isMobile ? 40 : 50
+    const gap = 2
+
     let width = 0
     let height = 0
+    let cols = 0
+    let rows = 0
+    let tiles: Tile[] = []
 
-    const resize = () => {
+    const initGrid = () => {
       width = window.innerWidth
       height = window.innerHeight
       canvas.width = width
       canvas.height = height
-      ctx.fillStyle = '#080808'
-      ctx.fillRect(0, 0, width, height)
+      cols = Math.ceil(width / (tileSize + gap)) + 1
+      rows = Math.ceil(height / (tileSize + gap)) + 1
+
+      // Preserve existing tiles where possible, create new ones
+      const newTiles: Tile[] = []
+      for (let i = 0; i < cols * rows; i++) {
+        newTiles.push(tiles[i] || {
+          brightness: 0,
+          target: 0,
+          color: TILE_COLORS[Math.floor(Math.random() * TILE_COLORS.length)],
+          speed: 0.01 + Math.random() * 0.02,
+        })
+      }
+      tiles = newTiles
     }
-    resize()
-    window.addEventListener('resize', resize)
 
-    const count = isMobile ? 50 : 250
+    initGrid()
+    window.addEventListener('resize', initGrid)
 
-    interface Particle {
-      x: number; y: number; vx: number; vy: number
-      hue: number; size: number; age: number; maxAge: number
-    }
+    // Periodically light up random tiles
+    let lastSpawn = 0
+    const spawnInterval = isMobile ? 120 : 80 // ms between new tile activations
 
-    const particles: Particle[] = []
-
-    const spawn = (): Particle => ({
-      x: Math.random() * width,
-      y: Math.random() * height,
-      vx: 0, vy: 0,
-      hue: COLORS[Math.floor(Math.random() * COLORS.length)] + (Math.random() - 0.5) * 20,
-      size: isMobile ? 2.5 : 2,
-      age: 0,
-      maxAge: 200 + Math.random() * 200
-    })
-
-    for (let i = 0; i < count; i++) particles.push(spawn())
-
-    let mx = 0, my = 0, mActive = false
-    const onMove = (x: number, y: number) => { mx = x; my = y; mActive = true }
-    const onEnd = () => { mActive = false }
-
-    window.addEventListener('mousemove', (e) => onMove(e.clientX, e.clientY))
-    document.addEventListener('mouseleave', onEnd)
-    window.addEventListener('touchmove', (e) => {
-      if (e.touches[0]) onMove(e.touches[0].clientX, e.touches[0].clientY)
-    }, { passive: true })
-    window.addEventListener('touchend', onEnd)
-
-    let lastTime = performance.now()
-    let time = 0
     let animId = 0
 
-    const loop = () => {
-      const now = performance.now()
-      const delta = Math.min(now - lastTime, 50)
-      lastTime = now
-      time += delta * 0.00003
-
-      ctx.fillStyle = 'rgba(8, 8, 8, 0.08)'
+    const loop = (now: number) => {
+      // Dark background
+      ctx.fillStyle = '#080808'
       ctx.fillRect(0, 0, width, height)
 
-      const speed = delta * 0.001
-
-      for (let i = 0; i < count; i++) {
-        const p = particles[i]
-        const nx = p.x * 0.008
-        const ny = p.y * 0.008
-        const angle = (Math.sin(nx + time * 30) + Math.cos(ny + time * 20)) * Math.PI
-
-        p.vx += Math.cos(angle) * speed * 5
-        p.vy += Math.sin(angle) * speed * 5 - speed * 1.5
-
-        if (mActive) {
-          const dx = mx - p.x
-          const dy = my - p.y
-          const d = Math.sqrt(dx * dx + dy * dy)
-          if (d < 100 && d > 1) {
-            const f = (100 - d) / 100 * speed * 15
-            p.vx += (dx / d) * f
-            p.vy += (dy / d) * f
-          }
-        }
-
-        p.vx *= 0.95
-        p.vy *= 0.95
-        p.x += p.vx
-        p.y += p.vy
-        p.age += delta * 0.06
-
-        const lifeRatio = p.age / p.maxAge
-        let alpha = 0.6
-        if (lifeRatio < 0.15) alpha = lifeRatio / 0.15 * 0.6
-        else if (lifeRatio > 0.8) alpha = (1 - lifeRatio) / 0.2 * 0.6
-
-        const h = p.hue
-        const r = h < 60 ? 255 : h < 180 ? Math.round((180 - h) / 120 * 255) : h > 300 ? 255 : h > 240 ? Math.round((h - 240) / 60 * 255) : 0
-        const g = h < 60 ? Math.round(h / 60 * 255) : h < 180 ? 255 : h < 240 ? Math.round((240 - h) / 60 * 255) : 0
-        const b = h < 120 ? 0 : h < 180 ? Math.round((h - 120) / 60 * 255) : h < 300 ? 255 : Math.round((360 - h) / 60 * 255)
-
-        ctx.beginPath()
-        ctx.arc(p.x, p.y, p.size, 0, 6.28)
-        ctx.fillStyle = `rgba(${r}, ${g}, ${b}, ${alpha})`
-        ctx.fill()
-
-        if (p.x < -30 || p.x > width + 30 || p.y < -30 || p.y > height + 30 || p.age > p.maxAge) {
-          const newP = spawn()
-          if (Math.random() > 0.4) newP.y = height + 15
-          particles[i] = newP
+      // Spawn new lit tiles
+      if (now - lastSpawn > spawnInterval) {
+        lastSpawn = now
+        // Light up 1-3 random tiles
+        const count = 1 + Math.floor(Math.random() * 2)
+        for (let n = 0; n < count; n++) {
+          const idx = Math.floor(Math.random() * tiles.length)
+          tiles[idx].target = 0.4 + Math.random() * 0.6
+          tiles[idx].color = TILE_COLORS[Math.floor(Math.random() * TILE_COLORS.length)]
+          tiles[idx].speed = 0.008 + Math.random() * 0.015
         }
       }
 
-      if (!isMobile && count <= 250) {
-        ctx.lineWidth = 0.4
-        const maxDistSq = 4900
-        for (let i = 0; i < count; i += 2) {
-          const p1 = particles[i]
-          for (let j = i + 2; j < count; j += 2) {
-            const p2 = particles[j]
-            const dx = p1.x - p2.x
-            const dy = p1.y - p2.y
-            const distSq = dx * dx + dy * dy
-            if (distSq < maxDistSq) {
-              const a = (1 - distSq / maxDistSq) * 0.1
-              const avgHue = (p1.hue + p2.hue) / 2
-              const r2 = avgHue < 60 ? 200 : avgHue < 180 ? Math.round((180 - avgHue) / 120 * 200) : avgHue > 300 ? 200 : avgHue > 240 ? Math.round((avgHue - 240) / 60 * 200) : 50
-              const g2 = avgHue < 60 ? Math.round(avgHue / 60 * 200) : avgHue < 180 ? 200 : avgHue < 240 ? Math.round((240 - avgHue) / 60 * 200) : 50
-              const b2 = avgHue < 120 ? 50 : avgHue < 180 ? Math.round((avgHue - 120) / 60 * 200) : avgHue < 300 ? 200 : Math.round((360 - avgHue) / 60 * 200)
-              ctx.beginPath()
-              ctx.moveTo(p1.x, p1.y)
-              ctx.lineTo(p2.x, p2.y)
-              ctx.strokeStyle = `rgba(${r2}, ${g2}, ${b2}, ${a})`
-              ctx.stroke()
-            }
+      // Draw grid lines (very faint, Tron-style)
+      ctx.strokeStyle = 'rgba(168, 85, 247, 0.04)'
+      ctx.lineWidth = 1
+      for (let c = 0; c <= cols; c++) {
+        const x = c * (tileSize + gap)
+        ctx.beginPath()
+        ctx.moveTo(x, 0)
+        ctx.lineTo(x, height)
+        ctx.stroke()
+      }
+      for (let r = 0; r <= rows; r++) {
+        const y = r * (tileSize + gap)
+        ctx.beginPath()
+        ctx.moveTo(0, y)
+        ctx.lineTo(width, y)
+        ctx.stroke()
+      }
+
+      // Update and draw tiles
+      for (let r = 0; r < rows; r++) {
+        for (let c = 0; c < cols; c++) {
+          const idx = r * cols + c
+          const tile = tiles[idx]
+
+          // Ease brightness toward target
+          if (tile.brightness < tile.target) {
+            tile.brightness = Math.min(tile.target, tile.brightness + tile.speed * 3)
+          } else {
+            tile.brightness = Math.max(0, tile.brightness - tile.speed)
+          }
+
+          // Once reached target, start fading to 0
+          if (Math.abs(tile.brightness - tile.target) < 0.01 && tile.target > 0) {
+            tile.target = 0
+          }
+
+          if (tile.brightness < 0.005) continue // skip invisible tiles
+
+          const x = c * (tileSize + gap) + gap
+          const y = r * (tileSize + gap) + gap
+
+          const [cr, cg, cb] = tile.color
+          const a = tile.brightness
+
+          // Tile fill
+          ctx.fillStyle = `rgba(${cr}, ${cg}, ${cb}, ${a * 0.15})`
+          ctx.fillRect(x, y, tileSize - gap, tileSize - gap)
+
+          // Tile border (brighter)
+          ctx.strokeStyle = `rgba(${cr}, ${cg}, ${cb}, ${a * 0.4})`
+          ctx.lineWidth = 1
+          ctx.strokeRect(x, y, tileSize - gap, tileSize - gap)
+
+          // Glow effect for bright tiles
+          if (a > 0.5) {
+            const glow = a * 0.12
+            ctx.shadowColor = `rgba(${cr}, ${cg}, ${cb}, ${glow})`
+            ctx.shadowBlur = 15
+            ctx.fillStyle = `rgba(${cr}, ${cg}, ${cb}, ${a * 0.08})`
+            ctx.fillRect(x, y, tileSize - gap, tileSize - gap)
+            ctx.shadowBlur = 0
           }
         }
       }
@@ -280,7 +278,7 @@ export function FlowField() {
 
     return () => {
       cancelAnimationFrame(animId)
-      window.removeEventListener('resize', resize)
+      window.removeEventListener('resize', initGrid)
     }
   }, [])
 
