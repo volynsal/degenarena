@@ -139,6 +139,13 @@ export default function SettingsPage() {
       if (!res.ok) {
         setProfileError(data.error || 'Failed to save profile')
       } else {
+        // Update local state with the saved (normalized) data from the server
+        if (data.data) {
+          setProfileData({
+            twitch_url: data.data.twitch_url || '',
+            bio: data.data.bio || '',
+          })
+        }
         setProfileSuccess(true)
         setTimeout(() => setProfileSuccess(false), 3000)
       }

@@ -81,25 +81,41 @@ export async function PATCH(request: NextRequest) {
     if (body.twitch_url !== undefined) {
       // Validate Twitch URL format if provided
       if (body.twitch_url && body.twitch_url.trim()) {
-        const twitchUrl = body.twitch_url.trim()
+        let twitchUrl = body.twitch_url.trim()
+        
+        // Strip leading @ if user entered @username
+        if (twitchUrl.startsWith('@')) {
+          twitchUrl = twitchUrl.slice(1)
+        }
+        
         // Accept twitch.tv URLs or just the username
-        if (!twitchUrl.match(/^(https?:\/\/)?(www\.)?twitch\.tv\/[a-zA-Z0-9_]+\/?$/) && 
-            !twitchUrl.match(/^[a-zA-Z0-9_]+$/)) {
+        const isFullUrl = twitchUrl.match(/^(https?:\/\/)?(www\.)?twitch\.tv\/([a-zA-Z0-9_]+)\/?$/)
+        const isUsername = twitchUrl.match(/^[a-zA-Z0-9_]{1,25}$/)
+        
+        if (!isFullUrl && !isUsername) {
           return NextResponse.json<ApiResponse<null>>({ 
-            error: 'Invalid Twitch URL. Use format: https://twitch.tv/username or just your username' 
+            error: 'Invalid Twitch username. Only letters, numbers, and underscores are allowed.' 
           }, { status: 400 })
         }
+        
         // Normalize to full URL
-        if (!twitchUrl.includes('twitch.tv')) {
-          updateData.twitch_url = `https://twitch.tv/${twitchUrl}`
-        } else if (!twitchUrl.startsWith('http')) {
-          updateData.twitch_url = `https://${twitchUrl}`
+        if (isFullUrl) {
+          // Extract username from URL and rebuild cleanly
+          const username = isFullUrl[3]
+          updateData.twitch_url = `https://twitch.tv/${username}`
         } else {
-          updateData.twitch_url = twitchUrl
+          updateData.twitch_url = `https://twitch.tv/${twitchUrl}`
         }
       } else {
         updateData.twitch_url = null
       }
+    }
+    
+    // Only proceed with update if there are fields to update
+    if (Object.keys(updateData).length === 0) {
+      return NextResponse.json<ApiResponse<null>>({ 
+        error: 'No fields to update' 
+      }, { status: 400 })
     }
     
     const { data, error } = await supabase
@@ -110,8 +126,15 @@ export async function PATCH(request: NextRequest) {
       .single()
     
     if (error) {
+      console.error('Profile update error:', error)
       return NextResponse.json<ApiResponse<null>>({ 
         error: error.message 
+      }, { status: 500 })
+    }
+    
+    if (!data) {
+      return NextResponse.json<ApiResponse<null>>({ 
+        error: 'Profile update failed — no data returned' 
       }, { status: 500 })
     }
     
