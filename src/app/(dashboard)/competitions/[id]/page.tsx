@@ -574,7 +574,7 @@ export default function CompetitionDetailPage() {
             )}
             <li className="flex items-start gap-2">
               <span className="text-rose-400 mt-0.5">-</span>
-              Top 3 earn GalaxyArena points + XP toward your prestige tier.
+              Top 3 earn Galaxy points + XP toward your prestige tier.
             </li>
           </ul>
         </CardContent>

@@ -576,7 +576,7 @@ export default function ArenaBetsPage() {
       <div>
         <h1 className="text-2xl sm:text-3xl font-semibold">
           <span className="bg-gradient-to-r from-amber-400 via-rose-400 to-violet-500 bg-clip-text text-transparent">
-            GalaxyArena
+            Galaxy
           </span>
         </h1>
         <p className="text-gray-400 text-sm sm:text-base">
@@ -709,7 +709,7 @@ export default function ArenaBetsPage() {
       {/* How it works (below fold) */}
       <Card className="!bg-white/[0.01]">
         <CardContent className="py-6 px-6">
-          <h3 className="text-sm font-semibold text-white mb-4">How GalaxyArena Works</h3>
+          <h3 className="text-sm font-semibold text-white mb-4">How Galaxy Works</h3>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 text-xs text-gray-400">
             <div>
               <p className="text-white font-medium mb-1">1. Markets auto-generate</p>

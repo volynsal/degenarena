@@ -19,7 +19,7 @@ import {
 
 const navigation = [
   { name: 'Home', href: '/dashboard', icon: LayoutDashboard },
-  { name: 'GalaxyArena', href: '/arena-bets', icon: Orbit },
+  { name: 'Galaxy', href: '/arena-bets', icon: Orbit },
   { name: 'Live', href: '/live', icon: Radio },
   { name: 'Clans', href: '/clans', icon: Shield },
   { name: 'Competitions', href: '/competitions', icon: Swords },

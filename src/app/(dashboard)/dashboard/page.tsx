@@ -150,7 +150,7 @@ export default function DashboardPage() {
         </CardContent>
       </Card>
       
-      {/* GalaxyArena widget */}
+      {/* Galaxy widget */}
       <Card className="border-rose-500/20">
         <CardContent className="p-4 sm:p-6">
           <div className="flex items-center justify-between">
@@ -159,7 +159,7 @@ export default function DashboardPage() {
                 <Orbit className="w-5 h-5 text-rose-400" />
               </div>
               <div>
-                <p className="text-white font-medium">GalaxyArena</p>
+                <p className="text-white font-medium">Galaxy</p>
                 <p className="text-sm text-gray-400">
                   Predict memecoin moves, earn points
                 </p>

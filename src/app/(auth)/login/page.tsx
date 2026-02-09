@@ -227,7 +227,7 @@ export default function LoginPage() {
             {/* Feature highlights */}
             <div className="flex flex-wrap justify-center gap-1.5 max-w-sm mx-auto">
               {[
-                'GalaxyArena',
+                'Galaxy',
                 'Alerts',
                 '24hr Flips',
                 'Clan Wars',
