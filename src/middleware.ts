@@ -7,6 +7,14 @@ export async function middleware(request: NextRequest) {
     return NextResponse.next()
   }
 
+  // Skip middleware for cron and webhook API routes — they use their own auth (CRON_SECRET)
+  if (
+    request.nextUrl.pathname.startsWith('/api/cron/') ||
+    request.nextUrl.pathname.startsWith('/api/telegram/webhook')
+  ) {
+    return NextResponse.next()
+  }
+
   let response = NextResponse.next({
     request: {
       headers: request.headers,

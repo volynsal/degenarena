@@ -321,6 +321,7 @@ export interface CompetitionEntry {
   best_trade_return?: number | null
   eliminated_round?: number | null
   user_tier?: TierName | null
+  live_minutes?: number
   status: 'active' | 'disqualified' | 'withdrawn'
 
   // Relations
@@ -341,6 +342,7 @@ export interface CompetitionLeaderboardEntry {
   eliminated_round?: number | null
   final_rank?: number | null
   prize_awarded?: string | null
+  live_minutes?: number
 }
 
 // XP / Prestige Tier System

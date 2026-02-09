@@ -47,6 +47,7 @@ export async function GET(
       final_rank,
       prize_awarded,
       user_tier,
+      live_minutes,
       status,
       profile:profiles(username, avatar_url)
     `)
@@ -85,6 +86,7 @@ export async function GET(
     eliminated_round: entry.eliminated_round,
     final_rank: entry.final_rank,
     prize_awarded: entry.prize_awarded,
+    live_minutes: entry.live_minutes ?? 0,
   }))
 
   return NextResponse.json<ApiResponse<CompetitionLeaderboardEntry[]>>({

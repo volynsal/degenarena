@@ -172,6 +172,7 @@ export default function CompetitionDetailPage() {
   const isEnded = competition.live_status === 'ended'
   const hasEntered = !!competition.my_entry
   const isBestCall = competition.type === 'best_call'
+  const isLiveTrading = competition.type === 'live_trading'
 
   return (
     <div className="space-y-6">
@@ -224,6 +225,12 @@ export default function CompetitionDetailPage() {
                       {competition.tier_requirement && (
                         <TierBadge tier={competition.tier_requirement as TierName} />
                       )}
+                      {isLiveTrading && (
+                        <span className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-purple-500/20 text-purple-400 text-xs font-medium border border-purple-500/20">
+                          <Radio className="w-3 h-3" />
+                          Twitch Required
+                        </span>
+                      )}
                     </div>
                     <h1 className="text-xl sm:text-2xl font-bold text-white mb-1">
                       {competition.name}
@@ -255,9 +262,7 @@ export default function CompetitionDetailPage() {
                       <Clock className="w-3.5 h-3.5" />
                       Duration
                     </div>
-                    <p className="text-lg font-bold text-white">
-                      {competition.type === 'daily_flip' || competition.type === 'best_call' ? '24h' : '7d'}
-                    </p>
+                    <p className="text-lg font-bold text-white">24h</p>
                   </div>
                   <div className="bg-white/5 rounded-lg p-3">
                     <div className="flex items-center gap-1.5 text-gray-500 text-xs mb-1">
@@ -277,6 +282,9 @@ export default function CompetitionDetailPage() {
                     <p className="text-lg font-bold text-white">
                       {isBestCall ? 'Best Trade' : 'Total PnL'}
                     </p>
+                    {isLiveTrading && (
+                      <p className="text-[10px] text-gray-500 mt-0.5">30 min live required</p>
+                    )}
                   </div>
                 </div>
               </div>
@@ -315,8 +323,23 @@ export default function CompetitionDetailPage() {
                             <span className="font-medium">You're in!</span>
                           </div>
                           <p className="text-xs text-gray-400">
-                            Your verified wallet PnL is being tracked.
+                            {isLiveTrading
+                              ? 'Go Live on Twitch and trade. Your PnL is tracked while you stream.'
+                              : 'Your verified wallet PnL is being tracked.'}
                           </p>
+                          {isLiveTrading && competition.my_entry?.live_minutes != null && (
+                            <div className="mt-2 pt-2 border-t border-white/10 flex items-center gap-2">
+                              <Radio className="w-3.5 h-3.5 text-purple-400" />
+                              <span className="text-xs text-gray-300">
+                                <span className="font-medium text-purple-400">
+                                  {competition.my_entry.live_minutes}
+                                </span> min live
+                                {(competition.my_entry.live_minutes ?? 0) < 30 && (
+                                  <span className="text-gray-500 ml-1">(30 min required)</span>
+                                )}
+                              </span>
+                            </div>
+                          )}
                         </div>
                         {isUpcoming && (
                           <Button
@@ -347,7 +370,9 @@ export default function CompetitionDetailPage() {
                           )}
                         </Button>
                         <p className="text-[11px] text-gray-500 text-center">
-                          Requires a verified wallet. PnL is tracked from entry.
+                          {isLiveTrading
+                            ? 'Requires Twitch connected in Settings. Stream 30+ min to qualify.'
+                            : 'Requires a verified wallet. PnL is tracked from entry.'}
                         </p>
                         {error && (
                           <p className="text-red-400 text-sm text-center">{error}</p>
@@ -383,11 +408,15 @@ export default function CompetitionDetailPage() {
           ) : (
             <>
               {/* Table header */}
-              <div className="hidden sm:grid grid-cols-12 gap-4 px-5 py-2.5 bg-white/[0.02] text-xs text-gray-500 font-medium uppercase tracking-wider">
-                <div className="col-span-1">#</div>
-                <div className="col-span-5">Trader</div>
-                <div className="col-span-3 text-right">{isBestCall ? 'Best Trade' : 'PnL'}</div>
-                <div className="col-span-3 text-right">{isBestCall ? 'Total PnL' : 'Best Trade'}</div>
+              <div className={cn(
+                'hidden sm:grid gap-4 px-5 py-2.5 bg-white/[0.02] text-xs text-gray-500 font-medium uppercase tracking-wider',
+                isLiveTrading ? 'grid-cols-[2.5rem_1fr_5rem_6rem_6rem]' : 'grid-cols-12'
+              )}>
+                <div className={isLiveTrading ? '' : 'col-span-1'}>#</div>
+                <div className={isLiveTrading ? '' : 'col-span-5'}>Trader</div>
+                {isLiveTrading && <div className="text-right">Live</div>}
+                <div className={isLiveTrading ? 'text-right' : 'col-span-3 text-right'}>{isBestCall ? 'Best Trade' : 'PnL'}</div>
+                <div className={isLiveTrading ? 'text-right' : 'col-span-3 text-right'}>{isBestCall ? 'Total PnL' : 'Best Trade'}</div>
               </div>
 
               {/* Rows */}
@@ -401,14 +430,17 @@ export default function CompetitionDetailPage() {
                     <div
                       key={entry.entry_id}
                       className={cn(
-                        'flex flex-col sm:grid sm:grid-cols-12 gap-1 sm:gap-4 px-4 sm:px-5 py-3 sm:items-center',
+                        'flex flex-col gap-1 px-4 sm:px-5 py-3',
+                        isLiveTrading
+                          ? 'sm:grid sm:grid-cols-[2.5rem_1fr_5rem_6rem_6rem] sm:gap-4 sm:items-center'
+                          : 'sm:grid sm:grid-cols-12 sm:gap-4 sm:items-center',
                         isMe && 'bg-rose-500/5'
                       )}
                     >
                       {/* Mobile: Rank + User row */}
                       <div className="flex items-center gap-3 sm:contents">
                         {/* Rank */}
-                        <div className="sm:col-span-1 flex-shrink-0">
+                        <div className={cn(!isLiveTrading && 'sm:col-span-1', 'flex-shrink-0')}>
                           {entry.rank <= 3 ? (
                             <div className={`w-7 h-7 rounded-full bg-gradient-to-br ${
                               rankColors[entry.rank] || 'from-gray-500 to-gray-700'
@@ -421,7 +453,7 @@ export default function CompetitionDetailPage() {
                         </div>
 
                         {/* Trader */}
-                        <div className="sm:col-span-5 flex-1 min-w-0">
+                        <div className={cn(!isLiveTrading && 'sm:col-span-5', 'flex-1 min-w-0')}>
                           <div className="flex items-center gap-2.5">
                             <div className="w-8 h-8 rounded-full bg-gradient-to-br from-arena-purple/50 to-arena-cyan/50 flex items-center justify-center flex-shrink-0">
                               <span className="text-white font-medium text-xs">
@@ -454,8 +486,21 @@ export default function CompetitionDetailPage() {
                         </div>
                       </div>
 
+                      {/* Desktop: Live minutes column (live_trading only) */}
+                      {isLiveTrading && (
+                        <div className="hidden sm:flex items-center justify-end gap-1">
+                          <Radio className="w-3 h-3 text-purple-400" />
+                          <span className={cn(
+                            'font-mono text-sm',
+                            (entry.live_minutes ?? 0) >= 30 ? 'text-purple-400' : 'text-gray-500'
+                          )}>
+                            {entry.live_minutes ?? 0}m
+                          </span>
+                        </div>
+                      )}
+
                       {/* Desktop: PnL columns */}
-                      <div className="hidden sm:block col-span-3 text-right">
+                      <div className={cn('hidden sm:block text-right', !isLiveTrading && 'col-span-3')}>
                         <span className={cn(
                           'font-mono font-bold text-base',
                           (primaryValue ?? 0) >= 0 ? 'text-green-400' : 'text-red-400'
@@ -467,7 +512,7 @@ export default function CompetitionDetailPage() {
                         </span>
                       </div>
 
-                      <div className="hidden sm:block col-span-3 text-right">
+                      <div className={cn('hidden sm:block text-right', !isLiveTrading && 'col-span-3')}>
                         <span className="text-gray-500 font-mono text-sm">
                           {isBestCall
                             ? formatPnl(secondaryValue ?? 0)
@@ -493,8 +538,26 @@ export default function CompetitionDetailPage() {
               <span className="text-rose-400 mt-0.5">-</span>
               {isBestCall
                 ? 'Ranked by your single highest % return trade during the competition window.'
+                : isLiveTrading
+                ? 'Ranked by total verified wallet PnL. You must be streaming live on Twitch for your PnL to count.'
                 : 'Ranked by total verified wallet PnL from entry to competition end.'}
             </li>
+            {isLiveTrading && (
+              <>
+                <li className="flex items-start gap-2">
+                  <span className="text-purple-400 mt-0.5">-</span>
+                  <span className="text-purple-300">You must connect your Twitch account in Settings to enter.</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-purple-400 mt-0.5">-</span>
+                  <span className="text-purple-300">Minimum 30 minutes of live streaming required to qualify for the leaderboard.</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-purple-400 mt-0.5">-</span>
+                  <span className="text-purple-300">Your live status is checked every 10 minutes via the Twitch API.</span>
+                </li>
+              </>
+            )}
             <li className="flex items-start gap-2">
               <span className="text-rose-400 mt-0.5">-</span>
               Your wallet must be verified. PnL is pulled from on-chain data.

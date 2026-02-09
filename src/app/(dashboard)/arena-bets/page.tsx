@@ -629,7 +629,6 @@ export default function ArenaBetsPage() {
             { key: 'up_down', label: 'Up/Down' },
             { key: 'rug_call', label: 'Rug Call' },
             { key: 'moonshot', label: 'Moonshot' },
-            { key: 'culture', label: '🔮 Culture' },
             { key: 'versus', label: '⚔️ Versus' },
             { key: 'narrative_index', label: '📊 Index' },
             { key: 'meta', label: '🌐 Meta' },

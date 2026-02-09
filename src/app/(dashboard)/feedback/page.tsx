@@ -4,7 +4,6 @@ import { useState } from 'react'
 import { Button } from '@/components/ui/Button'
 import { Card, CardContent } from '@/components/ui/Card'
 import { MessageSquare, Send, CheckCircle } from 'lucide-react'
-import { createClient } from '@/lib/supabase/client'
 
 const categories = [
   { id: 'bug', label: 'Bug Report' },
@@ -28,29 +27,16 @@ export default function FeedbackPage() {
     setError('')
 
     try {
-      const supabase = createClient()
-      const { data: { user } } = await supabase.auth.getUser()
+      const res = await fetch('/api/feedback', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ category, message: message.trim() }),
+      })
 
-      if (!user) {
-        setError('You must be logged in to submit feedback.')
-        setIsSubmitting(false)
-        return
-      }
+      const data = await res.json()
 
-      const { error: insertError } = await supabase
-        .from('feedback')
-        .insert({
-          user_id: user.id,
-          category,
-          message: message.trim(),
-        })
-
-      if (insertError) {
-        // If table doesn't exist yet, fall back to logging
-        console.error('Feedback submission error:', insertError)
-        // Still show success to user — we can check logs
-        setIsSubmitted(true)
-        setMessage('')
+      if (!res.ok || data.error) {
+        setError(data.error || 'Failed to submit feedback. Please try again.')
         return
       }
 

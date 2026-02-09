@@ -1,5 +1,6 @@
 import { createClient } from '@supabase/supabase-js'
 import { NextRequest, NextResponse } from 'next/server'
+import { checkMultipleStreams, extractTwitchUsername } from '@/lib/services/twitch'
 
 // Service role client for server-side operations
 const supabaseAdmin = createClient(
@@ -27,6 +28,7 @@ export async function GET(request: NextRequest) {
   const results = {
     statusUpdates: { started: 0, ended: 0 },
     pnlUpdated: 0,
+    liveSessionsTracked: 0,
     competitionsCreated: 0,
     errors: [] as string[],
   }
@@ -111,6 +113,129 @@ export async function GET(request: NextRequest) {
           console.log(`📊 Updated PnL for ${results.pnlUpdated} entries`)
         }
       }
+    }
+
+    // ── 2b. TRACK LIVE SESSIONS for live_trading competitions ──
+    // Check which competition participants are currently streaming on Twitch
+    try {
+      // Get all users in active live_trading competitions
+      const { data: liveEntries } = await supabaseAdmin
+        .from('competition_entries')
+        .select(`
+          id,
+          user_id,
+          competition_id,
+          competitions!inner(status, type)
+        `)
+        .eq('status', 'active')
+        .eq('competitions.status', 'active')
+        .eq('competitions.type', 'live_trading')
+
+      if (liveEntries && liveEntries.length > 0) {
+        // Get Twitch URLs for these users
+        const liveUserIds = Array.from(new Set(liveEntries.map(e => e.user_id)))
+        const { data: profiles } = await supabaseAdmin
+          .from('profiles')
+          .select('id, twitch_url')
+          .in('id', liveUserIds)
+          .not('twitch_url', 'is', null)
+
+        if (profiles && profiles.length > 0) {
+          // Build user_id -> twitch_username mapping
+          const userTwitchMap = new Map<string, string>()
+          const twitchUsernames: string[] = []
+          for (const p of profiles) {
+            const twitchUser = extractTwitchUsername(p.twitch_url)
+            if (twitchUser) {
+              userTwitchMap.set(p.id, twitchUser)
+              twitchUsernames.push(twitchUser)
+            }
+          }
+
+          // Batch check Twitch live status
+          const streamStatuses = await checkMultipleStreams(twitchUsernames)
+
+          // For each user: manage their live session
+          for (const [userId, twitchUsername] of Array.from(userTwitchMap.entries())) {
+            const status = streamStatuses.get(twitchUsername)
+            const isLive = status?.isLive || false
+
+            // Find their active competition IDs
+            const userCompIds = liveEntries
+              .filter(e => e.user_id === userId)
+              .map(e => e.competition_id)
+
+            // Check for an existing open session (ended_at IS NULL)
+            const { data: openSession } = await supabaseAdmin
+              .from('live_sessions')
+              .select('id, started_at')
+              .eq('user_id', userId)
+              .is('ended_at', null)
+              .order('started_at', { ascending: false })
+              .limit(1)
+              .maybeSingle()
+
+            if (isLive && !openSession) {
+              // User just went live — create a new session
+              // Use Twitch's started_at if available, otherwise now
+              const startedAt = status?.startedAt || now.toISOString()
+              for (const compId of userCompIds) {
+                await supabaseAdmin.from('live_sessions').insert({
+                  user_id: userId,
+                  twitch_username: twitchUsername,
+                  started_at: startedAt,
+                  competition_id: compId,
+                })
+              }
+              results.liveSessionsTracked++
+              console.log(`📺 Live session started: ${twitchUsername}`)
+            } else if (!isLive && openSession) {
+              // User went offline — close the session
+              const startedAt = new Date(openSession.started_at)
+              const durationMinutes = Math.round((now.getTime() - startedAt.getTime()) / 60000)
+
+              await supabaseAdmin
+                .from('live_sessions')
+                .update({
+                  ended_at: now.toISOString(),
+                  duration_minutes: Math.max(durationMinutes, 0),
+                })
+                .eq('id', openSession.id)
+
+              // Also update live_minutes on their competition entries
+              for (const compId of userCompIds) {
+                // Get total live minutes for this user in this competition
+                const { data: comp } = await supabaseAdmin
+                  .from('competitions')
+                  .select('starts_at, ends_at')
+                  .eq('id', compId)
+                  .single()
+
+                if (comp) {
+                  const { data: totalMins } = await supabaseAdmin.rpc('get_live_minutes', {
+                    p_user_id: userId,
+                    p_start: comp.starts_at,
+                    p_end: comp.ends_at,
+                  })
+
+                  await supabaseAdmin
+                    .from('competition_entries')
+                    .update({ live_minutes: totalMins || 0 })
+                    .eq('competition_id', compId)
+                    .eq('user_id', userId)
+                }
+              }
+
+              console.log(`📺 Live session ended: ${twitchUsername} (${durationMinutes}min)`)
+            }
+            // If isLive && openSession exists: session continues, nothing to do
+            // If !isLive && no openSession: user is just offline, nothing to do
+          }
+        }
+      }
+    } catch (err) {
+      console.error('Live session tracking error:', err)
+      results.errors.push(`Live tracking: ${err instanceof Error ? err.message : String(err)}`)
     }
 
     // ── 3. FINALIZE ended competitions ──

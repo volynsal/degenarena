@@ -84,6 +84,21 @@ export async function POST(
     }
   }
 
+  // For live_trading competitions, require Twitch connection
+  if (competition.type === 'live_trading') {
+    const { data: profile } = await serviceClient
+      .from('profiles')
+      .select('twitch_url')
+      .eq('id', user.id)
+      .maybeSingle()
+
+    if (!profile?.twitch_url) {
+      return NextResponse.json<ApiResponse<null>>({
+        error: 'You need to connect your Twitch account in Settings to enter Live Trading challenges'
+      }, { status: 400 })
+    }
+  }
+
   // Check if user already entered
   const { data: existingEntry } = await serviceClient
     .from('competition_entries')
