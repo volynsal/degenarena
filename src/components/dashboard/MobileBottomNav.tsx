@@ -154,24 +154,24 @@ export function MobileBottomNav() {
         </div>
       </nav>
 
-      {/* Bottom sheet overlay */}
+      {/* Centered modal overlay */}
       {sheetOpen && (
-        <div className="fixed inset-0 z-30 lg:hidden">
-          {/* Backdrop */}
+        <div className="fixed inset-0 z-30 lg:hidden flex items-center justify-center px-6">
+          {/* Blurred backdrop */}
           <div
-            className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+            className="absolute inset-0 bg-black/70 backdrop-blur-md"
             onClick={() => setSheetOpen(false)}
           />
 
-          {/* Sheet */}
-          <div className="absolute bottom-[60px] bottom-safe left-0 right-0 mx-3 mb-2 rounded-2xl bg-arena-dark border border-white/10 overflow-hidden shadow-2xl animate-in slide-in-from-bottom-4 duration-200">
+          {/* Modal card */}
+          <div className="relative w-full max-w-sm rounded-2xl bg-arena-dark/95 border border-white/10 overflow-hidden shadow-2xl">
             {/* Profile row */}
             <Link
               href={profileHref}
-              className="flex items-center gap-3 px-5 py-4 border-b border-white/5 hover:bg-white/[0.03] transition-colors"
+              className="flex items-center gap-3 px-5 py-4 border-b border-white/[0.06] hover:bg-white/[0.03] transition-colors"
               onClick={() => setSheetOpen(false)}
             >
-              <div className="w-10 h-10 rounded-full bg-gradient-to-br from-arena-purple to-arena-cyan flex items-center justify-center text-sm font-bold text-white flex-shrink-0">
+              <div className="w-11 h-11 rounded-full bg-gradient-to-br from-arena-purple to-arena-cyan flex items-center justify-center text-sm font-bold text-white flex-shrink-0">
                 {username.charAt(0).toUpperCase()}
               </div>
               <div className="flex-1 min-w-0">
@@ -190,9 +190,9 @@ export function MobileBottomNav() {
                     key={item.name}
                     href={item.href}
                     className={cn(
-                      'flex items-center gap-3 px-5 py-3 transition-colors',
+                      'flex items-center gap-3.5 px-5 py-3.5 transition-colors',
                       isActive
-                        ? 'text-white bg-white/[0.04]'
+                        ? 'text-white bg-white/[0.05]'
                         : 'text-gray-400 hover:text-white hover:bg-white/[0.03]'
                     )}
                     onClick={() => setSheetOpen(false)}
@@ -205,10 +205,10 @@ export function MobileBottomNav() {
             </div>
 
             {/* Sign out */}
-            <div className="border-t border-white/5">
+            <div className="border-t border-white/[0.06]">
               <button
                 onClick={handleSignOut}
-                className="w-full flex items-center gap-3 px-5 py-3 text-red-400 hover:text-red-300 hover:bg-white/[0.03] transition-colors"
+                className="w-full flex items-center gap-3.5 px-5 py-3.5 text-red-400 hover:text-red-300 hover:bg-white/[0.03] transition-colors"
               >
                 <LogOut size={20} strokeWidth={1.5} />
                 <span className="text-sm">Sign out</span>
