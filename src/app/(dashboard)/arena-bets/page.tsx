@@ -133,11 +133,11 @@ function PointsBar({
   claimMessage: string | null
 }) {
   return (
-    <div className="glass-card rounded-xl p-3 sm:p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4">
-      <div className="flex items-center gap-4 sm:gap-6 w-full sm:w-auto">
-        <div className="min-w-0">
+    <div className="glass-card rounded-xl p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+      <div className="flex items-center gap-6 w-full sm:w-auto">
+        <div>
           <p className="text-xs text-gray-500 uppercase tracking-wider">Balance</p>
-          <p className="text-xl sm:text-2xl font-bold text-white">
+          <p className="text-2xl font-bold text-white">
             {points ? formatPoints(points.balance) : '—'}{' '}
             <span className="text-sm text-rose-400 font-normal">pts</span>
           </p>
@@ -221,10 +221,10 @@ function MarketCard({
   return (
     <Card className="!p-0 overflow-hidden group min-w-0" hover>
       {/* Header */}
-      <div className="p-3 sm:p-4 pb-3">
+      <div className="px-3 py-3 sm:p-4 sm:pb-3">
         {/* Top row: time / status */}
-        <div className="flex items-center justify-between mb-2">
-          <div className="flex items-center gap-1.5 flex-wrap">
+        <div className="flex items-start justify-between gap-2 mb-2">
+          <div className="flex items-center gap-1.5 flex-wrap min-w-0">
             {market.pinned && (
               <span className="inline-flex items-center px-1.5 py-0.5 rounded border border-yellow-500/30 bg-yellow-500/10 text-yellow-400" title="Pinned">
                 <Pin size={11} className="rotate-45" />
@@ -289,12 +289,12 @@ function MarketCard({
       </div>
 
       {/* Bet area / result */}
-      <div className="border-t border-white/5 p-3 sm:p-4 pt-3 bg-white/[0.01]">
+      <div className="border-t border-white/5 px-3 py-3 sm:p-4 sm:pt-3 bg-white/[0.01]">
         {isResolved && hasBet && (
-          <div className={`flex items-center justify-between gap-2 text-xs sm:text-sm ${
+          <div className={`flex items-center justify-between gap-2 text-sm ${
             market.user_bet!.is_winner ? 'text-green-400' : 'text-red-400'
           }`}>
-            <span className="truncate">
+            <span className="min-w-0 truncate">
               You bet <strong>{market.user_bet!.amount} pts</strong> on{' '}
               <strong>{market.user_bet!.position.toUpperCase()}</strong>
             </span>
@@ -312,8 +312,8 @@ function MarketCard({
         )}
 
         {!isResolved && hasBet && (
-          <div className="flex items-center justify-between gap-2 text-xs sm:text-sm">
-            <span className="text-gray-400 truncate">
+          <div className="flex items-center justify-between gap-2 text-sm">
+            <span className="text-gray-400 min-w-0 truncate">
               You bet <strong className="text-white">{market.user_bet!.amount} pts</strong> on{' '}
               <strong className={market.user_bet!.position === 'yes' ? 'text-green-400' : 'text-red-400'}>
                 {market.user_bet!.position.toUpperCase()}
@@ -546,8 +546,8 @@ export default function ArenaBetsPage() {
       )}
 
       {/* Tabs + Filter */}
-      <div className="flex flex-col gap-3">
-        <div className="flex items-center gap-1 p-1 rounded-lg bg-white/5 w-fit">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+        <div className="flex items-center gap-1 p-1 rounded-lg bg-white/5">
           {[
             { key: 'active', label: 'Live Markets' },
             { key: 'resolved', label: 'Resolved' },
@@ -566,7 +566,7 @@ export default function ArenaBetsPage() {
           ))}
         </div>
 
-        <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-hide">
+        <div className="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0 scrollbar-hide">
           {[
             { key: 'all', label: 'All' },
             { key: 'up_down', label: 'Up/Down' },
@@ -634,7 +634,7 @@ export default function ArenaBetsPage() {
           </CardContent>
         </Card>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {markets.map((market) => (
             <MarketCard
               key={market.id}
