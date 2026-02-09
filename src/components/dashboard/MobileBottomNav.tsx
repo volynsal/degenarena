@@ -12,14 +12,14 @@ import {
 } from 'lucide-react'
 
 const navItems = [
+  { name: 'Live', href: '/live', icon: Radio },
   { name: 'Comps', href: '/competitions', icon: Swords },
-  { name: 'Leaderboard', href: '/leaderboard', icon: Trophy },
   { name: 'Home', href: '/dashboard', icon: LayoutDashboard, center: true },
   { name: 'Galaxy', href: '/arena-bets', icon: Orbit },
 ]
 
 const moreItems = [
-  { name: 'Live', href: '/live', icon: Radio },
+  { name: 'Leaderboard', href: '/leaderboard', icon: Trophy },
   { name: 'Clans', href: '/clans', icon: Shield },
   { name: 'My Formulas', href: '/formulas', icon: Sliders },
   { name: 'Feedback', href: '/feedback', icon: MessageSquare },
