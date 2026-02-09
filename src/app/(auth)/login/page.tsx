@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { useRouter, useSearchParams } from 'next/navigation'
+import { useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
 import { Button } from '@/components/ui/Button'
@@ -20,7 +20,6 @@ function useIsInAppBrowser() {
 }
 
 export default function LoginPage() {
-  const router = useRouter()
   const searchParams = useSearchParams()
   const redirect = searchParams.get('redirect') || '/dashboard'
   const isInAppBrowser = useIsInAppBrowser()
@@ -48,8 +47,8 @@ export default function LoginPage() {
       return
     }
     
-    router.push(redirect)
-    router.refresh()
+    // Hard redirect to ensure middleware runs with fresh cookies
+    window.location.href = redirect
   }
   
   const handleGoogleSignIn = async () => {
