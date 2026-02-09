@@ -271,7 +271,7 @@ You'll receive alerts when matches are found.`
           'Authorization': `Bearer ${apiKey}`,
         },
         body: JSON.stringify({
-          from: 'DegenArena HQ <onboarding@resend.dev>',
+          from: process.env.RESEND_FROM_EMAIL || 'DegenArena HQ <alerts@degenarenahq.com>',
           to: email,
           subject: `🎯 New Match: ${payload.tokenSymbol} matched your "${payload.formulaName}" formula`,
           html,
@@ -311,7 +311,7 @@ You'll receive alerts when matches are found.`
           'Authorization': `Bearer ${apiKey}`,
         },
         body: JSON.stringify({
-          from: 'DegenArena HQ <onboarding@resend.dev>',
+          from: process.env.RESEND_FROM_EMAIL || 'DegenArena HQ <alerts@degenarenahq.com>',
           to: email,
           subject: `🎯 DegenArena HQ Daily Report: ${payload.totalMatches} new match${payload.totalMatches === 1 ? '' : 'es'} found`,
           html,
@@ -752,7 +752,7 @@ You'll receive alerts when matches are found.`
     ${formulaSections}
     
     <div style="text-align: center; margin-top: 30px;">
-      <a href="${process.env.NEXT_PUBLIC_APP_URL || 'https://degenarena.com'}/dashboard" style="display: inline-block; background: linear-gradient(to right, #a855f7, #00ff9d); color: white; text-decoration: none; padding: 15px 30px; border-radius: 8px; font-weight: 600;">
+      <a href="${process.env.NEXT_PUBLIC_APP_URL || 'https://degenarenahq.com'}/dashboard" style="display: inline-block; background: linear-gradient(to right, #a855f7, #00ff9d); color: white; text-decoration: none; padding: 15px 30px; border-radius: 8px; font-weight: 600;">
         View Dashboard →
       </a>
     </div>

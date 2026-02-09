@@ -478,26 +478,87 @@ export default function SettingsPage() {
             
             {formData.telegram_enabled && (
               <>
-                <div className="p-4 rounded-lg bg-[#0088cc]/10 border border-[#0088cc]/20">
-                  <p className="text-white font-medium mb-2">Step 1: Get your Chat ID</p>
-                  <a 
-                    href="https://t.me/DegenArenaAlertsBot" 
-                    target="_blank" 
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-2 px-4 py-2 bg-[#0088cc] hover:bg-[#0088cc]/90 text-white rounded-lg text-sm font-medium transition-colors"
-                  >
-                    <MessageCircle className="w-4 h-4" />
-                    Open @DegenArenaAlertsBot
-                    <ExternalLink className="w-3 h-3" />
-                  </a>
-                  <p className="text-sm text-gray-400 mt-2">
-                    Send <code className="bg-white/10 px-1 rounded">/start</code> to the bot and it will show your Chat ID
+                {/* Unified Chat Setup Guide */}
+                <div className="p-4 rounded-lg bg-gradient-to-br from-arena-purple/10 to-arena-cyan/10 border border-arena-purple/20">
+                  <p className="text-white font-semibold mb-1">Unified Chat with AI Copilot</p>
+                  <p className="text-sm text-gray-400 mb-4">
+                    Get alerts AND AI analysis from Grok in the same Telegram chat. Here&apos;s how:
+                  </p>
+                  
+                  <div className="space-y-4">
+                    {/* Step 1 */}
+                    <div className="flex gap-3">
+                      <div className="flex-shrink-0 w-6 h-6 rounded-full bg-arena-purple/30 flex items-center justify-center text-xs font-bold text-white">1</div>
+                      <div>
+                        <p className="text-sm text-white font-medium">Create a Telegram group</p>
+                        <p className="text-xs text-gray-400">Open Telegram and create a new group (name it anything, e.g. &quot;DegenArena Alerts&quot;).</p>
+                      </div>
+                    </div>
+                    
+                    {/* Step 2 */}
+                    <div className="flex gap-3">
+                      <div className="flex-shrink-0 w-6 h-6 rounded-full bg-arena-purple/30 flex items-center justify-center text-xs font-bold text-white">2</div>
+                      <div>
+                        <p className="text-sm text-white font-medium">Add both bots to the group</p>
+                        <p className="text-xs text-gray-400 mb-2">Add these two bots as members of your group:</p>
+                        <div className="flex flex-wrap gap-2">
+                          <a 
+                            href="https://t.me/DegenArenaAlertsBot" 
+                            target="_blank" 
+                            rel="noopener noreferrer"
+                            className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#0088cc] hover:bg-[#0088cc]/90 text-white rounded-lg text-xs font-medium transition-colors"
+                          >
+                            <MessageCircle className="w-3 h-3" />
+                            @DegenArenaAlertsBot
+                            <ExternalLink className="w-2.5 h-2.5" />
+                          </a>
+                          <a 
+                            href="https://t.me/GrokAdvisorBot" 
+                            target="_blank" 
+                            rel="noopener noreferrer"
+                            className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-arena-purple to-arena-cyan hover:opacity-90 text-white rounded-lg text-xs font-medium transition-colors"
+                          >
+                            🤖 @GrokAdvisorBot
+                            <ExternalLink className="w-2.5 h-2.5" />
+                          </a>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    {/* Step 3 */}
+                    <div className="flex gap-3">
+                      <div className="flex-shrink-0 w-6 h-6 rounded-full bg-arena-purple/30 flex items-center justify-center text-xs font-bold text-white">3</div>
+                      <div>
+                        <p className="text-sm text-white font-medium">Get the group Chat ID</p>
+                        <p className="text-xs text-gray-400">
+                          In the group, send <code className="bg-white/10 px-1 rounded">/start</code> to @DegenArenaAlertsBot. It will reply with your group&apos;s Chat ID (a negative number like <code className="bg-white/10 px-1 rounded">-1001234567890</code>).
+                        </p>
+                      </div>
+                    </div>
+                    
+                    {/* Step 4 */}
+                    <div className="flex gap-3">
+                      <div className="flex-shrink-0 w-6 h-6 rounded-full bg-arena-cyan/30 flex items-center justify-center text-xs font-bold text-white">4</div>
+                      <div>
+                        <p className="text-sm text-white font-medium">Paste the Chat ID below</p>
+                        <p className="text-xs text-gray-400">
+                          That&apos;s it! When your formula finds a match, the alerts bot will post it in the group, and Grok will automatically reply with AI analysis in the same chat.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                
+                {/* Alternative: DM setup */}
+                <div className="p-3 rounded-lg bg-white/5 border border-white/10">
+                  <p className="text-xs text-gray-400">
+                    <span className="text-gray-300 font-medium">Prefer DMs instead?</span> Just message <a href="https://t.me/DegenArenaAlertsBot" target="_blank" rel="noopener noreferrer" className="text-[#0088cc] hover:underline">@DegenArenaAlertsBot</a> directly, send <code className="bg-white/10 px-1 rounded">/start</code>, and paste that Chat ID below. You&apos;ll get alerts in a 1-on-1 chat (without Grok AI replies).
                   </p>
                 </div>
                 
                 <Input
-                  label="Step 2: Paste your Chat ID"
-                  placeholder="e.g., 123456789"
+                  label="Paste your Chat ID"
+                  placeholder="e.g., -1001234567890 (group) or 123456789 (DM)"
                   value={formData.telegram_chat_id}
                   onChange={(e) => setFormData(prev => ({ ...prev, telegram_chat_id: e.target.value }))}
                 />
