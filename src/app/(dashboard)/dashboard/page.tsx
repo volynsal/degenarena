@@ -105,9 +105,9 @@ export default function DashboardPage() {
       {/* Live & Go Live widget */}
       <Card className="border-[#9146FF]/20">
         <CardContent className="p-4 sm:p-6">
-          <div className="flex items-center justify-between">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-lg bg-[#9146FF]/20 flex items-center justify-center">
+              <div className="w-10 h-10 rounded-lg bg-[#9146FF]/20 flex items-center justify-center flex-shrink-0">
                 <Radio className="w-5 h-5 text-[#9146FF]" />
               </div>
               <div>
@@ -119,7 +119,7 @@ export default function DashboardPage() {
                 </p>
               </div>
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 ml-[52px] sm:ml-0">
               <Link
                 href="/live"
                 className="px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-sm text-white transition-colors"
