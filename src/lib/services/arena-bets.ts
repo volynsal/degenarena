@@ -1026,7 +1026,7 @@ export async function resolveMarkets(): Promise<{ resolved: number; cancelled: n
                     try {
                       const pair = await dex.getTokenByAddress(t.tokenAddress)
                       if (pair) {
-                        const mc = pair.marketCap ?? pair.fdv ?? 0
+                        const mc = (pair as any).marketCap ?? pair.fdv ?? 0
                         if (mc >= mcThreshold) { crossed = true; break }
                       }
                     } catch {}
