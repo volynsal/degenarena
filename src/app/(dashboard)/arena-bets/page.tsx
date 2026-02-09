@@ -466,7 +466,13 @@ export default function ArenaBetsPage() {
   const fetchMarkets = useCallback(async () => {
     try {
       const params = new URLSearchParams({ status: tab, limit: '30' })
-      if (typeFilter !== 'all') params.set('type', typeFilter)
+      if (typeFilter !== 'all') {
+        if (typeFilter.startsWith('n:')) {
+          params.set('narrative', typeFilter.slice(2))
+        } else {
+          params.set('type', typeFilter)
+        }
+      }
 
       const res = await fetch(`/api/arena-bets/markets?${params}`)
       const data = await res.json()
@@ -615,6 +621,7 @@ export default function ArenaBetsPage() {
           { key: 'culture', label: 'Culture' },
           { key: 'moonshot', label: 'Moon' },
           { key: 'rug_call', label: 'Rug' },
+          { key: 'n:ct', label: 'CT' },
         ].map((f) => (
           <button
             key={f.key}

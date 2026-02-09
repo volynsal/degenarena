@@ -398,7 +398,7 @@ export default function ClanPage({ params }: { params: { slug: string } }) {
   }
   
   return (
-    <div className="space-y-8">
+    <div className="space-y-4 sm:space-y-6">
       {/* Header */}
       <div className="flex items-center gap-4">
         <Link href="/clans">
@@ -410,7 +410,7 @@ export default function ClanPage({ params }: { params: { slug: string } }) {
       
       {/* Clan Header Card */}
       <Card>
-        <CardContent className="p-8">
+        <CardContent className="p-4 sm:p-8">
           <div className="flex flex-col sm:flex-row items-start gap-6">
             {/* Logo */}
             <div className="relative">
@@ -585,66 +585,57 @@ export default function ClanPage({ params }: { params: { slug: string } }) {
         </CardContent>
       </Card>
       
-      {/* Stats */}
-      <div className="grid sm:grid-cols-3 gap-4">
-        <Card>
-          <CardContent className="p-6 text-center">
-            <Users className="w-8 h-8 mx-auto mb-2 text-gray-400" />
-            <p className="text-3xl font-bold text-white">{clan.member_count}</p>
-            <p className="text-sm text-gray-500">Members</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="p-6 text-center">
-            <Trophy className="w-8 h-8 mx-auto mb-2 text-arena-cyan" />
-            <p className="text-3xl font-bold text-white">{clan.avg_win_rate}%</p>
-            <p className="text-sm text-gray-500">Avg Win Rate</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="p-6 text-center">
-            <Target className="w-8 h-8 mx-auto mb-2 text-gray-400" />
-            <p className="text-3xl font-bold text-white">{clan.total_matches}</p>
-            <p className="text-sm text-gray-500">Total Matches</p>
-          </CardContent>
-        </Card>
-      </div>
+      {/* Stats Bar — compact horizontal strip */}
+      <Card>
+        <CardContent className="p-0">
+          <div className="grid grid-cols-3 divide-x divide-white/5">
+            <div className="px-4 py-4 text-center">
+              <p className="text-xl sm:text-2xl font-bold text-white">{clan.member_count}</p>
+              <p className="text-[11px] sm:text-xs text-gray-500 mt-0.5">Members</p>
+            </div>
+            <div className="px-4 py-4 text-center">
+              <p className="text-xl sm:text-2xl font-bold text-arena-cyan">{clan.avg_win_rate}%</p>
+              <p className="text-[11px] sm:text-xs text-gray-500 mt-0.5">Win Rate</p>
+            </div>
+            <div className="px-4 py-4 text-center">
+              <p className="text-xl sm:text-2xl font-bold text-white">{clan.total_matches}</p>
+              <p className="text-[11px] sm:text-xs text-gray-500 mt-0.5">Matches</p>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
       
       {/* Members */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Members ({clan.members.length})</CardTitle>
-        </CardHeader>
-        <CardContent className="p-0">
-          <div className="divide-y divide-white/5">
-            {clan.members.map((member) => (
-              <div 
-                key={member.user_id} 
-                className="flex items-center justify-between p-4 hover:bg-white/5 transition-colors"
-              >
-                <Link href={`/u/${member.username}`} className="flex items-center gap-4 flex-1">
-                  <div className="w-10 h-10 rounded-full bg-gradient-to-br from-arena-purple/50 to-arena-cyan/50 flex items-center justify-center text-white font-medium">
-                    {member.avatar_url ? (
-                      <img src={member.avatar_url} alt={member.username} className="w-full h-full rounded-full object-cover" />
-                    ) : (
-                      member.username.charAt(0).toUpperCase()
-                    )}
-                  </div>
-                  <div>
-                    <div className="flex items-center gap-2">
-                      <span className="text-white font-medium">@{member.username}</span>
-                      {member.role === 'owner' && (
-                        <Crown className="w-4 h-4 text-yellow-500" />
+      <div>
+        <h3 className="text-sm font-medium text-gray-400 mb-3 px-1">Members ({clan.members.length})</h3>
+        <div className="space-y-2">
+          {clan.members.map((member) => (
+            <Card key={member.user_id} className="overflow-hidden">
+              <CardContent className="p-0">
+                <div className="flex items-center gap-3 p-3 sm:p-4">
+                  {/* Avatar */}
+                  <Link href={`/u/${member.username}`} className="flex-shrink-0">
+                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-arena-purple/50 to-arena-cyan/50 flex items-center justify-center text-white font-medium text-sm overflow-hidden">
+                      {member.avatar_url ? (
+                        <img src={member.avatar_url} alt={member.username} className="w-full h-full object-cover" />
+                      ) : (
+                        member.username.charAt(0).toUpperCase()
                       )}
-                      {member.role === 'admin' && (
-                        <Star className="w-4 h-4 text-arena-purple" />
-                      )}
+                    </div>
+                  </Link>
+                  
+                  {/* Name + badges + role */}
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-1.5 flex-wrap">
+                      <Link href={`/u/${member.username}`} className="text-white font-medium text-sm hover:text-arena-cyan transition-colors truncate">
+                        @{member.username}
+                      </Link>
+                      {member.role === 'owner' && <Crown className="w-3.5 h-3.5 text-yellow-500 flex-shrink-0" />}
+                      {member.role === 'admin' && <Star className="w-3.5 h-3.5 text-arena-purple flex-shrink-0" />}
                       {member.wallet_verified && (
-                        <span className="inline-flex items-center" title="Verified Trader">
-                          <svg className="w-4 h-4 text-green-400" viewBox="0 0 20 20" fill="currentColor">
-                            <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 00-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 10-1.06 1.061l2.5 2.5a.75.75 0 001.137-.089l4-5.5z" clipRule="evenodd" />
-                          </svg>
-                        </span>
+                        <svg className="w-3.5 h-3.5 text-green-400 flex-shrink-0" viewBox="0 0 20 20" fill="currentColor">
+                          <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 00-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 10-1.06 1.061l2.5 2.5a.75.75 0 001.137-.089l4-5.5z" clipRule="evenodd" />
+                        </svg>
                       )}
                       {member.twitch_url && (
                         <a
@@ -652,24 +643,19 @@ export default function ClanPage({ params }: { params: { slug: string } }) {
                           target="_blank"
                           rel="noopener noreferrer"
                           onClick={(e) => e.stopPropagation()}
-                          className="text-[#9146FF] hover:text-[#772ce8] transition-colors"
-                          title={`Watch ${member.username} on Twitch`}
+                          className="text-[#9146FF] hover:text-[#772ce8] transition-colors flex-shrink-0"
                         >
-                          <TwitchIcon className="w-4 h-4" />
+                          <TwitchIcon className="w-3.5 h-3.5" />
                         </a>
                       )}
                     </div>
-                    
-                    {/* Role dropdown for owners */}
+                    {/* Role (clickable for owners) */}
                     {clan.user_role === 'owner' ? (
                       <div className="relative">
                         <button
-                          onClick={(e) => {
-                            e.preventDefault()
-                            setRoleDropdownOpen(roleDropdownOpen === member.user_id ? null : member.user_id)
-                          }}
+                          onClick={() => setRoleDropdownOpen(roleDropdownOpen === member.user_id ? null : member.user_id)}
                           disabled={updatingRole === member.user_id}
-                          className="flex items-center gap-1 text-sm text-gray-400 hover:text-white transition-colors disabled:opacity-50"
+                          className="flex items-center gap-1 text-xs text-gray-500 hover:text-gray-300 transition-colors disabled:opacity-50 mt-0.5"
                         >
                           {updatingRole === member.user_id ? (
                             <Loader2 className="w-3 h-3 animate-spin" />
@@ -680,21 +666,19 @@ export default function ClanPage({ params }: { params: { slug: string } }) {
                             </>
                           )}
                         </button>
-                        
                         {roleDropdownOpen === member.user_id && (
-                          <div className="absolute left-0 top-full mt-1 w-32 bg-arena-dark border border-white/10 rounded-lg shadow-xl py-1 z-20">
+                          <div className="absolute left-0 top-full mt-1 w-28 bg-arena-dark border border-white/10 rounded-lg shadow-xl py-1 z-20">
                             {['owner', 'admin', 'member'].map((role) => (
                               <button
                                 key={role}
-                                onClick={(e) => {
-                                  e.preventDefault()
+                                onClick={() => {
                                   if (role !== member.role) {
                                     handleRoleChange(member.user_id, role)
                                   } else {
                                     setRoleDropdownOpen(null)
                                   }
                                 }}
-                                className={`w-full flex items-center gap-2 px-3 py-2 text-sm text-left transition-colors ${
+                                className={`w-full flex items-center gap-2 px-3 py-1.5 text-xs text-left transition-colors ${
                                   role === member.role 
                                     ? 'text-arena-cyan bg-arena-cyan/10' 
                                     : 'text-gray-300 hover:text-white hover:bg-white/5'
@@ -710,48 +694,49 @@ export default function ClanPage({ params }: { params: { slug: string } }) {
                         )}
                       </div>
                     ) : (
-                      <span className="text-sm text-gray-500 capitalize">{member.role}</span>
+                      <span className="text-xs text-gray-500 capitalize mt-0.5 block">{member.role}</span>
                     )}
                   </div>
-                </Link>
-                
-                <div className="flex items-center gap-2 sm:gap-4 text-xs sm:text-sm flex-shrink-0">
-                  <div className="text-right">
-                    <p className="text-white font-medium">{member.win_rate}%</p>
-                    <p className="text-gray-500 hidden sm:block">Win Rate</p>
-                  </div>
-                  <div className="text-right">
-                    <p className={`font-medium ${member.avg_return >= 0 ? 'text-green-400' : 'text-red-400'}`}>
-                      {member.avg_return >= 0 ? '+' : ''}{member.avg_return}%
-                    </p>
-                    <p className="text-gray-500 hidden sm:block">Avg Return</p>
-                  </div>
-                  <div className="text-right">
-                    <p className="text-white font-medium">{member.total_matches}</p>
-                    <p className="text-gray-500 hidden sm:block">Matches</p>
+                  
+                  {/* Stats pills */}
+                  <div className="flex items-center gap-1.5 sm:gap-3 flex-shrink-0">
+                    <div className="text-center px-2 py-1 rounded-md bg-white/[0.03]">
+                      <p className="text-xs sm:text-sm font-semibold text-white leading-tight">{member.win_rate}%</p>
+                      <p className="text-[9px] sm:text-[10px] text-gray-600 leading-tight">WR</p>
+                    </div>
+                    <div className="text-center px-2 py-1 rounded-md bg-white/[0.03]">
+                      <p className={`text-xs sm:text-sm font-semibold leading-tight ${member.avg_return >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+                        {member.avg_return >= 0 ? '+' : ''}{member.avg_return}%
+                      </p>
+                      <p className="text-[9px] sm:text-[10px] text-gray-600 leading-tight">AVG</p>
+                    </div>
+                    <div className="text-center px-2 py-1 rounded-md bg-white/[0.03]">
+                      <p className="text-xs sm:text-sm font-semibold text-white leading-tight">{member.total_matches}</p>
+                      <p className="text-[9px] sm:text-[10px] text-gray-600 leading-tight">M</p>
+                    </div>
                   </div>
                   
-                  {/* Remove member button - only for owner */}
+                  {/* Remove member - owner only */}
                   {clan.user_role === 'owner' && (
                     <button
                       onClick={() => handleRemoveMember(member.user_id, member.username)}
                       disabled={removingMember === member.user_id}
-                      className="p-1.5 sm:p-2 text-gray-500 hover:text-red-400 hover:bg-red-500/10 rounded-lg transition-colors disabled:opacity-50"
+                      className="p-1.5 text-gray-600 hover:text-red-400 hover:bg-red-500/10 rounded-lg transition-colors disabled:opacity-50 flex-shrink-0"
                       title="Remove member"
                     >
                       {removingMember === member.user_id ? (
-                        <Loader2 className="w-4 h-4 animate-spin" />
+                        <Loader2 className="w-3.5 h-3.5 animate-spin" />
                       ) : (
-                        <UserMinus className="w-4 h-4" />
+                        <UserMinus className="w-3.5 h-3.5" />
                       )}
                     </button>
                   )}
                 </div>
-              </div>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      </div>
     </div>
   )
 }
