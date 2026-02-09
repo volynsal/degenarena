@@ -136,72 +136,118 @@ export function LeaderboardPreview() {
         {/* Leaderboard card */}
         <Card className="overflow-hidden">
           <CardContent className="p-0">
-            {/* Header */}
-            <div className="grid grid-cols-12 gap-4 px-6 py-4 bg-white/5 border-b border-white/10 text-sm text-gray-400 font-medium">
+            {/* Desktop Header */}
+            <div className="hidden sm:grid grid-cols-12 gap-4 px-6 py-4 bg-white/5 border-b border-white/10 text-sm text-gray-400 font-medium">
               <div className="col-span-1">#</div>
-              <div className="col-span-5 sm:col-span-4">Trader / Formula</div>
-              <div className="col-span-2 text-center hidden sm:block">Trades</div>
-              <div className="col-span-3 sm:col-span-2 text-center">Win Rate</div>
+              <div className="col-span-4">Trader / Formula</div>
+              <div className="col-span-2 text-center">Trades</div>
+              <div className="col-span-2 text-center">Win Rate</div>
               <div className="col-span-3 text-right">Avg Return</div>
+            </div>
+
+            {/* Mobile Header */}
+            <div className="grid sm:hidden grid-cols-[2.5rem_1fr_auto_auto] gap-3 px-4 py-3 bg-white/5 border-b border-white/10 text-xs text-gray-400 font-medium">
+              <div>#</div>
+              <div>Trader / Formula</div>
+              <div className="text-right">Win Rate</div>
+              <div className="text-right w-[4.5rem]">Avg Return</div>
             </div>
             
             {/* Rows */}
             <div className="divide-y divide-white/5">
               {mockLeaderboard.map((entry) => (
-                <div
-                  key={entry.rank}
-                  className="grid grid-cols-12 gap-4 px-6 py-4 items-center hover:bg-white/[0.02] transition-colors"
-                >
-                  {/* Rank */}
-                  <div className="col-span-1">
-                    {entry.badge ? (
-                      <div className={`w-8 h-8 rounded-full bg-gradient-to-br ${badgeColors[entry.badge as keyof typeof badgeColors]} flex items-center justify-center`}>
-                        <Trophy className="w-4 h-4 text-white" />
-                      </div>
-                    ) : (
-                      <span className="text-gray-400 font-mono">{entry.rank}</span>
-                    )}
-                  </div>
-                  
-                  {/* User & Formula */}
-                  <div className="col-span-5 sm:col-span-4">
-                    <div className="flex items-center gap-3">
-                      <div className={`w-10 h-10 rounded-full flex items-center justify-center ${entry.isAI ? 'bg-gradient-to-br from-arena-purple to-arena-cyan' : 'bg-gradient-to-br from-arena-purple/50 to-arena-cyan/50'}`}>
-                        <span className="text-white font-medium text-sm">
-                          {entry.isAI ? '🤖' : entry.username.charAt(0).toUpperCase()}
-                        </span>
-                      </div>
-                      <div>
-                        <div className="flex items-center gap-2">
-                          <p className="text-white font-medium text-sm">{entry.username}</p>
-                          {entry.isAI && (
-                            <span className="text-[10px] px-1.5 py-0.5 rounded bg-arena-purple/30 text-arena-purple font-medium">AI</span>
-                          )}
+                <div key={entry.rank}>
+                  {/* Desktop row */}
+                  <div className="hidden sm:grid grid-cols-12 gap-4 px-6 py-4 items-center hover:bg-white/[0.02] transition-colors">
+                    {/* Rank */}
+                    <div className="col-span-1">
+                      {entry.badge ? (
+                        <div className={`w-8 h-8 rounded-full bg-gradient-to-br ${badgeColors[entry.badge as keyof typeof badgeColors]} flex items-center justify-center`}>
+                          <Trophy className="w-4 h-4 text-white" />
                         </div>
-                        <p className="text-gray-500 text-xs">{entry.formula}</p>
+                      ) : (
+                        <span className="text-gray-400 font-mono">{entry.rank}</span>
+                      )}
+                    </div>
+                    
+                    {/* User & Formula */}
+                    <div className="col-span-4">
+                      <div className="flex items-center gap-3">
+                        <div className={`w-10 h-10 rounded-full flex-shrink-0 flex items-center justify-center ${entry.isAI ? 'bg-gradient-to-br from-arena-purple to-arena-cyan' : 'bg-gradient-to-br from-arena-purple/50 to-arena-cyan/50'}`}>
+                          <span className="text-white font-medium text-sm">
+                            {entry.isAI ? '🤖' : entry.username.charAt(0).toUpperCase()}
+                          </span>
+                        </div>
+                        <div className="min-w-0">
+                          <div className="flex items-center gap-2">
+                            <p className="text-white font-medium text-sm truncate">{entry.username}</p>
+                            {entry.isAI && (
+                              <span className="text-[10px] px-1.5 py-0.5 rounded bg-arena-purple/30 text-arena-purple font-medium flex-shrink-0">AI</span>
+                            )}
+                          </div>
+                          <p className="text-gray-500 text-xs truncate">{entry.formula}</p>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                  
-                  {/* Total trades */}
-                  <div className="col-span-2 text-center hidden sm:block">
-                    <div className="flex items-center justify-center gap-1">
-                      <Target className="w-3 h-3 text-gray-400" />
-                      <span className="text-gray-300 text-sm font-mono">{entry.totalTrades}</span>
+                    
+                    {/* Total trades */}
+                    <div className="col-span-2 text-center">
+                      <div className="flex items-center justify-center gap-1">
+                        <Target className="w-3 h-3 text-gray-400" />
+                        <span className="text-gray-300 text-sm font-mono">{entry.totalTrades}</span>
+                      </div>
+                    </div>
+                    
+                    {/* Win rate */}
+                    <div className="col-span-2 text-center">
+                      <span className="text-white font-mono text-sm">{entry.winRate}%</span>
+                    </div>
+                    
+                    {/* Avg return */}
+                    <div className="col-span-3 text-right">
+                      <span className="text-arena-cyan font-mono text-sm flex items-center justify-end gap-1">
+                        <TrendingUp className="w-3 h-3" />
+                        +{entry.avgReturn}%
+                      </span>
                     </div>
                   </div>
-                  
-                  {/* Win rate */}
-                  <div className="col-span-3 sm:col-span-2 text-center">
-                    <span className="text-white font-mono text-sm">{entry.winRate}%</span>
-                  </div>
-                  
-                  {/* Avg return */}
-                  <div className="col-span-3 text-right">
-                    <span className="text-arena-cyan font-mono text-sm flex items-center justify-end gap-1">
-                      <TrendingUp className="w-3 h-3" />
-                      +{entry.avgReturn}%
-                    </span>
+
+                  {/* Mobile row */}
+                  <div className="grid sm:hidden grid-cols-[2.5rem_1fr_auto_auto] gap-3 px-4 py-3 items-center hover:bg-white/[0.02] transition-colors">
+                    {/* Rank */}
+                    <div className="flex items-center justify-center">
+                      {entry.badge ? (
+                        <div className={`w-7 h-7 rounded-full bg-gradient-to-br ${badgeColors[entry.badge as keyof typeof badgeColors]} flex items-center justify-center`}>
+                          <Trophy className="w-3.5 h-3.5 text-white" />
+                        </div>
+                      ) : (
+                        <span className="text-gray-400 font-mono text-sm">{entry.rank}</span>
+                      )}
+                    </div>
+
+                    {/* User & Formula */}
+                    <div className="min-w-0">
+                      <div className="flex items-center gap-1.5">
+                        <p className="text-white font-medium text-sm truncate">{entry.username}</p>
+                        {entry.isAI && (
+                          <span className="text-[9px] px-1 py-px rounded bg-arena-purple/30 text-arena-purple font-medium flex-shrink-0">AI</span>
+                        )}
+                      </div>
+                      <p className="text-gray-500 text-[11px] truncate">{entry.formula}</p>
+                    </div>
+                    
+                    {/* Win rate */}
+                    <div className="text-right">
+                      <span className="text-white font-mono text-xs">{entry.winRate}%</span>
+                    </div>
+                    
+                    {/* Avg return */}
+                    <div className="text-right w-[4.5rem]">
+                      <span className="text-arena-cyan font-mono text-xs flex items-center justify-end gap-0.5">
+                        <TrendingUp className="w-3 h-3 flex-shrink-0" />
+                        +{entry.avgReturn}%
+                      </span>
+                    </div>
                   </div>
                 </div>
               ))}
