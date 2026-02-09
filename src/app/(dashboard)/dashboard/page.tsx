@@ -74,9 +74,9 @@ export default function DashboardPage() {
       {/* Header */}
       <div>
         <h1 className="text-2xl sm:text-3xl font-semibold gradient-text">
-          Dashboard
+          Home
         </h1>
-        <p className="text-gray-400 text-sm sm:text-base">Overview of your formula performance</p>
+        <p className="text-gray-400 text-sm sm:text-base">State of play</p>
       </div>
       
       {/* Stats grid */}
