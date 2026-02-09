@@ -146,20 +146,22 @@ function detectNarrative(symbol: string, name: string): string | null {
   const n = name.toLowerCase()
   const combined = `${s} ${n}`
 
-  // Political
-  if (/trump|biden|maga|kamala|potus|election|congress|senate|patriot/.test(combined)) return 'political'
-  // AI Agents
-  if (/\bai\b|agent|gpt|neural|llm|sentient|cortex|brain|singularity/.test(combined)) return 'ai_agents'
-  // Celebrity
-  if (/elon|musk|drake|kanye|ye\b|taylor|celebrity|famous/.test(combined)) return 'celebrity'
-  // Super Bowl / sports events
-  if (/super.?bowl|nfl|patriots|seahawks|chiefs|eagles|touchdown/.test(combined)) return 'super_bowl'
-  // Revenge pump / comeback
-  if (/revenge|comeback|return|revival|phoenix|resurrect/.test(combined)) return 'revenge_pump'
-  // Meta wars / competitive narratives
-  if (/war|battle|\bvs\b|flip|dethrone|king|queen|crown|rival|clash|dominat/.test(combined)) return 'meta_wars'
+  // Political — politicians, parties, government
+  if (/trump|biden|maga|kamala|potus|election|congress|senate|patriot|desantis|vivek|rfk|democrat|republican|pelosi|obama|whitehouse|governer|politician|politic/.test(combined)) return 'political'
 
-  return null // No specific narrative detected — will show without a tag
+  // AI Agents — artificial intelligence, bots, models
+  if (/\bai\b|agent|gpt|neural|llm|sentient|cortex|brain|singularity|openai|claude|gemini|copilot|tensor|deepseek|mistral|perplexity|chatbot|machine.?learn/.test(combined)) return 'ai_agents'
+
+  // Celebrity — musicians, athletes, influencers, public figures
+  if (/elon|musk|drake|kanye|ye\b|taylor|swift|celebrity|famous|badbunny|bad.?bunny|rihanna|beyonce|kardashian|jenner|bieber|weeknd|travis.?scott|snoop|diddy|eminem|nicki|minaj|cardi|doja|billie|eilish|post.?malone|shaq|lebron|messi|ronaldo|zuckerberg|bezos|oprah|rogan|mr.?beast|pewdiepie|ninja|adin.?ross|kai.?cenat|speed\b|ishowspeed|logan.?paul|jake.?paul|tate\b|andrew.?tate|milei/.test(combined)) return 'celebrity'
+
+  // Sports — teams, leagues, events
+  if (/super.?bowl|nfl|nba|mlb|ufc|fifa|world.?cup|patriots|seahawks|chiefs|eagles|lakers|celtics|warriors|cowboys|steelers|niners|ravens|bulls|yankees|dodgers|touchdown|slam.?dunk|knockout|playoff|championship|derby|formula.?1|\bf1\b|premier.?league/.test(combined)) return 'super_bowl'
+
+  // Revenge pump / comeback
+  if (/revenge|comeback|return|revival|phoenix|resurrect|redemption|rise.?again|back.?from/.test(combined)) return 'revenge_pump'
+
+  return null
 }
 
 const MARKET_TEMPLATES: MarketTemplate[] = [
