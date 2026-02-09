@@ -598,67 +598,95 @@ You'll receive alerts when matches are found.`
   
   private formatEmailHtml(payload: AlertPayload): string {
     const formatNumber = (n: number) => n.toLocaleString('en-US', { maximumFractionDigits: 2 })
+    const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://degenarenahq.com'
     
     return `
 <!DOCTYPE html>
 <html>
 <head>
-  <style>
-    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #0d0d12; color: #fff; padding: 20px; }
-    .container { max-width: 600px; margin: 0 auto; background: #141419; border-radius: 12px; padding: 30px; }
-    .header { text-align: center; margin-bottom: 30px; }
-    .logo { font-size: 24px; font-weight: bold; background: linear-gradient(to right, #a855f7, #00ff9d); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-    h1 { font-size: 20px; margin: 0 0 10px 0; }
-    .token-name { color: #a855f7; font-size: 18px; }
-    .stats { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin: 20px 0; }
-    .stat { background: rgba(255,255,255,0.05); padding: 15px; border-radius: 8px; }
-    .stat-label { color: #888; font-size: 12px; }
-    .stat-value { font-size: 16px; font-weight: 600; margin-top: 5px; }
-    .contract { background: rgba(255,255,255,0.05); padding: 15px; border-radius: 8px; margin: 20px 0; word-break: break-all; font-family: monospace; font-size: 12px; }
-    .cta { display: block; background: linear-gradient(to right, #a855f7, #00ff9d); color: white; text-decoration: none; padding: 15px 30px; border-radius: 8px; text-align: center; font-weight: 600; margin-top: 20px; }
-    .footer { text-align: center; color: #666; font-size: 12px; margin-top: 30px; }
-  </style>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 </head>
-<body>
-  <div class="container">
-    <div class="header">
-      <div class="logo">DegenArena HQ</div>
+<body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background-color: #0d0d12; color: #ffffff; padding: 20px; margin: 0;">
+  <div style="max-width: 600px; margin: 0 auto; background-color: #141419; border-radius: 12px; overflow: hidden;">
+    
+    <!-- Header -->
+    <div style="background: linear-gradient(to right, #a855f7, #00ff9d); padding: 20px; text-align: center;">
+      <div style="font-size: 22px; font-weight: bold; color: #ffffff;">DegenArena HQ</div>
     </div>
     
-    <h1>🎯 New Token Match!</h1>
-    <p>Your formula <strong>"${payload.formulaName}"</strong> found a new token:</p>
-    
-    <p class="token-name">${payload.tokenSymbol} (${payload.tokenName})</p>
-    
-    <div class="stats">
-      <div class="stat">
-        <div class="stat-label">Chain</div>
-        <div class="stat-value">${payload.chain.toUpperCase()}</div>
+    <!-- Content -->
+    <div style="padding: 30px;">
+      <h1 style="font-size: 20px; margin: 0 0 8px 0; color: #ffffff;">🎯 New Token Match!</h1>
+      <p style="color: #888888; margin: 0 0 20px 0; font-size: 14px;">
+        Your formula <strong style="color: #ffffff;">&ldquo;${payload.formulaName}&rdquo;</strong> found a new token:
+      </p>
+      
+      <!-- Token Name -->
+      <div style="background-color: rgba(168,85,247,0.15); border: 1px solid rgba(168,85,247,0.3); border-radius: 8px; padding: 16px; margin-bottom: 20px;">
+        <div style="font-size: 20px; font-weight: 700; color: #a855f7; margin: 0;">
+          $${payload.tokenSymbol} (${payload.tokenName})
+        </div>
       </div>
-      <div class="stat">
-        <div class="stat-label">Price</div>
-        <div class="stat-value">$${payload.price.toFixed(8)}</div>
+      
+      <!-- Stats Grid (using table for email compatibility) -->
+      <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom: 20px;">
+        <tr>
+          <td width="50%" style="padding: 0 6px 12px 0; vertical-align: top;">
+            <div style="background-color: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 14px;">
+              <div style="color: #888888; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px;">Chain</div>
+              <div style="font-size: 16px; font-weight: 600; color: #ffffff;">${payload.chain.toUpperCase()}</div>
+            </div>
+          </td>
+          <td width="50%" style="padding: 0 0 12px 6px; vertical-align: top;">
+            <div style="background-color: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 14px;">
+              <div style="color: #888888; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px;">Price</div>
+              <div style="font-size: 16px; font-weight: 600; color: #ffffff;">$${payload.price.toFixed(8)}</div>
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td width="50%" style="padding: 0 6px 0 0; vertical-align: top;">
+            <div style="background-color: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 14px;">
+              <div style="color: #888888; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px;">Liquidity</div>
+              <div style="font-size: 16px; font-weight: 600; color: #00ff9d;">$${formatNumber(payload.liquidity)}</div>
+            </div>
+          </td>
+          <td width="50%" style="padding: 0 0 0 6px; vertical-align: top;">
+            <div style="background-color: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 14px;">
+              <div style="color: #888888; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px;">24h Volume</div>
+              <div style="font-size: 16px; font-weight: 600; color: #00ff9d;">$${formatNumber(payload.volume24h)}</div>
+            </div>
+          </td>
+        </tr>
+      </table>
+      
+      <!-- Contract Address -->
+      <div style="background-color: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 14px; margin-bottom: 24px;">
+        <div style="color: #888888; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px;">Contract Address</div>
+        <div style="font-family: 'SF Mono', Monaco, 'Courier New', monospace; font-size: 12px; color: #cccccc; word-break: break-all; line-height: 1.5;">${payload.tokenAddress}</div>
       </div>
-      <div class="stat">
-        <div class="stat-label">Liquidity</div>
-        <div class="stat-value">$${formatNumber(payload.liquidity)}</div>
-      </div>
-      <div class="stat">
-        <div class="stat-label">24h Volume</div>
-        <div class="stat-value">$${formatNumber(payload.volume24h)}</div>
-      </div>
+      
+      <!-- CTA Button -->
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td align="center">
+            <a href="${payload.dexscreenerUrl}" target="_blank" style="display: inline-block; background: linear-gradient(to right, #a855f7, #00ff9d); color: #ffffff; text-decoration: none; padding: 14px 32px; border-radius: 8px; font-weight: 600; font-size: 15px;">
+              View on DexScreener &rarr;
+            </a>
+          </td>
+        </tr>
+      </table>
     </div>
     
-    <div class="contract">
-      <div class="stat-label">Contract Address</div>
-      ${payload.tokenAddress}
-    </div>
-    
-    <a href="${payload.dexscreenerUrl}" class="cta">View on DexScreener →</a>
-    
-    <div class="footer">
-      <p>You're receiving this because you have email alerts enabled for your DegenArena HQ formulas.</p>
-      <p>Manage your alert settings in your dashboard.</p>
+    <!-- Footer -->
+    <div style="padding: 20px 30px; border-top: 1px solid rgba(255,255,255,0.08); text-align: center;">
+      <p style="color: #666666; font-size: 12px; margin: 0 0 8px 0;">
+        You're receiving this because you have email alerts enabled for your formulas.
+      </p>
+      <p style="margin: 0;">
+        <a href="${appUrl}/settings" style="color: #888888; font-size: 12px; text-decoration: underline;">Manage alert settings</a>
+      </p>
     </div>
   </div>
 </body>
