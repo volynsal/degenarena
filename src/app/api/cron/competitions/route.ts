@@ -148,71 +148,109 @@ export async function GET(request: NextRequest) {
       console.log(`✅ Ended ${results.statusUpdates.ended} competitions`)
     }
 
-    // ── 4. CREATE recurring daily competitions ──
-    const tomorrow = new Date(now)
+    // ── 4. CREATE recurring competitions ──
+    // Helper: ensure a competition exists for a given day and type
+    async function ensureCompetition(opts: {
+      type: string
+      name: string
+      description: string
+      prizes: Record<string, string>
+      point_prizes: Record<string, number>
+      startDate: Date
+      status: 'upcoming' | 'active'
+    }) {
+      const endDate = new Date(opts.startDate)
+      endDate.setUTCDate(endDate.getUTCDate() + 1)
+
+      const { data: existing } = await supabaseAdmin
+        .from('competitions')
+        .select('id')
+        .eq('type', opts.type)
+        .gte('starts_at', opts.startDate.toISOString())
+        .lt('starts_at', endDate.toISOString())
+        .maybeSingle()
+
+      if (!existing) {
+        const { error: createErr } = await supabaseAdmin
+          .from('competitions')
+          .insert({
+            name: opts.name,
+            description: opts.description,
+            type: opts.type,
+            status: opts.status,
+            starts_at: opts.startDate.toISOString(),
+            ends_at: endDate.toISOString(),
+            prizes: opts.prizes,
+            point_prizes: opts.point_prizes,
+          })
+
+        if (!createErr) {
+          results.competitionsCreated++
+          console.log(`📅 Created ${opts.type}: ${opts.name} (${opts.status})`)
+        }
+      }
+    }
+
+    // Today's start time (8am UTC today)
+    const today = new Date(now)
+    today.setUTCHours(8, 0, 0, 0)
+
+    // Tomorrow's start time
+    const tomorrow = new Date(today)
     tomorrow.setUTCDate(tomorrow.getUTCDate() + 1)
-    tomorrow.setUTCHours(8, 0, 0, 0) // 8am UTC
 
-    const dayAfter = new Date(tomorrow)
-    dayAfter.setUTCDate(dayAfter.getUTCDate() + 1)
+    // Determine if today's comps should be active or upcoming
+    const todayStatus = now >= today ? 'active' as const : 'upcoming' as const
 
-    // 24-Hour Flip
-    const { data: existingFlip } = await supabaseAdmin
-      .from('competitions')
-      .select('id')
-      .eq('type', 'daily_flip')
-      .gte('starts_at', tomorrow.toISOString())
-      .lt('starts_at', dayAfter.toISOString())
-      .maybeSingle()
+    // ── TODAY'S competitions (create if missing) ──
+    await ensureCompetition({
+      type: 'daily_flip', name: '24-Hour Flip',
+      description: 'Best total verified PnL in 24 hours wins. Show what your wallet can do.',
+      prizes: { '1st': 'daily_champion', '2nd': 'silver_trophy', '3rd': 'bronze_trophy' },
+      point_prizes: { '1st': 500, '2nd': 250, '3rd': 100 },
+      startDate: today, status: todayStatus,
+    })
 
-    if (!existingFlip) {
-      const { error: createErr } = await supabaseAdmin
-        .from('competitions')
-        .insert({
-          name: '24-Hour Flip',
-          description: 'Best total verified PnL in 24 hours wins. Show what your wallet can do.',
-          type: 'daily_flip',
-          status: 'upcoming',
-          starts_at: tomorrow.toISOString(),
-          ends_at: dayAfter.toISOString(),
-          prizes: { '1st': 'daily_champion', '2nd': 'silver_trophy', '3rd': 'bronze_trophy' },
-          point_prizes: { '1st': 500, '2nd': 250, '3rd': 100 },
-        })
+    await ensureCompetition({
+      type: 'best_call', name: 'Best Call',
+      description: 'One trade, highest % return. Precision over volume.',
+      prizes: { '1st': 'sniper_badge', '2nd': 'silver_trophy', '3rd': 'bronze_trophy' },
+      point_prizes: { '1st': 500, '2nd': 250, '3rd': 100 },
+      startDate: today, status: todayStatus,
+    })
 
-      if (!createErr) {
-        results.competitionsCreated++
-        console.log('📅 Created tomorrow\'s 24-Hour Flip')
-      }
-    }
+    await ensureCompetition({
+      type: 'live_trading', name: 'Live Trading Challenge',
+      description: 'Go Live, trade, and let your verified PnL do the talking.',
+      prizes: { '1st': 'live_champion', '2nd': 'silver_trophy', '3rd': 'bronze_trophy' },
+      point_prizes: { '1st': 750, '2nd': 350, '3rd': 150 },
+      startDate: today, status: todayStatus,
+    })
 
-    // Best Call
-    const { data: existingBestCall } = await supabaseAdmin
-      .from('competitions')
-      .select('id')
-      .eq('type', 'best_call')
-      .gte('starts_at', tomorrow.toISOString())
-      .lt('starts_at', dayAfter.toISOString())
-      .maybeSingle()
+    // ── TOMORROW'S competitions (always upcoming) ──
+    await ensureCompetition({
+      type: 'daily_flip', name: '24-Hour Flip',
+      description: 'Best total verified PnL in 24 hours wins. Show what your wallet can do.',
+      prizes: { '1st': 'daily_champion', '2nd': 'silver_trophy', '3rd': 'bronze_trophy' },
+      point_prizes: { '1st': 500, '2nd': 250, '3rd': 100 },
+      startDate: tomorrow, status: 'upcoming',
+    })
 
-    if (!existingBestCall) {
-      const { error: createErr } = await supabaseAdmin
-        .from('competitions')
-        .insert({
-          name: 'Best Call',
-          description: 'One trade, highest % return. Precision over volume.',
-          type: 'best_call',
-          status: 'upcoming',
-          starts_at: tomorrow.toISOString(),
-          ends_at: dayAfter.toISOString(),
-          prizes: { '1st': 'sniper_badge', '2nd': 'silver_trophy', '3rd': 'bronze_trophy' },
-          point_prizes: { '1st': 500, '2nd': 250, '3rd': 100 },
-        })
+    await ensureCompetition({
+      type: 'best_call', name: 'Best Call',
+      description: 'One trade, highest % return. Precision over volume.',
+      prizes: { '1st': 'sniper_badge', '2nd': 'silver_trophy', '3rd': 'bronze_trophy' },
+      point_prizes: { '1st': 500, '2nd': 250, '3rd': 100 },
+      startDate: tomorrow, status: 'upcoming',
+    })
 
-      if (!createErr) {
-        results.competitionsCreated++
-        console.log('📅 Created tomorrow\'s Best Call')
-      }
-    }
+    await ensureCompetition({
+      type: 'live_trading', name: 'Live Trading Challenge',
+      description: 'Go Live, trade, and let your verified PnL do the talking.',
+      prizes: { '1st': 'live_champion', '2nd': 'silver_trophy', '3rd': 'bronze_trophy' },
+      point_prizes: { '1st': 750, '2nd': 350, '3rd': 150 },
+      startDate: tomorrow, status: 'upcoming',
+    })
 
     console.log('🏆 Competition cron complete:', results)
 
