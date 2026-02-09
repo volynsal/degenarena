@@ -39,12 +39,10 @@ export function Hero() {
         <p
           className="text-2xl sm:text-3xl font-bold tracking-widest mb-6"
           style={{
-            background: 'linear-gradient(90deg, #DC2626 0%, #FF4444 25%, #FFFFFF 50%, #FF4444 75%, #DC2626 100%)',
-            backgroundSize: '200% 100%',
+            background: 'linear-gradient(90deg, #DC2626, #FF4444)',
             WebkitBackgroundClip: 'text',
             WebkitTextFillColor: 'transparent',
             backgroundClip: 'text',
-            animation: 'shimmer 3s ease-in-out infinite',
           }}
         >
           BETA IS LIVE
