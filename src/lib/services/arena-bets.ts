@@ -503,6 +503,7 @@ export async function resolveMarkets(): Promise<{ resolved: number; cancelled: n
 /**
  * Distribute points to winners from a resolved market.
  * Pari-mutuel style: losers' pool is distributed to winners proportionally.
+ * Uses atomic RPC functions to prevent race conditions.
  */
 async function distributePayouts(
   supabase: ReturnType<typeof getServiceClient>,
@@ -518,29 +519,40 @@ async function distributePayouts(
   if (!bets?.length) return
 
   const winnerBets = bets.filter(b => b.position === outcome)
-  const loserPool = bets.filter(b => b.position !== outcome).reduce((sum, b) => sum + b.amount, 0)
+  const loserBets = bets.filter(b => b.position !== outcome)
+  const loserPool = loserBets.reduce((sum, b) => sum + b.amount, 0)
   const winnerPool = winnerBets.reduce((sum, b) => sum + b.amount, 0)
-  const totalPool = loserPool + winnerPool
 
-  // If no winners, refund everyone
+  // If no winners, refund everyone (no win/loss recorded)
   if (winnerBets.length === 0) {
     for (const bet of bets) {
-      await creditPoints(supabase, bet.user_id, bet.amount, false)
+      await supabase.rpc('credit_arena_points', {
+        p_user_id: bet.user_id,
+        p_amount: bet.amount,
+        p_is_win: false,
+      })
       await supabase.from('arena_bets').update({ payout: bet.amount, is_winner: false }).eq('id', bet.id)
     }
     return
   }
 
-  // If no losers, refund winners their stake
+  // If no losers, refund winners their stake (still counts as a win)
   if (loserPool === 0) {
     for (const bet of winnerBets) {
       await supabase.from('arena_bets').update({ payout: bet.amount, is_winner: true }).eq('id', bet.id)
-      await creditPoints(supabase, bet.user_id, bet.amount, true)
+      await supabase.rpc('credit_arena_points', {
+        p_user_id: bet.user_id,
+        p_amount: bet.amount,
+        p_is_win: true,
+      })
     }
-    // Mark losers
-    for (const bet of bets.filter(b => b.position !== outcome)) {
+    // Mark losers (shouldn't exist if loserPool is 0, but defensive)
+    for (const bet of loserBets) {
       await supabase.from('arena_bets').update({ payout: 0, is_winner: false }).eq('id', bet.id)
-      await updateStreak(supabase, bet.user_id, false)
+      await supabase.rpc('update_arena_streak', {
+        p_user_id: bet.user_id,
+        p_is_win: false,
+      })
     }
     return
   }
@@ -551,13 +563,20 @@ async function distributePayouts(
     const payout = Math.round(bet.amount + (loserPool * share))
 
     await supabase.from('arena_bets').update({ payout, is_winner: true }).eq('id', bet.id)
-    await creditPoints(supabase, bet.user_id, payout, true)
+    await supabase.rpc('credit_arena_points', {
+      p_user_id: bet.user_id,
+      p_amount: payout,
+      p_is_win: true,
+    })
   }
 
-  // Mark losers
-  for (const bet of bets.filter(b => b.position !== outcome)) {
+  // Mark losers and update their streaks
+  for (const bet of loserBets) {
     await supabase.from('arena_bets').update({ payout: 0, is_winner: false }).eq('id', bet.id)
-    await updateStreak(supabase, bet.user_id, false)
+    await supabase.rpc('update_arena_streak', {
+      p_user_id: bet.user_id,
+      p_is_win: false,
+    })
   }
 }
 
@@ -572,81 +591,25 @@ async function cancelMarket(supabase: ReturnType<typeof getServiceClient>, marke
 
   if (bets) {
     for (const bet of bets) {
-      await creditPoints(supabase, bet.user_id, bet.amount, false)
+      // Mark bet as refunded (not a win or loss)
+      await supabase.from('arena_bets').update({
+        payout: bet.amount,
+        is_winner: null,
+      }).eq('id', bet.id)
+
+      // Refund points atomically
+      await supabase.rpc('credit_arena_points', {
+        p_user_id: bet.user_id,
+        p_amount: bet.amount,
+        p_is_win: false,
+      })
     }
   }
 }
 
-/**
- * Credit points to a user's balance and update stats.
- */
-async function creditPoints(
-  supabase: ReturnType<typeof getServiceClient>,
-  userId: string,
-  amount: number,
-  isWin: boolean
-) {
-  // Ensure user_points row exists
-  await supabase.from('user_points').upsert(
-    { user_id: userId, balance: 500 },
-    { onConflict: 'user_id', ignoreDuplicates: true }
-  )
-
-  if (isWin) {
-    // Credit balance + update win stats
-    const { data } = await supabase
-      .from('user_points')
-      .select('balance, total_won, win_count, current_streak, best_streak')
-      .eq('user_id', userId)
-      .maybeSingle()
-
-    if (data) {
-      const newStreak = (data.current_streak ?? 0) + 1
-      await supabase.from('user_points').update({
-        balance: (data.balance ?? 0) + amount,
-        total_won: (data.total_won ?? 0) + amount,
-        total_earned: (data.total_won ?? 0) + amount,
-        win_count: (data.win_count ?? 0) + 1,
-        current_streak: newStreak,
-        best_streak: Math.max(newStreak, data.best_streak ?? 0),
-        updated_at: new Date().toISOString(),
-      }).eq('user_id', userId)
-    }
-  } else {
-    // Just credit balance (refund case)
-    const { data } = await supabase
-      .from('user_points')
-      .select('balance')
-      .eq('user_id', userId)
-      .maybeSingle()
-
-    if (data) {
-      await supabase.from('user_points').update({
-        balance: (data.balance ?? 0) + amount,
-      }).eq('user_id', userId)
-    }
-  }
-}
-
-async function updateStreak(
-  supabase: ReturnType<typeof getServiceClient>,
-  userId: string,
-  isWin: boolean
-) {
-  const { data } = await supabase
-    .from('user_points')
-    .select('current_streak, best_streak, loss_count')
-    .eq('user_id', userId)
-    .maybeSingle()
-
-  if (data) {
-    await supabase.from('user_points').update({
-      current_streak: isWin ? (data.current_streak ?? 0) + 1 : 0,
-      loss_count: isWin ? data.loss_count : (data.loss_count ?? 0) + 1,
-      updated_at: new Date().toISOString(),
-    }).eq('user_id', userId)
-  }
-}
+// Note: creditPoints and updateStreak are now handled by atomic RPC functions
+// (credit_arena_points and update_arena_streak) defined in migration 021.
+// This eliminates race conditions from the read-then-write pattern.
 
 /**
  * Claim daily points bonus (100 points per day).

@@ -19,7 +19,14 @@ export async function POST(request: NextRequest) {
     return NextResponse.json<ApiResponse<null>>({ error: 'Unauthorized' }, { status: 401 })
   }
 
-  const body = await request.json()
+  // Safe JSON parsing
+  let body: any
+  try {
+    body = await request.json()
+  } catch {
+    return NextResponse.json<ApiResponse<null>>({ error: 'Invalid request body' }, { status: 400 })
+  }
+
   const { market_id, position, amount } = body
 
   // Validate inputs
@@ -39,96 +46,29 @@ export async function POST(request: NextRequest) {
   const serviceClient = getServiceClient()
   const userId = session.user.id
 
-  // Ensure user_points row exists (first-time users get 500 starting points)
-  await serviceClient.from('user_points').upsert(
-    { user_id: userId, balance: 500 },
-    { onConflict: 'user_id', ignoreDuplicates: true }
-  )
+  // Use atomic RPC function to place bet
+  // This handles balance check, deduction, bet insertion, and pool update
+  // in a single database transaction (no race conditions).
+  const { data: result, error: rpcError } = await serviceClient.rpc('place_arena_bet', {
+    p_user_id: userId,
+    p_market_id: market_id,
+    p_position: position,
+    p_amount: betAmount,
+  })
 
-  // Check user balance
-  const { data: points } = await serviceClient
-    .from('user_points')
-    .select('balance')
-    .eq('user_id', userId)
-    .maybeSingle()
-
-  if (!points || points.balance < betAmount) {
-    return NextResponse.json<ApiResponse<null>>({ error: `Not enough points. You have ${points?.balance ?? 0} pts.` }, { status: 400 })
-  }
-
-  // Check market is active and still open
-  const { data: market } = await serviceClient
-    .from('arena_markets')
-    .select('id, status, resolve_at')
-    .eq('id', market_id)
-    .maybeSingle()
-
-  if (!market) {
-    return NextResponse.json<ApiResponse<null>>({ error: 'Market not found' }, { status: 404 })
-  }
-
-  if (market.status !== 'active') {
-    return NextResponse.json<ApiResponse<null>>({ error: 'Market is no longer active' }, { status: 400 })
-  }
-
-  if (new Date(market.resolve_at) < new Date()) {
-    return NextResponse.json<ApiResponse<null>>({ error: 'Market has expired' }, { status: 400 })
-  }
-
-  // Check if user already bet on this market
-  const { data: existingBet } = await serviceClient
-    .from('arena_bets')
-    .select('id')
-    .eq('market_id', market_id)
-    .eq('user_id', userId)
-    .maybeSingle()
-
-  if (existingBet) {
-    return NextResponse.json<ApiResponse<null>>({ error: 'You already placed a bet on this market' }, { status: 400 })
-  }
-
-  // Deduct points
-  await serviceClient.from('user_points').update({
-    balance: points.balance - betAmount,
-    total_wagered: (points as any).total_wagered ? (points as any).total_wagered + betAmount : betAmount,
-    updated_at: new Date().toISOString(),
-  }).eq('user_id', userId)
-
-  // Place bet
-  const { data: bet, error } = await serviceClient.from('arena_bets').insert({
-    market_id,
-    user_id: userId,
-    position,
-    amount: betAmount,
-  }).select().single()
-
-  if (error) {
-    // Refund on failure
-    await serviceClient.from('user_points').update({
-      balance: points.balance,
-    }).eq('user_id', userId)
+  if (rpcError) {
+    console.error('place_arena_bet RPC error:', rpcError)
     return NextResponse.json<ApiResponse<null>>({ error: 'Failed to place bet' }, { status: 500 })
   }
 
-  // Update market pool stats
-  const poolField = position === 'yes' ? 'yes_pool' : 'no_pool'
-  const { data: mkt } = await serviceClient
-    .from('arena_markets')
-    .select('total_pool, yes_pool, no_pool, total_bettors')
-    .eq('id', market_id)
-    .maybeSingle()
-
-  if (mkt) {
-    await serviceClient.from('arena_markets').update({
-      total_pool: (mkt.total_pool ?? 0) + betAmount,
-      [poolField]: ((mkt as Record<string, number>)[poolField] ?? 0) + betAmount,
-      total_bettors: (mkt.total_bettors ?? 0) + 1,
-    }).eq('id', market_id)
+  if (!result?.success) {
+    const statusCode = result?.error?.includes('not found') ? 404 : 400
+    return NextResponse.json<ApiResponse<null>>({ error: result?.error || 'Failed to place bet' }, { status: statusCode })
   }
 
   return NextResponse.json({
-    data: bet,
-    balance: points.balance - betAmount,
+    data: { id: result.bet_id, market_id, position, amount: betAmount },
+    balance: result.new_balance,
     message: `Bet placed! ${betAmount} pts on ${position.toUpperCase()}.`,
   })
 }
