@@ -4,7 +4,8 @@ import { useState, useEffect, useCallback, useRef } from 'react'
 import { Card, CardContent } from '@/components/ui/Card'
 import {
   TrendingUp, TrendingDown, Clock, Zap, Target, Gift,
-  ExternalLink, Loader2, ChevronDown, Flame, SkullIcon, Rocket, Pin
+  ExternalLink, Loader2, ChevronDown, Flame, SkullIcon, Rocket, Pin,
+  Swords, BarChart3, Globe
 } from 'lucide-react'
 import Link from 'next/link'
 
@@ -13,14 +14,13 @@ import Link from 'next/link'
 // =============================================
 
 // Narrative/meta categories for culture-forward market browsing
-const NARRATIVES: Record<string, { label: string; color: string; icon: string }> = {
-  trending: { label: 'Trending', color: 'text-amber-400 bg-amber-500/10 border-amber-500/20', icon: '📈' },
-  super_bowl: { label: 'Super Bowl', color: 'text-emerald-400 bg-emerald-500/10 border-emerald-500/20', icon: '🏈' },
-  ai_agents: { label: 'AI Agents', color: 'text-cyan-400 bg-cyan-500/10 border-cyan-500/20', icon: '🤖' },
-  political: { label: 'Political', color: 'text-blue-400 bg-blue-500/10 border-blue-500/20', icon: '🏛️' },
-  celebrity: { label: 'Celebrity', color: 'text-pink-400 bg-pink-500/10 border-pink-500/20', icon: '⭐' },
-  revenge_pump: { label: 'Revenge Pump', color: 'text-orange-400 bg-orange-500/10 border-orange-500/20', icon: '🔥' },
-  meta_wars: { label: 'Meta Wars', color: 'text-violet-400 bg-violet-500/10 border-violet-500/20', icon: '⚔️' },
+const NARRATIVES: Record<string, { label: string; color: string }> = {
+  trending: { label: 'Trending', color: 'text-amber-400 bg-amber-500/10 border-amber-500/20' },
+  ai_agents: { label: 'AI', color: 'text-cyan-400 bg-cyan-500/10 border-cyan-500/20' },
+  political: { label: 'Political', color: 'text-blue-400 bg-blue-500/10 border-blue-500/20' },
+  celebrity: { label: 'Celebrity', color: 'text-pink-400 bg-pink-500/10 border-pink-500/20' },
+  super_bowl: { label: 'Sports', color: 'text-emerald-400 bg-emerald-500/10 border-emerald-500/20' },
+  revenge_pump: { label: 'Pump', color: 'text-orange-400 bg-orange-500/10 border-orange-500/20' },
 }
 
 interface Market {
@@ -92,14 +92,12 @@ function formatPoints(n: number): string {
 
 function getMarketTypeIcon(type: string) {
   switch (type) {
-    case 'rug_call': return <SkullIcon size={14} />
-    case 'moonshot': return <Rocket size={14} />
-    case 'culture': return <span className="text-sm">🔮</span>
-    case 'versus': return <span className="text-sm">⚔️</span>
-    case 'narrative_index': return <span className="text-sm">📊</span>
-    case 'culture_crypto': return <span className="text-sm">🎭</span>
-    case 'meta': return <span className="text-sm">🌐</span>
-    default: return <TrendingUp size={14} />
+    case 'rug_call': return <SkullIcon size={12} />
+    case 'moonshot': return <Rocket size={12} />
+    case 'versus': return <Swords size={12} />
+    case 'narrative_index': return <BarChart3 size={12} />
+    case 'meta': return <Globe size={12} />
+    default: return <TrendingUp size={12} />
   }
 }
 
@@ -259,8 +257,7 @@ function MarketCard({
               <span className="text-xs text-gray-500 font-mono truncate">${market.token_symbol}</span>
             )}
             {market.narrative && NARRATIVES[market.narrative] && (
-              <span className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-medium border ${NARRATIVES[market.narrative].color}`}>
-                <span>{NARRATIVES[market.narrative].icon}</span>
+              <span className={`px-1.5 py-0.5 rounded text-[10px] font-medium border ${NARRATIVES[market.narrative].color}`}>
                 {NARRATIVES[market.narrative].label}
               </span>
             )}
@@ -602,41 +599,46 @@ export default function ArenaBetsPage() {
         </div>
       )}
 
-      {/* Tabs + Filter */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-        <div className="flex items-center gap-1 p-1 rounded-lg bg-white/5">
-          {[
-            { key: 'active', label: 'Live Markets' },
-            { key: 'resolved', label: 'Resolved' },
-          ].map((t) => (
-            <button
-              key={t.key}
-              onClick={() => setTab(t.key as any)}
-              className={`px-4 py-1.5 rounded-md text-sm font-medium transition-colors ${
-                tab === t.key
-                  ? 'bg-rose-500/20 text-white'
-                  : 'text-gray-400 hover:text-white'
-              }`}
-            >
-              {t.label}
-            </button>
-          ))}
-        </div>
+      {/* Filters */}
+      <div className="space-y-3">
+        {/* Row 1: Status tabs + Type filter */}
+        <div className="flex items-center gap-3 overflow-x-auto pb-1 scrollbar-hide">
+          {/* Status */}
+          <div className="flex items-center gap-0.5 p-0.5 rounded-lg bg-white/5 flex-shrink-0">
+            {[
+              { key: 'active', label: 'Live' },
+              { key: 'resolved', label: 'Resolved' },
+            ].map((t) => (
+              <button
+                key={t.key}
+                onClick={() => setTab(t.key as any)}
+                className={`px-3 py-1 rounded-md text-xs font-medium transition-colors ${
+                  tab === t.key
+                    ? 'bg-rose-500/20 text-white'
+                    : 'text-gray-400 hover:text-white'
+                }`}
+              >
+                {t.label}
+              </button>
+            ))}
+          </div>
 
-        <div className="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0 scrollbar-hide">
+          <div className="w-px h-5 bg-white/10 flex-shrink-0" />
+
+          {/* Type filters */}
           {[
             { key: 'all', label: 'All' },
-            { key: 'up_down', label: 'Up/Down' },
-            { key: 'rug_call', label: 'Rug Call' },
-            { key: 'moonshot', label: 'Moonshot' },
-            { key: 'versus', label: '⚔️ Versus' },
-            { key: 'narrative_index', label: '📊 Index' },
-            { key: 'meta', label: '🌐 Meta' },
+            { key: 'up_down', label: 'Price' },
+            { key: 'rug_call', label: 'Rug' },
+            { key: 'moonshot', label: 'Moon' },
+            { key: 'versus', label: 'Versus' },
+            { key: 'narrative_index', label: 'Index' },
+            { key: 'meta', label: 'Meta' },
           ].map((f) => (
             <button
               key={f.key}
               onClick={() => setTypeFilter(f.key)}
-              className={`flex-shrink-0 px-3 py-1 rounded-md text-xs font-medium transition-colors ${
+              className={`flex-shrink-0 px-2.5 py-1 rounded-md text-xs font-medium transition-colors ${
                 typeFilter === f.key
                   ? 'bg-white/10 text-white'
                   : 'text-gray-500 hover:text-gray-300'
@@ -646,34 +648,33 @@ export default function ArenaBetsPage() {
             </button>
           ))}
         </div>
-      </div>
 
-      {/* Narrative/Meta filters */}
-      <div className="flex items-center gap-2 overflow-x-auto pb-1 -mt-4 scrollbar-hide">
-        <button
-          onClick={() => setNarrativeFilter('all')}
-          className={`flex-shrink-0 px-3 py-1.5 rounded-full text-xs font-medium transition-colors border ${
-            narrativeFilter === 'all'
-              ? 'bg-white/10 text-white border-white/20'
-              : 'text-gray-500 hover:text-gray-300 border-transparent hover:border-white/10'
-          }`}
-        >
-          All Narratives
-        </button>
-        {Object.entries(NARRATIVES).map(([key, meta]) => (
+        {/* Row 2: Narrative filters */}
+        <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-hide">
           <button
-            key={key}
-            onClick={() => setNarrativeFilter(key)}
-            className={`flex-shrink-0 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-colors border ${
-              narrativeFilter === key
-                ? meta.color
+            onClick={() => setNarrativeFilter('all')}
+            className={`flex-shrink-0 px-2.5 py-1 rounded-full text-[11px] font-medium transition-colors border ${
+              narrativeFilter === 'all'
+                ? 'bg-white/10 text-white border-white/20'
                 : 'text-gray-500 hover:text-gray-300 border-transparent hover:border-white/10'
             }`}
           >
-            <span>{meta.icon}</span>
-            {meta.label}
+            All
           </button>
-        ))}
+          {Object.entries(NARRATIVES).map(([key, meta]) => (
+            <button
+              key={key}
+              onClick={() => setNarrativeFilter(key)}
+              className={`flex-shrink-0 px-2.5 py-1 rounded-full text-[11px] font-medium transition-colors border ${
+                narrativeFilter === key
+                  ? meta.color
+                  : 'text-gray-500 hover:text-gray-300 border-transparent hover:border-white/10'
+              }`}
+            >
+              {meta.label}
+            </button>
+          ))}
+        </div>
       </div>
 
       {/* Market Grid */}
