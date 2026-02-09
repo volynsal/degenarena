@@ -309,7 +309,10 @@ export async function GET(request: NextRequest) {
             point_prizes: opts.point_prizes,
           })
 
-        if (!createErr) {
+        if (createErr) {
+          console.error(`❌ Failed to create ${opts.type}:`, createErr.message)
+          results.errors.push(`Create ${opts.type}: ${createErr.message}`)
+        } else {
           results.competitionsCreated++
           console.log(`📅 Created ${opts.type}: ${opts.name} (${opts.status})`)
         }
