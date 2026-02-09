@@ -67,7 +67,7 @@ export async function GET(request: NextRequest) {
       results.errors.push(`Entries error: ${entriesError.message}`)
     } else if (activeEntries) {
       // Batch: get all unique user IDs and their current wallet PnL
-      const userIds = [...new Set(activeEntries.map(e => e.user_id))]
+      const userIds = Array.from(new Set(activeEntries.map(e => e.user_id)))
 
       if (userIds.length > 0) {
         const { data: walletStats } = await supabaseAdmin
