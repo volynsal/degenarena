@@ -76,7 +76,7 @@ export default function DashboardPage() {
         <h1 className="text-2xl sm:text-3xl font-semibold gradient-text">
           Home
         </h1>
-        <p className="text-gray-400 text-sm sm:text-base">State of play</p>
+        <p className="text-gray-400 text-sm sm:text-base">Your command center</p>
       </div>
       
       {/* Stats grid */}
