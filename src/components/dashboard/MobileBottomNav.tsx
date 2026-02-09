@@ -13,9 +13,9 @@ import {
 
 const navItems = [
   { name: 'Comps', href: '/competitions', icon: Swords },
-  { name: 'Arena', href: '/arena-bets', icon: Orbit },
-  { name: 'Home', href: '/dashboard', icon: LayoutDashboard, center: true },
   { name: 'Leaderboard', href: '/leaderboard', icon: Trophy },
+  { name: 'Home', href: '/dashboard', icon: LayoutDashboard, center: true },
+  { name: 'Galaxy', href: '/arena-bets', icon: Orbit },
 ]
 
 const moreItems = [
