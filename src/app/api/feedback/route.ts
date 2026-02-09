@@ -80,10 +80,12 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Failed to submit feedback. Please try again.' }, { status: 500 })
   }
 
-  // Send email notification (fire and forget)
+  // Send email notification
   const resendApiKey = process.env.RESEND_API_KEY
   const feedbackEmail = process.env.FEEDBACK_EMAIL || 'degenarena101@gmail.com'
-  if (resendApiKey && feedbackEmail) {
+  let emailSent = false
+
+  if (resendApiKey) {
     try {
       const emoji = CATEGORY_EMOJI[category] || '💬'
       const label = CATEGORY_LABELS[category] || category
@@ -92,14 +94,17 @@ export async function POST(request: NextRequest) {
         timeStyle: 'short',
       })
 
-      await fetch('https://api.resend.com/emails', {
+      // Use verified custom domain if set, otherwise fall back to Resend's default sender
+      const fromEmail = process.env.RESEND_FROM_EMAIL || 'DegenArena HQ <alerts@degenarenahq.com>'
+
+      const res = await fetch('https://api.resend.com/emails', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${resendApiKey}`,
         },
         body: JSON.stringify({
-          from: process.env.RESEND_FROM_EMAIL || 'DegenArena HQ <alerts@degenarenahq.com>',
+          from: fromEmail,
           to: feedbackEmail,
           subject: `${emoji} ${label} from ${username}`,
           html: `
@@ -141,15 +146,26 @@ export async function POST(request: NextRequest) {
 </html>`.trim(),
         }),
       })
+
+      const resBody = await res.json()
+      if (!res.ok) {
+        console.error('Resend API error:', res.status, resBody)
+      } else {
+        emailSent = true
+      }
     } catch (err) {
-      // Don't fail the request if email fails
       console.error('Feedback email error:', err)
     }
+  } else {
+    console.warn('RESEND_API_KEY not set — skipping feedback email')
   }
 
   return NextResponse.json({
     success: true,
-    message: 'Feedback submitted successfully!',
+    message: emailSent
+      ? 'Feedback submitted and notification sent!'
+      : 'Feedback saved (email notification may be delayed).',
     id: feedback.id,
+    emailSent,
   })
 }

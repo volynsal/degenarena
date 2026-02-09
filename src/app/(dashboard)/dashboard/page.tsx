@@ -120,14 +120,12 @@ export default function DashboardPage() {
               </div>
             </div>
             <div className="flex items-center gap-2">
-              {liveCount > 0 && (
-                <Link
-                  href="/live"
-                  className="px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-sm text-white transition-colors"
-                >
-                  Watch
-                </Link>
-              )}
+              <Link
+                href="/live"
+                className="px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-sm text-white transition-colors"
+              >
+                {liveCount > 0 ? 'Watch' : 'View'}
+              </Link>
               {userTwitchUrl ? (
                 <a
                   href="https://dashboard.twitch.tv/stream-manager"

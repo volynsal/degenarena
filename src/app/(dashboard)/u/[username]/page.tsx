@@ -343,7 +343,7 @@ export default function ProfilePage({ params }: { params: { username: string } }
                   </div>
                 </div>
               ) : (
-                <div className="relative w-full bg-black/50" style={{ paddingBottom: '36%' }}>
+                <div className="relative w-full bg-black/50" style={{ paddingBottom: '50%' }}>
                   <div className="absolute inset-0 flex flex-col items-center justify-center">
                     <TwitchIcon className="w-10 h-10 text-gray-700 mb-3" />
                     <p className="text-gray-600 text-sm font-medium">@{twitchUser} is offline</p>
