@@ -460,19 +460,15 @@ export default function ArenaBetsPage() {
   const [claimMessage, setClaimMessage] = useState<string | null>(null)
   const [tab, setTab] = useState<'active' | 'resolved'>('active')
   const [typeFilter, setTypeFilter] = useState<string>('all')
+  const [narrativeFilter, setNarrativeFilter] = useState<string>('all')
   const [error, setError] = useState<string | null>(null)
   const pollRef = useRef<NodeJS.Timeout | null>(null)
 
   const fetchMarkets = useCallback(async () => {
     try {
       const params = new URLSearchParams({ status: tab, limit: '30' })
-      if (typeFilter !== 'all') {
-        if (typeFilter.startsWith('n:')) {
-          params.set('narrative', typeFilter.slice(2))
-        } else {
-          params.set('type', typeFilter)
-        }
-      }
+      if (typeFilter !== 'all') params.set('type', typeFilter)
+      if (narrativeFilter !== 'all') params.set('narrative', narrativeFilter)
 
       const res = await fetch(`/api/arena-bets/markets?${params}`)
       const data = await res.json()
@@ -493,7 +489,7 @@ export default function ArenaBetsPage() {
     } finally {
       setLoading(false)
     }
-  }, [tab, typeFilter])
+  }, [tab, typeFilter, narrativeFilter])
 
   const fetchPoints = useCallback(async () => {
     try {
@@ -507,7 +503,7 @@ export default function ArenaBetsPage() {
     setLoading(true)
     fetchMarkets()
     fetchPoints()
-  }, [tab, typeFilter, fetchMarkets, fetchPoints])
+  }, [tab, typeFilter, narrativeFilter, fetchMarkets, fetchPoints])
 
   // Auto-refresh active markets every 30 seconds
   useEffect(() => {
@@ -591,50 +587,74 @@ export default function ArenaBetsPage() {
       )}
 
       {/* Filters */}
-      <div className="flex items-center gap-3 overflow-x-auto pb-1 scrollbar-hide">
-        {/* Status */}
-        <div className="flex items-center gap-0.5 p-0.5 rounded-lg bg-white/5 flex-shrink-0">
+      <div className="space-y-2">
+        {/* Row 1: Status + Market type */}
+        <div className="flex items-center gap-3 overflow-x-auto pb-1 scrollbar-hide">
+          <div className="flex items-center gap-0.5 p-0.5 rounded-lg bg-white/5 flex-shrink-0">
+            {[
+              { key: 'active', label: 'Live' },
+              { key: 'resolved', label: 'Resolved' },
+            ].map((t) => (
+              <button
+                key={t.key}
+                onClick={() => setTab(t.key as any)}
+                className={`px-3 py-1 rounded-md text-xs font-medium transition-colors ${
+                  tab === t.key
+                    ? 'bg-rose-500/20 text-white'
+                    : 'text-gray-400 hover:text-white'
+                }`}
+              >
+                {t.label}
+              </button>
+            ))}
+          </div>
+
+          <div className="w-px h-5 bg-white/10 flex-shrink-0" />
+
           {[
-            { key: 'active', label: 'Live' },
-            { key: 'resolved', label: 'Resolved' },
-          ].map((t) => (
+            { key: 'all', label: 'All' },
+            { key: 'up_down', label: 'Price' },
+            { key: 'moonshot', label: 'Moon' },
+            { key: 'rug_call', label: 'Rug' },
+            { key: 'versus', label: 'Versus' },
+            { key: 'meta', label: 'Meta' },
+          ].map((f) => (
             <button
-              key={t.key}
-              onClick={() => setTab(t.key as any)}
-              className={`px-3 py-1 rounded-md text-xs font-medium transition-colors ${
-                tab === t.key
-                  ? 'bg-rose-500/20 text-white'
-                  : 'text-gray-400 hover:text-white'
+              key={f.key}
+              onClick={() => setTypeFilter(f.key)}
+              className={`flex-shrink-0 px-2.5 py-1 rounded-md text-xs font-medium transition-colors ${
+                typeFilter === f.key
+                  ? 'bg-white/10 text-white'
+                  : 'text-gray-500 hover:text-gray-300'
               }`}
             >
-              {t.label}
+              {f.label}
             </button>
           ))}
         </div>
 
-        <div className="w-px h-5 bg-white/10 flex-shrink-0" />
-
-        {/* Type filters */}
-        {[
-          { key: 'all', label: 'All' },
-          { key: 'up_down', label: 'Price' },
-          { key: 'culture', label: 'Culture' },
-          { key: 'moonshot', label: 'Moon' },
-          { key: 'rug_call', label: 'Rug' },
-          { key: 'n:ct', label: 'CT' },
-        ].map((f) => (
-          <button
-            key={f.key}
-            onClick={() => setTypeFilter(f.key)}
-            className={`flex-shrink-0 px-2.5 py-1 rounded-md text-xs font-medium transition-colors ${
-              typeFilter === f.key
-                ? 'bg-white/10 text-white'
-                : 'text-gray-500 hover:text-gray-300'
-            }`}
-          >
-            {f.label}
-          </button>
-        ))}
+        {/* Row 2: Token narrative */}
+        <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-hide">
+          {[
+            { key: 'all', label: 'All' },
+            { key: 'ct', label: 'CT' },
+            { key: 'celebrity', label: 'Celebrity' },
+            { key: 'political', label: 'Political' },
+            { key: 'super_bowl', label: 'Sports' },
+          ].map((f) => (
+            <button
+              key={f.key}
+              onClick={() => setNarrativeFilter(f.key)}
+              className={`flex-shrink-0 px-2.5 py-1 rounded-full text-[11px] font-medium transition-colors border ${
+                narrativeFilter === f.key
+                  ? 'bg-white/10 text-white border-white/20'
+                  : 'text-gray-500 hover:text-gray-300 border-transparent hover:border-white/10'
+              }`}
+            >
+              {f.label}
+            </button>
+          ))}
+        </div>
       </div>
 
       {/* Market Grid */}
