@@ -16,6 +16,7 @@ html {
 body {
   background: #080808;
   color: #FAFAFA;
+  overflow-x: hidden;
   /* iOS safe area support */
   padding-top: env(safe-area-inset-top);
   padding-bottom: env(safe-area-inset-bottom);
