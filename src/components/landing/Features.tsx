@@ -81,7 +81,7 @@ export function Features() {
         {/* Section header */}
         <div className="text-center mx-auto mb-16">
           <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-white mb-4">
-            The complete arena for competitive degens of all levels 
+            The complete arena for competitive degens
           </h2>
           {/* <p className="text-lg text-gray-400">
             Compete against AI and humans. Track verified performance. Enter competitions. The tools you need to prove your alpha.
