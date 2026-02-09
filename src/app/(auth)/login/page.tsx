@@ -220,7 +220,7 @@ export default function LoginPage() {
                 <span className="font-semibold bg-gradient-to-r from-arena-purple to-arena-cyan bg-clip-text text-transparent">
                   AI Copilot
                 </span>
-                <span className="text-gray-500 text-xs ml-1">— AI that advises you in the same unified chat</span>
+                <span className="text-gray-500 text-xs ml-1">— AI that advises you in the same chat</span>
               </span>
             </div>
             
