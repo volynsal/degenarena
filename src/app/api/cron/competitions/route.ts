@@ -150,7 +150,7 @@ export async function GET(request: NextRequest) {
 
     // ── 4. CREATE recurring competitions ──
     // Helper: ensure a competition exists for a given day and type
-    async function ensureCompetition(opts: {
+    const ensureCompetition = async (opts: {
       type: string
       name: string
       description: string
@@ -158,7 +158,7 @@ export async function GET(request: NextRequest) {
       point_prizes: Record<string, number>
       startDate: Date
       status: 'upcoming' | 'active'
-    }) {
+    }) => {
       const endDate = new Date(opts.startDate)
       endDate.setUTCDate(endDate.getUTCDate() + 1)
 

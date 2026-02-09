@@ -14,25 +14,25 @@ import Link from 'next/link'
 
 // Narrative/meta categories for culture-forward market browsing
 const NARRATIVES: Record<string, { label: string; color: string; icon: string }> = {
+  trending: { label: 'Trending', color: 'text-amber-400 bg-amber-500/10 border-amber-500/20', icon: '📈' },
   super_bowl: { label: 'Super Bowl', color: 'text-emerald-400 bg-emerald-500/10 border-emerald-500/20', icon: '🏈' },
   ai_agents: { label: 'AI Agents', color: 'text-cyan-400 bg-cyan-500/10 border-cyan-500/20', icon: '🤖' },
   political: { label: 'Political', color: 'text-blue-400 bg-blue-500/10 border-blue-500/20', icon: '🏛️' },
   celebrity: { label: 'Celebrity', color: 'text-pink-400 bg-pink-500/10 border-pink-500/20', icon: '⭐' },
   revenge_pump: { label: 'Revenge Pump', color: 'text-orange-400 bg-orange-500/10 border-orange-500/20', icon: '🔥' },
   meta_wars: { label: 'Meta Wars', color: 'text-violet-400 bg-violet-500/10 border-violet-500/20', icon: '⚔️' },
-  trending: { label: 'Trending', color: 'text-amber-400 bg-amber-500/10 border-amber-500/20', icon: '📈' },
 }
 
 interface Market {
   id: string
-  token_address: string
+  token_address: string | null
   token_name: string
   token_symbol: string
-  market_type: 'up_down' | 'rug_call' | 'moonshot' | 'culture'
+  market_type: 'up_down' | 'rug_call' | 'moonshot' | 'culture' | 'versus' | 'narrative_index' | 'culture_crypto' | 'meta'
   question: string
   description: string | null
   narrative: string | null
-  price_at_creation: number
+  price_at_creation: number | null
   price_at_resolution: number | null
   resolve_at: string
   resolved_at: string | null
@@ -47,6 +47,7 @@ interface Market {
   liquidity: number | null
   rugcheck_score: number | null
   pinned: boolean | null
+  market_data?: Record<string, any> | null
   created_at: string
   user_bet?: {
     id: string
@@ -94,6 +95,10 @@ function getMarketTypeIcon(type: string) {
     case 'rug_call': return <SkullIcon size={14} />
     case 'moonshot': return <Rocket size={14} />
     case 'culture': return <span className="text-sm">🔮</span>
+    case 'versus': return <span className="text-sm">⚔️</span>
+    case 'narrative_index': return <span className="text-sm">📊</span>
+    case 'culture_crypto': return <span className="text-sm">🎭</span>
+    case 'meta': return <span className="text-sm">🌐</span>
     default: return <TrendingUp size={14} />
   }
 }
@@ -103,6 +108,10 @@ function getMarketTypeColor(type: string): string {
     case 'rug_call': return 'text-red-400 bg-red-500/10 border-red-500/20'
     case 'moonshot': return 'text-yellow-400 bg-yellow-500/10 border-yellow-500/20'
     case 'culture': return 'text-purple-400 bg-purple-500/10 border-purple-500/20'
+    case 'versus': return 'text-orange-400 bg-orange-500/10 border-orange-500/20'
+    case 'narrative_index': return 'text-cyan-400 bg-cyan-500/10 border-cyan-500/20'
+    case 'culture_crypto': return 'text-fuchsia-400 bg-fuchsia-500/10 border-fuchsia-500/20'
+    case 'meta': return 'text-teal-400 bg-teal-500/10 border-teal-500/20'
     default: return 'text-rose-400 bg-rose-500/10 border-rose-500/20'
   }
 }
@@ -113,6 +122,10 @@ function getMarketTypeLabel(type: string): string {
     case 'moonshot': return 'MOONSHOT'
     case 'up_down': return 'UP / DOWN'
     case 'culture': return 'CULTURE'
+    case 'versus': return 'VERSUS'
+    case 'narrative_index': return 'INDEX'
+    case 'culture_crypto': return 'CULTURE'
+    case 'meta': return 'META'
     default: return type.toUpperCase()
   }
 }
@@ -234,7 +247,17 @@ function MarketCard({
               {getMarketTypeIcon(market.market_type)}
               {getMarketTypeLabel(market.market_type)}
             </span>
-            <span className="text-xs text-gray-500 font-mono truncate">${market.token_symbol}</span>
+            {market.market_type === 'versus' && market.market_data?.token_b ? (
+              <span className="text-xs font-mono truncate">
+                <span className="text-green-400">${market.token_symbol}</span>
+                <span className="text-gray-500 mx-1">vs</span>
+                <span className="text-red-400">${market.market_data.token_b.symbol}</span>
+              </span>
+            ) : market.market_type === 'narrative_index' || market.market_type === 'culture_crypto' || market.market_type === 'meta' ? (
+              <span className="text-xs text-gray-500 font-medium truncate">{market.token_name}</span>
+            ) : (
+              <span className="text-xs text-gray-500 font-mono truncate">${market.token_symbol}</span>
+            )}
             {market.narrative && NARRATIVES[market.narrative] && (
               <span className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-medium border ${NARRATIVES[market.narrative].color}`}>
                 <span>{NARRATIVES[market.narrative].icon}</span>
@@ -268,12 +291,40 @@ function MarketCard({
           <p className="text-[11px] text-gray-500 leading-snug mb-2 break-words">{market.description}</p>
         )}
 
+        {/* Index basket display */}
+        {market.market_type === 'narrative_index' && market.market_data?.tokens && (
+          <div className="flex flex-wrap gap-1 mb-2">
+            {(market.market_data.tokens as Array<{ symbol: string }>).map((t, i) => (
+              <span key={i} className="px-1.5 py-0.5 rounded text-[10px] font-mono bg-cyan-500/10 text-cyan-400 border border-cyan-500/20">
+                ${t.symbol}
+              </span>
+            ))}
+          </div>
+        )}
+
+        {/* Versus matchup display */}
+        {market.market_type === 'versus' && market.market_data?.token_b && (
+          <div className="flex items-center justify-center gap-3 mb-2 py-1">
+            <span className="text-xs font-bold text-green-400">${market.token_symbol}</span>
+            <span className="text-[10px] text-gray-600 font-medium">VS</span>
+            <span className="text-xs font-bold text-red-400">${market.market_data.token_b.symbol}</span>
+          </div>
+        )}
+
         {/* Pool bar */}
         <div className="mb-2">
           <div className="flex items-center justify-between text-[10px] text-gray-500 mb-1">
-            <span>YES {yesPercent}%</span>
+            <span>
+              {market.market_type === 'versus'
+                ? `$${market.token_symbol} ${yesPercent}%`
+                : `YES ${yesPercent}%`}
+            </span>
             <span>{formatPoints(totalPool)} pts pool</span>
-            <span>NO {noPercent}%</span>
+            <span>
+              {market.market_type === 'versus' && market.market_data?.token_b
+                ? `$${market.market_data.token_b.symbol} ${noPercent}%`
+                : `NO ${noPercent}%`}
+            </span>
           </div>
           <div className="h-1.5 rounded-full overflow-hidden bg-white/5 flex">
             <div
@@ -362,7 +413,9 @@ function MarketCard({
                       <Loader2 size={16} className="animate-spin" />
                     ) : (
                       <>
-                        <span className="text-sm font-bold">YES</span>
+                        <span className="text-sm font-bold">
+                          {market.market_type === 'versus' ? `$${market.token_symbol}` : 'YES'}
+                        </span>
                         <span className="text-[10px] text-green-500/70">~{estimateYesPayout} pts</span>
                       </>
                     )}
@@ -376,7 +429,11 @@ function MarketCard({
                       <Loader2 size={16} className="animate-spin" />
                     ) : (
                       <>
-                        <span className="text-sm font-bold">NO</span>
+                        <span className="text-sm font-bold">
+                          {market.market_type === 'versus' && market.market_data?.token_b
+                            ? `$${market.market_data.token_b.symbol}`
+                            : 'NO'}
+                        </span>
                         <span className="text-[10px] text-red-500/70">~{estimateNoPayout} pts</span>
                       </>
                     )}
@@ -573,6 +630,9 @@ export default function ArenaBetsPage() {
             { key: 'rug_call', label: 'Rug Call' },
             { key: 'moonshot', label: 'Moonshot' },
             { key: 'culture', label: '🔮 Culture' },
+            { key: 'versus', label: '⚔️ Versus' },
+            { key: 'narrative_index', label: '📊 Index' },
+            { key: 'meta', label: '🌐 Meta' },
           ].map((f) => (
             <button
               key={f.key}
@@ -650,18 +710,22 @@ export default function ArenaBetsPage() {
       <Card className="!bg-white/[0.01]">
         <CardContent className="py-6 px-6">
           <h3 className="text-sm font-semibold text-white mb-4">How GalaxyArena Works</h3>
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs text-gray-400">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 text-xs text-gray-400">
             <div>
               <p className="text-white font-medium mb-1">1. Markets auto-generate</p>
-              <p>When our scanners detect an interesting token, a prediction market is created with a 15-min to 4-hour resolution window.</p>
+              <p>Our scanners detect trending tokens and cultural moments, creating markets across 6 types — from price bets to head-to-head showdowns.</p>
             </div>
             <div>
               <p className="text-white font-medium mb-1">2. Place your bet</p>
-              <p>Bet YES or NO using DegenArena points. Build win streaks and climb the leaderboard.</p>
+              <p>Bet YES or NO using points. In Versus markets, pick your side. In Index markets, bet on a whole narrative.</p>
             </div>
             <div>
-              <p className="text-white font-medium mb-1">3. Winner takes the pool</p>
-              <p>When the market resolves, the losing side&apos;s pool is distributed to winners proportionally. Build streaks to unlock badges.</p>
+              <p className="text-white font-medium mb-1">3. Rug Shield protects you</p>
+              <p>If a token rugs (drops 80%+), the market auto-cancels and everyone gets refunded. No getting punished for a rug.</p>
+            </div>
+            <div>
+              <p className="text-white font-medium mb-1">4. Winner takes the pool</p>
+              <p>When the market resolves, the losing side&apos;s pool is distributed to winners proportionally. Build streaks to climb ranks.</p>
             </div>
           </div>
         </CardContent>

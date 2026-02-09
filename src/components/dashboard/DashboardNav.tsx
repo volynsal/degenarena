@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect } from 'react'
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
-import { Bell, Settings, User, Menu, LogOut, ChevronDown, X, LayoutDashboard, Sliders, Swords, Shield, Trophy, Radio, Orbit, MessageSquare } from 'lucide-react'
+import { Settings, User, Menu, LogOut, ChevronDown, X, LayoutDashboard, Sliders, Swords, Shield, Trophy, Radio, Orbit, MessageSquare } from 'lucide-react'
 import { useAuthStore } from '@/lib/stores/auth-store'
 import { cn } from '@/lib/utils'
 
@@ -72,15 +72,9 @@ export function DashboardNav() {
         {/* Right side */}
         <div className="flex items-center gap-1">
           <Link 
-            href="/settings" 
-            className="relative p-1.5 text-gray-400 hover:text-white transition-colors"
-            title="Alert Settings"
-          >
-            <Bell size={18} />
-          </Link>
-          <Link 
             href="/settings"
             className="p-1.5 text-gray-400 hover:text-white transition-colors"
+            title="Settings"
           >
             <Settings size={18} />
           </Link>
