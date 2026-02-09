@@ -20,11 +20,11 @@ import {
 const navigation = [
   { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
   { name: 'GalaxyArena', href: '/arena-bets', icon: Orbit },
-  { name: 'My Formulas', href: '/formulas', icon: Sliders },
-  { name: 'Competitions', href: '/competitions', icon: Swords },
-  { name: 'Clans', href: '/clans', icon: Shield },
-  { name: 'Leaderboard', href: '/leaderboard', icon: Trophy },
   { name: 'Live', href: '/live', icon: Radio },
+  { name: 'Clans', href: '/clans', icon: Shield },
+  { name: 'Competitions', href: '/competitions', icon: Swords },
+  { name: 'Leaderboard', href: '/leaderboard', icon: Trophy },
+  { name: 'My Formulas', href: '/formulas', icon: Sliders },
 ]
 
 const bottomNavigation = [
