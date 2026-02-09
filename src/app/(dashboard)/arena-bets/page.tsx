@@ -133,14 +133,29 @@ function PointsBar({
   claimMessage: string | null
 }) {
   return (
-    <div className="glass-card rounded-xl p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-      <div className="flex items-center gap-6">
-        <div>
+    <div className="glass-card rounded-xl p-3 sm:p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4">
+      <div className="flex items-center gap-4 sm:gap-6 w-full sm:w-auto">
+        <div className="min-w-0">
           <p className="text-xs text-gray-500 uppercase tracking-wider">Balance</p>
-          <p className="text-2xl font-bold text-white">
+          <p className="text-xl sm:text-2xl font-bold text-white">
             {points ? formatPoints(points.balance) : '—'}{' '}
             <span className="text-sm text-rose-400 font-normal">pts</span>
           </p>
+        </div>
+        {/* Mobile W/L inline */}
+        <div className="sm:hidden flex items-center gap-3 text-xs ml-auto">
+          <div>
+            <span className="text-gray-500">W/L </span>
+            <span className="text-green-400">{points?.win_count ?? 0}</span>
+            <span className="text-gray-600">/</span>
+            <span className="text-red-400">{points?.loss_count ?? 0}</span>
+          </div>
+          {(points?.current_streak ?? 0) > 0 && (
+            <div className="flex items-center gap-1">
+              <Flame size={12} className="text-orange-400" />
+              <span className="text-orange-400 font-medium">{points?.current_streak}</span>
+            </div>
+          )}
         </div>
         <div className="hidden sm:block w-px h-10 bg-white/10" />
         <div className="hidden sm:flex items-center gap-4 text-sm">
@@ -166,7 +181,7 @@ function PointsBar({
       <button
         onClick={onClaimDaily}
         disabled={claimLoading}
-        className="flex items-center gap-2 px-4 py-2 rounded-lg bg-gradient-to-r from-amber-500 via-rose-500 to-violet-500 text-white text-sm font-medium hover:opacity-90 transition-opacity disabled:opacity-50"
+        className="w-full sm:w-auto flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-gradient-to-r from-amber-500 via-rose-500 to-violet-500 text-white text-sm font-medium hover:opacity-90 transition-opacity disabled:opacity-50"
       >
         {claimLoading ? <Loader2 size={14} className="animate-spin" /> : <Gift size={14} />}
         {claimMessage || 'Claim Daily +100'}
@@ -204,11 +219,12 @@ function MarketCard({
     : (betAmount * 2).toString()
 
   return (
-    <Card className="!p-0 overflow-hidden group" hover>
+    <Card className="!p-0 overflow-hidden group min-w-0" hover>
       {/* Header */}
-      <div className="p-4 pb-3">
-        <div className="flex items-start justify-between gap-3 mb-3">
-          <div className="flex items-center gap-2">
+      <div className="p-3 sm:p-4 pb-3">
+        {/* Top row: time / status */}
+        <div className="flex items-center justify-between mb-2">
+          <div className="flex items-center gap-1.5 flex-wrap">
             {market.pinned && (
               <span className="inline-flex items-center px-1.5 py-0.5 rounded border border-yellow-500/30 bg-yellow-500/10 text-yellow-400" title="Pinned">
                 <Pin size={11} className="rotate-45" />
@@ -218,7 +234,7 @@ function MarketCard({
               {getMarketTypeIcon(market.market_type)}
               {getMarketTypeLabel(market.market_type)}
             </span>
-            <span className="text-xs text-gray-500 font-mono">${market.token_symbol}</span>
+            <span className="text-xs text-gray-500 font-mono truncate">${market.token_symbol}</span>
             {market.narrative && NARRATIVES[market.narrative] && (
               <span className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-medium border ${NARRATIVES[market.narrative].color}`}>
                 <span>{NARRATIVES[market.narrative].icon}</span>
@@ -226,7 +242,7 @@ function MarketCard({
               </span>
             )}
           </div>
-          <div className="flex items-center gap-1.5 text-xs">
+          <div className="flex-shrink-0 ml-2 text-xs">
             {!isResolved && !isExpired && (
               <span className="flex items-center gap-1 text-gray-400">
                 <Clock size={12} />
@@ -245,11 +261,11 @@ function MarketCard({
           </div>
         </div>
 
-        <h3 className="text-sm font-semibold text-white leading-snug mb-1">{market.question}</h3>
+        <h3 className="text-sm font-semibold text-white leading-snug mb-1 break-words">{market.question}</h3>
 
         {/* Resolution rules */}
         {market.description && (
-          <p className="text-[11px] text-gray-500 leading-snug mb-2">{market.description}</p>
+          <p className="text-[11px] text-gray-500 leading-snug mb-2 break-words">{market.description}</p>
         )}
 
         {/* Pool bar */}
@@ -273,16 +289,16 @@ function MarketCard({
       </div>
 
       {/* Bet area / result */}
-      <div className="border-t border-white/5 p-4 pt-3 bg-white/[0.01]">
+      <div className="border-t border-white/5 p-3 sm:p-4 pt-3 bg-white/[0.01]">
         {isResolved && hasBet && (
-          <div className={`flex items-center justify-between text-sm ${
+          <div className={`flex items-center justify-between gap-2 text-xs sm:text-sm ${
             market.user_bet!.is_winner ? 'text-green-400' : 'text-red-400'
           }`}>
-            <span>
+            <span className="truncate">
               You bet <strong>{market.user_bet!.amount} pts</strong> on{' '}
               <strong>{market.user_bet!.position.toUpperCase()}</strong>
             </span>
-            <span className="font-bold">
+            <span className="font-bold flex-shrink-0">
               {market.user_bet!.is_winner
                 ? `+${market.user_bet!.payout - market.user_bet!.amount} pts`
                 : `-${market.user_bet!.amount} pts`
@@ -296,14 +312,14 @@ function MarketCard({
         )}
 
         {!isResolved && hasBet && (
-          <div className="flex items-center justify-between text-sm">
-            <span className="text-gray-400">
+          <div className="flex items-center justify-between gap-2 text-xs sm:text-sm">
+            <span className="text-gray-400 truncate">
               You bet <strong className="text-white">{market.user_bet!.amount} pts</strong> on{' '}
               <strong className={market.user_bet!.position === 'yes' ? 'text-green-400' : 'text-red-400'}>
                 {market.user_bet!.position.toUpperCase()}
               </strong>
             </span>
-            <span className="text-xs text-gray-500">Awaiting resolution</span>
+            <span className="text-xs text-gray-500 flex-shrink-0">Awaiting resolution</span>
           </div>
         )}
 
@@ -501,7 +517,7 @@ export default function ArenaBetsPage() {
   }
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-8 overflow-hidden">
       {/* Page Header */}
       <div>
         <h1 className="text-2xl sm:text-3xl font-semibold">
@@ -530,8 +546,8 @@ export default function ArenaBetsPage() {
       )}
 
       {/* Tabs + Filter */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-        <div className="flex items-center gap-1 p-1 rounded-lg bg-white/5">
+      <div className="flex flex-col gap-3">
+        <div className="flex items-center gap-1 p-1 rounded-lg bg-white/5 w-fit">
           {[
             { key: 'active', label: 'Live Markets' },
             { key: 'resolved', label: 'Resolved' },
@@ -550,7 +566,7 @@ export default function ArenaBetsPage() {
           ))}
         </div>
 
-        <div className="flex items-center gap-1.5">
+        <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-hide">
           {[
             { key: 'all', label: 'All' },
             { key: 'up_down', label: 'Up/Down' },
@@ -561,7 +577,7 @@ export default function ArenaBetsPage() {
             <button
               key={f.key}
               onClick={() => setTypeFilter(f.key)}
-              className={`px-3 py-1 rounded-md text-xs font-medium transition-colors ${
+              className={`flex-shrink-0 px-3 py-1 rounded-md text-xs font-medium transition-colors ${
                 typeFilter === f.key
                   ? 'bg-white/10 text-white'
                   : 'text-gray-500 hover:text-gray-300'
@@ -618,7 +634,7 @@ export default function ArenaBetsPage() {
           </CardContent>
         </Card>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
           {markets.map((market) => (
             <MarketCard
               key={market.id}
