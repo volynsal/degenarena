@@ -12,7 +12,12 @@ import {
   Calendar,
   Shield,
   Zap,
-  ExternalLink
+  ExternalLink,
+  Swords,
+  Sliders,
+  MessageSquare,
+  Settings,
+  ChevronRight
 } from 'lucide-react'
 
 // Twitch icon component
@@ -280,6 +285,31 @@ export default function ProfilePage({ params }: { params: { username: string } }
         </CardContent>
       </Card>
       
+      {/* Quick Nav — own profile only, mobile hub for secondary pages */}
+      {profile.is_own_profile && (
+        <Card className="lg:hidden">
+          <CardContent className="p-0 divide-y divide-white/5">
+            {[
+              { name: 'Competitions', href: '/competitions', icon: Swords },
+              { name: 'Leaderboard', href: '/leaderboard', icon: Trophy },
+              { name: 'My Formulas', href: '/formulas', icon: Sliders },
+              { name: 'Feedback', href: '/feedback', icon: MessageSquare },
+              { name: 'Settings', href: '/settings', icon: Settings },
+            ].map((item) => (
+              <Link
+                key={item.name}
+                href={item.href}
+                className="flex items-center gap-3 px-5 py-3.5 text-gray-300 hover:text-white hover:bg-white/[0.03] transition-colors"
+              >
+                <item.icon size={20} strokeWidth={1.5} className="text-gray-500" />
+                <span className="flex-1 text-sm font-medium">{item.name}</span>
+                <ChevronRight size={16} className="text-gray-600" />
+              </Link>
+            ))}
+          </CardContent>
+        </Card>
+      )}
+
       {/* Twitch Stream Embed - always shown if user has Twitch linked */}
       {profile.twitch_url && (() => {
         const twitchUser = profile.twitch_url!.replace(/https?:\/\/(www\.)?twitch\.tv\//i, '').split('/')[0].split('?')[0]

@@ -1,5 +1,6 @@
 import { DashboardNav } from '@/components/dashboard/DashboardNav'
 import { DashboardSidebar } from '@/components/dashboard/DashboardSidebar'
+import { MobileBottomNav } from '@/components/dashboard/MobileBottomNav'
 import { FlowField } from '@/components/landing/FlowField'
 
 export default function DashboardLayout({
@@ -14,10 +15,11 @@ export default function DashboardLayout({
       <DashboardNav />
       <div className="flex">
         <DashboardSidebar />
-        <main className="relative z-10 flex-1 min-w-0 px-4 sm:px-6 lg:px-8 pb-8 pt-20 lg:pt-20 lg:ml-64 pb-safe">
+        <main className="relative z-10 flex-1 min-w-0 px-4 sm:px-6 lg:px-8 pb-24 lg:pb-8 pt-20 lg:pt-20 lg:ml-64">
           {children}
         </main>
       </div>
+      <MobileBottomNav />
     </div>
   )
 }

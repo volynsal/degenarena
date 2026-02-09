@@ -38,9 +38,9 @@ export function DashboardSidebar() {
   
   return (
     <aside className="fixed left-0 top-14 bottom-0 w-64 z-20 bg-arena-darker border-r border-white/5 hidden lg:block">
-      <div className="flex flex-col h-full p-4">
+      <div className="flex flex-col h-full px-3 py-6">
         {/* Main navigation */}
-        <nav className="flex-1 space-y-1">
+        <nav className="flex-1 space-y-0.5">
           {navigation.map((item) => {
             const isActive = pathname === item.href
             return (
@@ -48,13 +48,17 @@ export function DashboardSidebar() {
                 key={item.name}
                 href={item.href}
                 className={cn(
-                  'flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors',
+                  'flex items-center gap-4 px-4 py-3.5 rounded-xl text-base transition-all duration-150',
                   isActive
-                    ? 'bg-gradient-to-r from-arena-purple/20 to-arena-cyan/10 text-white'
-                    : 'text-gray-400 hover:text-white hover:bg-white/5'
+                    ? 'text-white font-bold'
+                    : 'text-gray-400 font-normal hover:text-white hover:bg-white/[0.03]'
                 )}
               >
-                <item.icon size={18} className={isActive ? 'text-arena-cyan' : ''} />
+                <item.icon
+                  size={24}
+                  strokeWidth={isActive ? 2.5 : 1.5}
+                  className="flex-shrink-0"
+                />
                 {item.name}
               </Link>
             )
@@ -63,7 +67,7 @@ export function DashboardSidebar() {
 
         {/* Tier / XP Card */}
         {xp && progress && (
-          <div className="mb-4 p-3 rounded-xl bg-white/[0.03] border border-white/5">
+          <div className="mb-4 mx-1 p-3 rounded-xl bg-white/[0.03] border border-white/5">
             <div className="flex items-center justify-between mb-2">
               <span className={cn(
                 'inline-flex items-center px-2 py-0.5 rounded border text-[10px] font-bold uppercase',
@@ -90,7 +94,7 @@ export function DashboardSidebar() {
         )}
         
         {/* Bottom navigation */}
-        <nav className="space-y-1 pt-4 border-t border-white/5">
+        <nav className="space-y-0.5 pt-4 border-t border-white/5">
           {bottomNavigation.map((item) => {
             const isActive = pathname === item.href
             return (
@@ -98,13 +102,17 @@ export function DashboardSidebar() {
                 key={item.name}
                 href={item.href}
                 className={cn(
-                  'flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors',
+                  'flex items-center gap-4 px-4 py-3 rounded-xl text-base transition-all duration-150',
                   isActive
-                    ? 'bg-white/10 text-white'
-                    : 'text-gray-400 hover:text-white hover:bg-white/5'
+                    ? 'text-white font-bold'
+                    : 'text-gray-400 font-normal hover:text-white hover:bg-white/[0.03]'
                 )}
               >
-                <item.icon size={18} />
+                <item.icon
+                  size={24}
+                  strokeWidth={isActive ? 2.5 : 1.5}
+                  className="flex-shrink-0"
+                />
                 {item.name}
               </Link>
             )
