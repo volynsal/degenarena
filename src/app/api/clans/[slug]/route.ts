@@ -34,8 +34,10 @@ interface ClanDetails {
     username: string
     avatar_url: string | null
     twitch_url: string | null
+    wallet_verified: boolean
     role: string
     win_rate: number
+    avg_return: number
     total_matches: number
   }[]
   is_member: boolean
@@ -90,15 +92,22 @@ export async function GET(
       .eq('id', member.user_id)
       .single()
     
-    // Get formula stats
+    // Get formula stats (include avg_return)
     const { data: formulas } = await serviceClient
       .from('formulas')
-      .select('win_rate, total_matches')
+      .select('win_rate, total_matches, avg_return')
       .eq('user_id', member.user_id)
     
     const totalMatches = formulas?.reduce((sum, f) => sum + (f.total_matches || 0), 0) || 0
-    const avgWinRate = formulas && formulas.length > 0
-      ? formulas.reduce((sum, f) => sum + (f.win_rate || 0), 0) / formulas.length
+    
+    // Weighted average for win rate (by total_matches) — matches dashboard logic
+    const weightedWinRate = totalMatches > 0 && formulas
+      ? formulas.reduce((sum, f) => sum + ((f.win_rate || 0) * (f.total_matches || 0)), 0) / totalMatches
+      : 0
+    
+    // Weighted average for avg_return (by total_matches)
+    const weightedAvgReturn = totalMatches > 0 && formulas
+      ? formulas.reduce((sum, f) => sum + ((f.avg_return || 0) * (f.total_matches || 0)), 0) / totalMatches
       : 0
     
     memberStats.push({
@@ -108,10 +117,17 @@ export async function GET(
       twitch_url: profile?.twitch_url || null,
       wallet_verified: profile?.wallet_verified || false,
       role: member.role,
-      win_rate: Math.round(avgWinRate * 10) / 10,
+      win_rate: Math.round(weightedWinRate * 10) / 10,
+      avg_return: Math.round(weightedAvgReturn * 10) / 10,
       total_matches: totalMatches,
     })
   }
+  
+  // Compute clan-level aggregate stats from live member data
+  const clanTotalMatches = memberStats.reduce((sum, m) => sum + m.total_matches, 0)
+  const clanAvgWinRate = clanTotalMatches > 0
+    ? memberStats.reduce((sum, m) => sum + (m.win_rate * m.total_matches), 0) / clanTotalMatches
+    : 0
   
   // Check if current user is member
   let isMember = false
@@ -139,9 +155,9 @@ export async function GET(
     owner_id: clan.owner_id,
     is_public: clan.is_public,
     invite_code: isMember ? clan.invite_code : null,
-    member_count: clan.member_count,
-    total_matches: clan.total_matches,
-    avg_win_rate: clan.avg_win_rate,
+    member_count: memberStats.length,
+    total_matches: clanTotalMatches,
+    avg_win_rate: Math.round(clanAvgWinRate * 10) / 10,
     created_at: clan.created_at,
     owner: clan.owner as any,
     members: memberStats,

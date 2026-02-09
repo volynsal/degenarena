@@ -158,6 +158,9 @@ function detectNarrative(symbol: string, name: string): string | null {
   // Sports — teams, leagues, events
   if (/super.?bowl|nfl|nba|mlb|ufc|fifa|world.?cup|patriots|seahawks|chiefs|eagles|lakers|celtics|warriors|cowboys|steelers|niners|ravens|bulls|yankees|dodgers|touchdown|slam.?dunk|knockout|playoff|championship|derby|formula.?1|\bf1\b|premier.?league/.test(combined)) return 'super_bowl'
 
+  // Culture — brands, fashion, memes, internet culture, food/lifestyle
+  if (/bape|supreme|nike|gucci|louis.?vuitton|prada|balenciaga|yeezy|offwhite|off.?white|stussy|kith|jordan\b|dior|chanel|versace|burberry|hermes|rolex|ferrari|lambo|lamborghini|porsche|tesla\b|mcdonalds|wendys|starbucks|coca.?cola|pepsi|redbull|degen|wagmi|ngmi|gm\b|hodl|fomo|based|copium|hopium|pepe|wojak|chad|doge|shib|floki|bonk|brett|andy\b|matt.?furie|4chan|reddit|tiktok|youtube|twitch\b|discord|anime|manga|naruto|goku|one.?piece|pokemon|pikachu|mario|zelda|minecraft|fortnite|roblox/.test(combined)) return 'celebrity'
+
   // Revenge pump / comeback
   if (/revenge|comeback|return|revival|phoenix|resurrect|redemption|rise.?again|back.?from/.test(combined)) return 'revenge_pump'
 

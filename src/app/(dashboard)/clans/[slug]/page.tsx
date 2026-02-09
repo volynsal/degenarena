@@ -51,6 +51,7 @@ interface ClanMember {
   wallet_verified: boolean
   role: string
   win_rate: number
+  avg_return: number
   total_matches: number
 }
 
@@ -718,6 +719,12 @@ export default function ClanPage({ params }: { params: { slug: string } }) {
                   <div className="text-right">
                     <p className="text-white font-medium">{member.win_rate}%</p>
                     <p className="text-gray-500 hidden sm:block">Win Rate</p>
+                  </div>
+                  <div className="text-right">
+                    <p className={`font-medium ${member.avg_return >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+                      {member.avg_return >= 0 ? '+' : ''}{member.avg_return}%
+                    </p>
+                    <p className="text-gray-500 hidden sm:block">Avg Return</p>
                   </div>
                   <div className="text-right">
                     <p className="text-white font-medium">{member.total_matches}</p>
