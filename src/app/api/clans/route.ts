@@ -22,6 +22,8 @@ export async function GET(request: NextRequest) {
   const sort = searchParams.get('sort') || 'top' // top, new, members
   const search = searchParams.get('search') || ''
   
+  // Show all clans (public and private) — private clans are still invite-only to join,
+  // but they should be visible on the leaderboard and clan list
   let query = supabase
     .from('clans')
     .select(`
@@ -36,7 +38,6 @@ export async function GET(request: NextRequest) {
       created_at,
       owner:profiles!owner_id(username)
     `)
-    .eq('is_public', true)
   
   if (search) {
     query = query.or(`name.ilike.%${search}%,description.ilike.%${search}%`)
