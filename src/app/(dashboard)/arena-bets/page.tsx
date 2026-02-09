@@ -591,10 +591,20 @@ export default function ArenaBetsPage() {
 
       {/* Narrative/Meta filters */}
       <div className="flex items-center gap-2 overflow-x-auto pb-1 -mt-4 scrollbar-hide">
+        <button
+          onClick={() => setNarrativeFilter('all')}
+          className={`flex-shrink-0 px-3 py-1.5 rounded-full text-xs font-medium transition-colors border ${
+            narrativeFilter === 'all'
+              ? 'bg-white/10 text-white border-white/20'
+              : 'text-gray-500 hover:text-gray-300 border-transparent hover:border-white/10'
+          }`}
+        >
+          All Narratives
+        </button>
         {Object.entries(NARRATIVES).map(([key, meta]) => (
           <button
             key={key}
-            onClick={() => setNarrativeFilter(narrativeFilter === key ? 'all' : key)}
+            onClick={() => setNarrativeFilter(key)}
             className={`flex-shrink-0 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-colors border ${
               narrativeFilter === key
                 ? meta.color

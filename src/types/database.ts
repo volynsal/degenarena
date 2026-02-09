@@ -264,8 +264,9 @@ export interface LeaderboardEntry {
 }
 
 // Competition Types
-export type CompetitionType = 'daily_flip' | 'weekly' | 'head_to_head' | 'clan_war'
+export type CompetitionType = 'daily_flip' | 'best_call' | 'live_trading' | 'clan_war' | 'survivor' | 'weekly' | 'head_to_head'
 export type CompetitionStatus = 'upcoming' | 'active' | 'completed' | 'cancelled'
+export type CompetitionTab = 'live_trading' | 'pnl_challenges' | 'clan_wars'
 
 export interface Competition {
   id: string
@@ -281,7 +282,11 @@ export interface Competition {
   formula_snapshot: boolean
   allow_multiple_formulas: boolean
   prizes: Record<string, string>
+  point_prizes?: Record<string, number> | null
   participant_count: number
+  tier_requirement?: TierName | null
+  round_count?: number
+  current_round?: number
   challenger_id?: string | null
   challenged_id?: string | null
   clan_a_id?: string | null
@@ -289,7 +294,7 @@ export interface Competition {
   created_by?: string | null
   created_at: string
   updated_at: string
-  
+
   // Computed fields (from API)
   seconds_remaining?: number
   is_entered?: boolean
@@ -302,7 +307,7 @@ export interface CompetitionEntry {
   id: string
   competition_id: string
   user_id: string
-  formula_id: string
+  formula_id?: string | null
   joined_at: string
   final_rank?: number | null
   final_score?: number | null
@@ -310,19 +315,18 @@ export interface CompetitionEntry {
   wins: number
   avg_return: number
   formula_snapshot?: Record<string, any> | null
-  
+  pnl_snapshot_start?: number
+  pnl_snapshot_end?: number | null
+  pnl_delta?: number
+  best_trade_return?: number | null
+  eliminated_round?: number | null
+  user_tier?: TierName | null
+  status: 'active' | 'disqualified' | 'withdrawn'
+
   // Relations
   competition?: Competition
   formula?: Formula
   profile?: Profile
-}
-
-export interface CompetitionMatch {
-  id: string
-  competition_id: string
-  entry_id: string
-  token_match_id: string
-  counted_at: string
 }
 
 export interface CompetitionLeaderboardEntry {
@@ -331,16 +335,70 @@ export interface CompetitionLeaderboardEntry {
   user_id: string
   username: string
   avatar_url?: string | null
-  formula_id?: string
-  formula_name: string
-  total_matches: number
-  wins: number
-  avg_return: number
-  total_return: number
-  win_rate?: number
-  score?: number
+  tier?: TierName | null
+  pnl_delta: number
+  best_trade_return?: number | null
+  eliminated_round?: number | null
+  final_rank?: number | null
   prize_awarded?: string | null
 }
+
+// XP / Prestige Tier System
+export type TierName = 'rookie' | 'contender' | 'veteran' | 'champion' | 'legend'
+export type XpSource = 'arena_win' | 'arena_streak' | 'comp_placement' | 'go_live' | 'pnl_milestone' | 'badge_earned'
+
+export interface UserXp {
+  id: string
+  user_id: string
+  total_xp: number
+  tier: TierName
+  created_at: string
+  updated_at: string
+}
+
+export interface XpEvent {
+  id: string
+  user_id: string
+  source: XpSource
+  amount: number
+  metadata: Record<string, any>
+  created_at: string
+}
+
+export const TIER_THRESHOLDS: Record<TierName, number> = {
+  rookie: 0,
+  contender: 100,
+  veteran: 500,
+  champion: 2000,
+  legend: 5000,
+}
+
+export const TIER_COLORS: Record<TierName, string> = {
+  rookie: 'text-gray-400 bg-gray-500/10 border-gray-500/20',
+  contender: 'text-green-400 bg-green-500/10 border-green-500/20',
+  veteran: 'text-blue-400 bg-blue-500/10 border-blue-500/20',
+  champion: 'text-purple-400 bg-purple-500/10 border-purple-500/20',
+  legend: 'text-yellow-400 bg-yellow-500/10 border-yellow-500/20',
+}
+
+export const TIER_LABELS: Record<TierName, string> = {
+  rookie: 'Rookie',
+  contender: 'Contender',
+  veteran: 'Veteran',
+  champion: 'Champion',
+  legend: 'Legend',
+}
+
+export const XP_REWARDS = {
+  arena_win: 10,
+  arena_streak: 25,        // bonus at 3+ streak
+  comp_placement_1st: 50,
+  comp_placement_2nd: 30,
+  comp_placement_3rd: 15,
+  go_live_per_hour: 20,
+  pnl_milestone: 40,
+  badge_earned: 15,
+} as const
 
 // API Types
 export interface ApiResponse<T> {
