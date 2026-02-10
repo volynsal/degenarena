@@ -105,47 +105,45 @@ export default function DashboardPage() {
       {/* Live & Go Live widget */}
       <Card className="border-[#9146FF]/20">
         <CardContent className="p-4 sm:p-6">
-          <div className="flex items-center justify-between gap-3">
-            <div className="flex items-center gap-3 min-w-0">
-              <div className="w-10 h-10 rounded-lg bg-[#9146FF]/20 flex items-center justify-center flex-shrink-0">
-                <Radio className="w-5 h-5 text-[#9146FF]" />
-              </div>
-              <div className="min-w-0">
-                <p className="text-white font-medium text-sm sm:text-base">Live Streams</p>
-                <p className="text-xs sm:text-sm text-gray-400 truncate">
-                  {liveCount > 0
-                    ? `${liveCount} trader${liveCount > 1 ? 's' : ''} streaming now`
-                    : 'No one is live right now'}
-                </p>
-              </div>
+          <div className="flex items-center gap-3 mb-3">
+            <div className="w-10 h-10 rounded-lg bg-[#9146FF]/20 flex items-center justify-center flex-shrink-0">
+              <Radio className="w-5 h-5 text-[#9146FF]" />
             </div>
-            <div className="flex items-center gap-2 flex-shrink-0">
-              <Link
-                href="/live"
-                className="px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-sm text-white transition-colors whitespace-nowrap"
+            <div className="min-w-0">
+              <p className="text-white font-medium">Live Streams</p>
+              <p className="text-xs sm:text-sm text-gray-400">
+                {liveCount > 0
+                  ? `${liveCount} trader${liveCount > 1 ? 's' : ''} streaming now`
+                  : 'No one is live right now'}
+              </p>
+            </div>
+          </div>
+          <div className="flex items-center gap-2">
+            <Link
+              href="/live"
+              className="inline-flex items-center justify-center px-4 py-2 rounded-lg bg-white/5 hover:bg-white/10 text-sm text-white transition-colors"
+            >
+              {liveCount > 0 ? 'Watch' : 'View'}
+            </Link>
+            {userTwitchUrl ? (
+              <a
+                href="https://dashboard.twitch.tv/stream-manager"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-[#9146FF] hover:bg-[#7c3aed] text-white text-sm font-medium transition-colors"
               >
-                {liveCount > 0 ? 'Watch' : 'View'}
+                <TwitchIcon className="w-3.5 h-3.5" />
+                Go Live
+              </a>
+            ) : (
+              <Link
+                href="/settings"
+                className="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-white/5 hover:bg-white/10 text-sm text-gray-400 hover:text-white transition-colors"
+              >
+                <TwitchIcon className="w-3.5 h-3.5" />
+                Connect Twitch
               </Link>
-              {userTwitchUrl ? (
-                <a
-                  href="https://dashboard.twitch.tv/stream-manager"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-[#9146FF] hover:bg-[#7c3aed] text-white text-sm font-medium transition-colors whitespace-nowrap"
-                >
-                  <TwitchIcon className="w-3.5 h-3.5" />
-                  Go Live
-                </a>
-              ) : (
-                <Link
-                  href="/settings"
-                  className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-sm text-gray-400 hover:text-white transition-colors whitespace-nowrap"
-                >
-                  <TwitchIcon className="w-3.5 h-3.5" />
-                  Connect
-                </Link>
-              )}
-            </div>
+            )}
           </div>
         </CardContent>
       </Card>
@@ -153,26 +151,24 @@ export default function DashboardPage() {
       {/* Galaxy widget */}
       <Card className="border-rose-500/20">
         <CardContent className="p-4 sm:p-6">
-          <div className="flex items-center justify-between gap-3">
-            <div className="flex items-center gap-3 min-w-0">
-              <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-amber-500/20 to-violet-500/20 flex items-center justify-center flex-shrink-0">
-                <Orbit className="w-5 h-5 text-rose-400" />
-              </div>
-              <div className="min-w-0">
-                <p className="text-white font-medium text-sm sm:text-base">Galaxy</p>
-                <p className="text-xs sm:text-sm text-gray-400 truncate">
-                  Predict memecoin moves, earn points
-                </p>
-              </div>
+          <div className="flex items-center gap-3 mb-3">
+            <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-amber-500/20 to-violet-500/20 flex items-center justify-center flex-shrink-0">
+              <Orbit className="w-5 h-5 text-rose-400" />
             </div>
-            <Link
-              href="/arena-bets"
-              className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-gradient-to-r from-amber-500 via-rose-500 to-violet-500 text-white text-sm font-medium hover:opacity-90 transition-opacity whitespace-nowrap flex-shrink-0"
-            >
-              <Zap className="w-3.5 h-3.5" />
-              Play Now
-            </Link>
+            <div className="min-w-0">
+              <p className="text-white font-medium">Galaxy</p>
+              <p className="text-xs sm:text-sm text-gray-400">
+                Predict memecoin moves, earn points
+              </p>
+            </div>
           </div>
+          <Link
+            href="/arena-bets"
+            className="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-gradient-to-r from-amber-500 via-rose-500 to-violet-500 text-white text-sm font-medium hover:opacity-90 transition-opacity"
+          >
+            <Zap className="w-3.5 h-3.5" />
+            Play Now
+          </Link>
         </CardContent>
       </Card>
       
@@ -180,19 +176,21 @@ export default function DashboardPage() {
       {stats?.best_formula && (
         <Card className="border-arena-purple/30">
           <CardContent className="p-4 sm:p-6">
-            <div className="flex items-center justify-between gap-3">
-              <div className="min-w-0">
-                <p className="text-xs sm:text-sm text-gray-400 mb-0.5">Your Best Formula</p>
-                <p className="text-base sm:text-lg font-semibold text-white truncate">{stats.best_formula.name}</p>
-                <p className="text-arena-cyan font-mono text-sm">{stats.best_formula.win_rate}% win rate</p>
+            <div className="flex items-center gap-3 mb-3">
+              <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-arena-purple/20 to-arena-cyan/20 flex items-center justify-center flex-shrink-0">
+                <Zap className="w-5 h-5 text-arena-purple" />
               </div>
-              <Link 
-                href={`/formulas/${stats.best_formula.id}`}
-                className="px-3 sm:px-4 py-2 bg-white/5 hover:bg-white/10 rounded-lg text-sm text-white transition-colors whitespace-nowrap flex-shrink-0"
-              >
-                View
-              </Link>
+              <div className="min-w-0">
+                <p className="text-white font-medium truncate">{stats.best_formula.name}</p>
+                <p className="text-xs sm:text-sm text-arena-cyan font-mono">{stats.best_formula.win_rate}% win rate</p>
+              </div>
             </div>
+            <Link 
+              href={`/formulas/${stats.best_formula.id}`}
+              className="inline-flex items-center justify-center px-4 py-2 bg-white/5 hover:bg-white/10 rounded-lg text-sm text-white transition-colors"
+            >
+              View Formula
+            </Link>
           </CardContent>
         </Card>
       )}
