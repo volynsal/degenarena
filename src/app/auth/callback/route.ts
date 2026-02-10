@@ -7,12 +7,8 @@ export async function GET(request: NextRequest) {
   const redirect = searchParams.get('redirect') || '/dashboard'
 
   if (code) {
-    // Create a mutable response object first (don't redirect yet)
-    let response = NextResponse.next({
-      request: {
-        headers: request.headers,
-      },
-    })
+    // Collect cookies during session exchange, apply to redirect after
+    const cookiesToSet: { name: string; value: string; options: CookieOptions }[] = []
 
     const supabase = createServerClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -23,13 +19,10 @@ export async function GET(request: NextRequest) {
             return request.cookies.get(name)?.value
           },
           set(name: string, value: string, options: CookieOptions) {
-            // Update both request and response cookies
-            request.cookies.set({ name, value, ...options })
-            response.cookies.set({ name, value, ...options })
+            cookiesToSet.push({ name, value, options })
           },
           remove(name: string, options: CookieOptions) {
-            request.cookies.set({ name, value: '', ...options })
-            response.cookies.set({ name, value: '', ...options })
+            cookiesToSet.push({ name, value: '', options })
           },
         },
       }
@@ -38,10 +31,12 @@ export async function GET(request: NextRequest) {
     const { error } = await supabase.auth.exchangeCodeForSession(code)
 
     if (!error) {
-      // NOW redirect after session cookies are fully set
-      return NextResponse.redirect(`${origin}${redirect}`, {
-        headers: response.headers,
-      })
+      // Create redirect and attach ALL session cookies
+      const response = NextResponse.redirect(`${origin}${redirect}`)
+      for (const cookie of cookiesToSet) {
+        response.cookies.set({ name: cookie.name, value: cookie.value, ...cookie.options })
+      }
+      return response
     }
   }
 
