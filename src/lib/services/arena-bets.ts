@@ -15,6 +15,7 @@ function getServiceClient() {
 
 interface MarketTemplate {
   type: MarketType
+  narrativeHint?: string // Force this narrative regardless of token detection
   question: (symbol: string, target: string) => string
   description: (symbol: string, target: string, timeframe: string) => string
   timeframeMinutes: number
@@ -204,6 +205,7 @@ const MARKET_TEMPLATES: MarketTemplate[] = [
   // Virality / going mainstream
   {
     type: 'culture',
+    narrativeHint: 'ct',
     question: (s) => `Will $${s} go viral today? 10%+ pump incoming?`,
     description: (s, _, tf) => `The culture is watching. Predict whether $${s} catches fire and pumps 10%+ within ${tf}. Memes, tweets, and vibes only.`,
     timeframeMinutes: 240,
@@ -211,6 +213,7 @@ const MARKET_TEMPLATES: MarketTemplate[] = [
   // CT (Crypto Twitter) momentum
   {
     type: 'culture',
+    narrativeHint: 'ct',
     question: (s) => `Is CT about to send $${s} to the moon? 25%+ in 4 hours?`,
     description: (s, _, tf) => `Crypto Twitter is talking. Predict whether the hype around $${s} translates to a 25%+ pump within ${tf}.`,
     timeframeMinutes: 240,
@@ -218,6 +221,7 @@ const MARKET_TEMPLATES: MarketTemplate[] = [
   // Cultural moment / event-driven
   {
     type: 'culture',
+    narrativeHint: 'ct',
     question: (s) => `Will $${s} be the breakout memecoin of the day and double?`,
     description: (s, _, tf) => `Every day has a main character. Predict whether $${s} doubles within ${tf} and becomes today's headline coin.`,
     timeframeMinutes: 360,
@@ -225,6 +229,7 @@ const MARKET_TEMPLATES: MarketTemplate[] = [
   // Celebrity / influencer catalyst
   {
     type: 'culture',
+    narrativeHint: 'celebrity',
     question: (s) => `Will a major influencer pump $${s} 20%+ in the next few hours?`,
     description: (s, _, tf) => `One tweet can change everything. Predict whether $${s} gets the signal boost it needs to pump 20%+ within ${tf}.`,
     timeframeMinutes: 180,
@@ -232,6 +237,7 @@ const MARKET_TEMPLATES: MarketTemplate[] = [
   // Narrative survival / staying power
   {
     type: 'culture',
+    narrativeHint: 'ct',
     question: (s) => `Does $${s} have staying power or is the hype already dead?`,
     description: (s, _, tf) => `Memecoins live and die by the narrative. Predict whether $${s} holds above its current price over the next ${tf} — or fades into nothing.`,
     timeframeMinutes: 360,
@@ -239,6 +245,7 @@ const MARKET_TEMPLATES: MarketTemplate[] = [
   // Meta rotation play
   {
     type: 'culture',
+    narrativeHint: 'ct',
     question: (s) => `Will $${s} catch the next meta rotation? 15%+ pump?`,
     description: (s, _, tf) => `Narratives rotate fast. Predict whether $${s} rides the next wave and gains 15%+ within ${tf}.`,
     timeframeMinutes: 180,
@@ -490,8 +497,8 @@ export async function generateMarkets(): Promise<{ created: number; skipped: num
 
       const botPredictions = generateBotPredictions(pair, template.type)
 
-      // Assign 'trending' narrative to culture markets that don't have a specific one
-      const marketNarrative = (template.type === 'culture' && !narrative) ? 'trending' : narrative
+      // Narrative priority: token-level detection > template hint > 'trending' fallback for culture
+      const marketNarrative = narrative || template.narrativeHint || (template.type === 'culture' ? 'trending' : null)
 
       const { error } = await supabase.from('arena_markets').insert({
         token_address: address,

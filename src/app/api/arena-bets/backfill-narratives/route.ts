@@ -9,11 +9,20 @@ function getServiceClient() {
   )
 }
 
+// Detect narrative from market question/description text when token detection fails
+function detectNarrativeFromQuestion(question: string): string | null {
+  const q = question.toLowerCase()
+  if (/\bct\b|crypto.?twitter|memecoin|breakout memecoin|meta rotation|staying power|go viral|hype/.test(q)) return 'ct'
+  if (/influencer|celebrity|famous/.test(q)) return 'celebrity'
+  if (/trump|biden|maga|politic|election/.test(q)) return 'political'
+  if (/super.?bowl|nfl|nba|championship/.test(q)) return 'super_bowl'
+  return null
+}
+
 // POST /api/arena-bets/backfill-narratives
-// One-shot endpoint to re-detect narratives on all existing markets
-// using the latest regex patterns. Safe to run multiple times.
+// Re-detect narratives on all existing markets using token symbol/name,
+// then fall back to question text analysis. Safe to run multiple times.
 export async function POST(request: NextRequest) {
-  // Simple auth: require cron secret or service key
   const authHeader = request.headers.get('authorization')
   const cronSecret = process.env.CRON_SECRET
   if (cronSecret && authHeader !== `Bearer ${cronSecret}`) {
@@ -22,11 +31,9 @@ export async function POST(request: NextRequest) {
 
   const supabase = getServiceClient()
 
-  // Fetch all markets that have a token_symbol (we need it for detection)
   const { data: markets, error } = await supabase
     .from('arena_markets')
-    .select('id, token_symbol, token_name, narrative')
-    .not('token_symbol', 'is', null)
+    .select('id, token_symbol, token_name, narrative, question')
     .order('created_at', { ascending: false })
 
   if (error) {
@@ -38,16 +45,24 @@ export async function POST(request: NextRequest) {
   const changes: { id: string; symbol: string; from: string | null; to: string | null }[] = []
 
   for (const market of markets || []) {
+    // Priority: token detection > question text detection
     const detected = detectNarrative(market.token_symbol || '', market.token_name || '')
+      || detectNarrativeFromQuestion(market.question || '')
 
-    // Update if: narrative changed, or was 'trending' and we now have something specific
-    if (detected !== market.narrative) {
-      // Don't overwrite a specific narrative with null
-      if (!detected && market.narrative && market.narrative !== 'trending') {
-        unchanged++
-        continue
-      }
+    // Skip if narrative is already correct
+    if (detected === market.narrative) {
+      unchanged++
+      continue
+    }
 
+    // Don't overwrite a specific narrative with null
+    if (!detected && market.narrative && market.narrative !== 'trending') {
+      unchanged++
+      continue
+    }
+
+    // Update 'trending' → detected, or null → detected
+    if (detected && (!market.narrative || market.narrative === 'trending')) {
       const { error: updateErr } = await supabase
         .from('arena_markets')
         .update({ narrative: detected })
@@ -72,6 +87,6 @@ export async function POST(request: NextRequest) {
     total: markets?.length || 0,
     updated,
     unchanged,
-    changes: changes.slice(0, 50), // Show first 50 changes
+    changes: changes.slice(0, 50),
   })
 }
