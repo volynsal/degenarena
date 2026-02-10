@@ -113,41 +113,41 @@ export default function AllMatchesPage() {
           {matches.map((match) => (
             <Card key={match.id} hover>
               <CardContent className="p-6">
-                <div className="flex items-start justify-between">
-                  <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 rounded-full bg-gradient-to-br from-arena-purple/30 to-arena-cyan/30 flex items-center justify-center">
+                <div className="flex items-start justify-between gap-3">
+                  <div className="flex items-center gap-3 min-w-0">
+                    <div className="w-12 h-12 rounded-full bg-gradient-to-br from-arena-purple/30 to-arena-cyan/30 flex items-center justify-center shrink-0">
                       <span className="text-lg font-bold text-white">
                         {match.token_symbol.charAt(0)}
                       </span>
                     </div>
-                    <div>
-                      <div className="flex items-center gap-2">
-                        <h3 className="text-lg font-semibold text-white">{match.token_symbol}</h3>
-                        <span className="text-gray-500">•</span>
-                        <span className="text-gray-400 text-sm">{match.token_name}</span>
+                    <div className="min-w-0">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <h3 className="text-lg font-semibold text-white shrink-0">{match.token_symbol}</h3>
+                        <span className="text-gray-500 shrink-0">•</span>
+                        <span className="text-gray-400 text-sm truncate">{match.token_name}</span>
                         {match.dexscreener_url && (
                           <a 
                             href={match.dexscreener_url} 
                             target="_blank" 
                             rel="noopener noreferrer"
-                            className="text-gray-400 hover:text-arena-cyan transition-colors"
+                            className="text-gray-400 hover:text-arena-cyan transition-colors shrink-0"
                           >
                             <ExternalLink className="w-4 h-4" />
                           </a>
                         )}
                       </div>
-                      <div className="flex items-center gap-4 mt-1 text-sm text-gray-500">
-                        <span className="flex items-center gap-1">
+                      <div className="flex flex-wrap items-center gap-x-2 gap-y-1 mt-1 text-sm text-gray-500">
+                        <span className="flex items-center gap-1 shrink-0">
                           <Clock className="w-3 h-3" />
                           {formatTimeAgo(match.matched_at)}
                         </span>
                         <Link 
                           href={`/formulas/${match.formula_id}`}
-                          className="text-arena-purple hover:text-arena-cyan transition-colors"
+                          className="text-arena-purple hover:text-arena-cyan transition-colors whitespace-nowrap"
                         >
                           {match.formula?.name || 'View Formula'}
                         </Link>
-                        <span className="uppercase">{match.chain}</span>
+                        <span className="uppercase shrink-0">{match.chain}</span>
                       </div>
                     </div>
                   </div>
