@@ -111,10 +111,10 @@ function getMarketTypeLabel(type: string): string {
     case 'rug_call': return 'RUG CALL'
     case 'moonshot': return 'MOONSHOT'
     case 'up_down': return 'UP / DOWN'
-    case 'culture': return 'CULTURE'
+    case 'culture': return 'HYPE'
     case 'versus': return 'VERSUS'
     case 'narrative_index': return 'INDEX'
-    case 'culture_crypto': return 'CULTURE'
+    case 'culture_crypto': return 'HYBRID'
     case 'meta': return 'META'
     default: return type.toUpperCase()
   }
@@ -467,7 +467,14 @@ export default function ArenaBetsPage() {
   const fetchMarkets = useCallback(async () => {
     try {
       const params = new URLSearchParams({ status: tab, limit: '30' })
-      if (typeFilter !== 'all') params.set('type', typeFilter)
+      if (typeFilter !== 'all') {
+        // 'up_down' filter also includes 'culture' (culture markets resolve on price)
+        if (typeFilter === 'up_down') {
+          params.set('type', 'up_down,culture')
+        } else {
+          params.set('type', typeFilter)
+        }
+      }
       if (narrativeFilter !== 'all') params.set('narrative', narrativeFilter)
 
       const res = await fetch(`/api/arena-bets/markets?${params}`)

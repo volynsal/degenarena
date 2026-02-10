@@ -36,7 +36,11 @@ export async function GET(request: NextRequest) {
     .range(offset, offset + limit - 1)
 
   if (marketType) {
-    query = query.eq('market_type', marketType)
+    if (marketType.includes(',')) {
+      query = query.in('market_type', marketType.split(','))
+    } else {
+      query = query.eq('market_type', marketType)
+    }
   }
 
   if (narrative) {
