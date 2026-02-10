@@ -49,9 +49,9 @@ export default function LoginPage() {
     
     // Wait for Supabase client to fully persist session cookies before navigating
     // Without this, the middleware may not see the cookies on the first redirect
-    await new Promise(resolve => setTimeout(resolve, 200))
+    await new Promise(resolve => setTimeout(resolve, 500))
     
-    // Use router refresh + redirect to ensure cookies are picked up by middleware
+    // Use window.location for full navigation (router.push can be too fast)
     window.location.href = redirect
   }
   

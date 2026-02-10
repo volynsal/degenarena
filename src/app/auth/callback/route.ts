@@ -32,9 +32,9 @@ export async function GET(request: NextRequest) {
 
     if (!error) {
       // Return an HTML page that sets cookies via Set-Cookie headers,
-      // then redirects client-side. This avoids the browser dropping
-      // cookies during 302 redirect chains (common auth bug).
-      const html = `<!DOCTYPE html><html><head><meta http-equiv="refresh" content="0;url=${redirect}"><script>window.location.href="${redirect}"</script></head><body></body></html>`
+      // then redirects client-side after a brief delay to ensure cookies persist.
+      // This avoids the browser dropping cookies during 302 redirect chains.
+      const html = `<!DOCTYPE html><html><head><meta http-equiv="refresh" content="1;url=${redirect}"><script>setTimeout(function(){window.location.href="${redirect}"},100)</script></head><body>Redirecting...</body></html>`
       const response = new NextResponse(html, {
         status: 200,
         headers: { 'Content-Type': 'text/html' },
