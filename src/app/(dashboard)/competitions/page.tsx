@@ -110,7 +110,7 @@ function TierBadge({ tier, size = 'sm' }: { tier: TierName; size?: 'sm' | 'md' }
 
 export default function CompetitionsPage() {
   const [activeTab, setActiveTab] = useState<CompetitionTab | 'all'>('pnl_challenges')
-  const { competitions, isLoading, status, changeStatus, changeTab } = useCompetitions()
+  const { competitions, isLoading, status, changeStatus, changeTab } = useCompetitions('pnl_challenges')
   const { xp, progress } = useUserXp()
 
   const handleTabChange = (tab: CompetitionTab | 'all') => {
