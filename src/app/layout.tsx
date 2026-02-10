@@ -37,8 +37,8 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    site: '@Degen_Arena_',
-    creator: '@Degen_Arena_',
+    site: '@degenarenahq',
+    creator: '@degenarenahq',
     title: 'DegenArena HQ - Build, Battle, Prove Your Alpha',
     description: 'The competitive platform where you build memecoin formulas and prove whose strategy actually works.',
   },
