@@ -5,7 +5,7 @@ export function Footer() {
     <footer className="relative overflow-hidden">
       {/* Background Image — right-aligned on mobile to show "ARENA", centered on desktop */}
       <div 
-        className="absolute inset-0 bg-cover bg-no-repeat [background-position:75%_center] sm:bg-center"
+        className="absolute inset-0 bg-cover bg-no-repeat [background-position:77%_center] sm:bg-center"
         style={{ backgroundImage: 'url(/footer-bg.png)' }}
       />
       {/* Dark Overlay for readability */}
