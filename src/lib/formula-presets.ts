@@ -201,8 +201,8 @@ export const FORMULA_PRESETS: FormulaPreset[] = [
     requireGalaxyScore: false,
     galaxyScoreMin: 65, // Social momentum — coming soon
     parameters: {
-      // Established tokens - not new launches
-      token_age_max_hours: 720, // 30+ days old
+      // Established tokens - at least 30 days old (43200 minutes)
+      token_age_min_minutes: 43200,
       // Market cap sweet spot for exchange interest
       fdv_min: 1000000,      // $1M min - too small won't attract exchanges
       fdv_max: 100000000,    // $100M max - too big likely already listed
