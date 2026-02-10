@@ -9,6 +9,10 @@ function getServiceClient() {
   )
 }
 
+// Points awarded/deducted when a market resolves with no opposition
+// (solo bettor or all bets on the same side)
+const SOLO_MARKET_BONUS = 50
+
 // =============================================
 // MARKET TEMPLATES
 // =============================================
@@ -1223,26 +1227,34 @@ async function distributePayouts(
   const loserPool = loserBets.reduce((sum, b) => sum + b.amount, 0)
   const winnerPool = winnerBets.reduce((sum, b) => sum + b.amount, 0)
 
-  // If no winners, refund everyone (no win/loss recorded)
+  // If no winners, everyone predicted wrong — apply solo penalty
+  // Refund stake minus penalty (capped so they never lose more than they wagered)
   if (winnerBets.length === 0) {
     for (const bet of bets) {
+      const payout = Math.max(bet.amount - SOLO_MARKET_BONUS, 0)
       await supabase.rpc('credit_arena_points', {
         p_user_id: bet.user_id,
-        p_amount: bet.amount,
+        p_amount: payout,
         p_is_win: false,
       })
-      await supabase.from('arena_bets').update({ payout: bet.amount, is_winner: false }).eq('id', bet.id)
+      await supabase.from('arena_bets').update({ payout, is_winner: false }).eq('id', bet.id)
+      await supabase.rpc('update_arena_streak', {
+        p_user_id: bet.user_id,
+        p_is_win: false,
+      })
     }
     return
   }
 
-  // If no losers, refund winners their stake (still counts as a win)
+  // If no losers, everyone predicted right — apply solo bonus
+  // Refund stake plus bonus reward
   if (loserPool === 0) {
     for (const bet of winnerBets) {
-      await supabase.from('arena_bets').update({ payout: bet.amount, is_winner: true }).eq('id', bet.id)
+      const payout = bet.amount + SOLO_MARKET_BONUS
+      await supabase.from('arena_bets').update({ payout, is_winner: true }).eq('id', bet.id)
       await supabase.rpc('credit_arena_points', {
         p_user_id: bet.user_id,
-        p_amount: bet.amount,
+        p_amount: payout,
         p_is_win: true,
       })
     }
