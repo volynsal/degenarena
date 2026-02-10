@@ -64,7 +64,7 @@ export async function GET(
     avgReturn: formula.avg_return,
     shareUrl,
     embedCode: `<iframe src="${baseUrl}/embed/formula/${params.id}" width="400" height="200" frameborder="0"></iframe>`,
-    twitterShareUrl: `https://twitter.com/intent/tweet?text=${encodedText}&url=${encodedUrl}`,
+    twitterShareUrl: `https://x.com/intent/tweet?text=${encodedText}&url=${encodedUrl}`,
     telegramShareUrl: `https://t.me/share/url?url=${encodedUrl}&text=${encodedText}`,
   }
   

@@ -203,7 +203,7 @@ export default async function PublicFormulaPage({ params }: { params: { id: stri
                 </Button>
               </Link>
               <a
-                href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(
+                href={`https://x.com/intent/tweet?text=${encodeURIComponent(
                   `Check out this formula on DegenArena HQ! 🎯\n\n"${formula.name}" by @${username}\n📊 ${formula.win_rate}% win rate\n💰 ${formula.avg_return >= 0 ? '+' : ''}${formula.avg_return}% avg return\n\n`
                 )}&url=${encodeURIComponent(`https://degenarena.com/f/${params.id}`)}`}
                 target="_blank"
