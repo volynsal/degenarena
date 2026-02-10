@@ -70,7 +70,7 @@ export default function DashboardPage() {
   ]
   
   return (
-    <div className="space-y-8">
+    <div className="space-y-4 sm:space-y-8">
       {/* Header */}
       <div>
         <h1 className="text-2xl sm:text-3xl font-semibold gradient-text">
@@ -80,21 +80,21 @@ export default function DashboardPage() {
       </div>
       
       {/* Stats grid */}
-      <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
         {statsData.map((stat) => (
           <Card key={stat.title} hover>
-            <CardContent className="p-4">
-              <div className="flex items-start justify-between">
-                <div>
-                  <p className="text-sm text-gray-400">{stat.title}</p>
+            <CardContent className="p-3 sm:p-4">
+              <div className="flex items-start justify-between gap-2">
+                <div className="min-w-0">
+                  <p className="text-xs sm:text-sm text-gray-400 truncate">{stat.title}</p>
                   {statsLoading ? (
-                    <div className="h-8 w-16 bg-white/5 rounded animate-pulse mt-1" />
+                    <div className="h-7 w-14 bg-white/5 rounded animate-pulse mt-1" />
                   ) : (
-                    <p className="text-2xl font-bold text-white mt-1">{stat.value}</p>
+                    <p className="text-xl sm:text-2xl font-bold text-white mt-0.5">{stat.value}</p>
                   )}
                 </div>
-                <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-arena-purple/20 to-arena-cyan/20 flex items-center justify-center">
-                  <stat.icon className="w-5 h-5 text-arena-cyan" />
+                <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg bg-gradient-to-br from-arena-purple/20 to-arena-cyan/20 flex items-center justify-center flex-shrink-0">
+                  <stat.icon className="w-4 h-4 sm:w-5 sm:h-5 text-arena-cyan" />
                 </div>
               </div>
             </CardContent>
@@ -105,24 +105,24 @@ export default function DashboardPage() {
       {/* Live & Go Live widget */}
       <Card className="border-[#9146FF]/20">
         <CardContent className="p-4 sm:p-6">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-            <div className="flex items-center gap-3">
+          <div className="flex items-center justify-between gap-3">
+            <div className="flex items-center gap-3 min-w-0">
               <div className="w-10 h-10 rounded-lg bg-[#9146FF]/20 flex items-center justify-center flex-shrink-0">
                 <Radio className="w-5 h-5 text-[#9146FF]" />
               </div>
-              <div>
-                <p className="text-white font-medium">Live Streams</p>
-                <p className="text-sm text-gray-400">
+              <div className="min-w-0">
+                <p className="text-white font-medium text-sm sm:text-base">Live Streams</p>
+                <p className="text-xs sm:text-sm text-gray-400 truncate">
                   {liveCount > 0
                     ? `${liveCount} trader${liveCount > 1 ? 's' : ''} streaming now`
                     : 'No one is live right now'}
                 </p>
               </div>
             </div>
-            <div className="flex items-center gap-2 ml-[52px] sm:ml-0">
+            <div className="flex items-center gap-2 flex-shrink-0">
               <Link
                 href="/live"
-                className="px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-sm text-white transition-colors"
+                className="px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-sm text-white transition-colors whitespace-nowrap"
               >
                 {liveCount > 0 ? 'Watch' : 'View'}
               </Link>
@@ -131,7 +131,7 @@ export default function DashboardPage() {
                   href="https://dashboard.twitch.tv/stream-manager"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-[#9146FF] hover:bg-[#7c3aed] text-white text-sm font-medium transition-colors"
+                  className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-[#9146FF] hover:bg-[#7c3aed] text-white text-sm font-medium transition-colors whitespace-nowrap"
                 >
                   <TwitchIcon className="w-3.5 h-3.5" />
                   Go Live
@@ -139,7 +139,7 @@ export default function DashboardPage() {
               ) : (
                 <Link
                   href="/settings"
-                  className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-sm text-gray-400 hover:text-white transition-colors"
+                  className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-sm text-gray-400 hover:text-white transition-colors whitespace-nowrap"
                 >
                   <TwitchIcon className="w-3.5 h-3.5" />
                   Connect
@@ -153,21 +153,21 @@ export default function DashboardPage() {
       {/* Galaxy widget */}
       <Card className="border-rose-500/20">
         <CardContent className="p-4 sm:p-6">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-amber-500/20 to-violet-500/20 flex items-center justify-center">
+          <div className="flex items-center justify-between gap-3">
+            <div className="flex items-center gap-3 min-w-0">
+              <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-amber-500/20 to-violet-500/20 flex items-center justify-center flex-shrink-0">
                 <Orbit className="w-5 h-5 text-rose-400" />
               </div>
-              <div>
-                <p className="text-white font-medium">Galaxy</p>
-                <p className="text-sm text-gray-400">
+              <div className="min-w-0">
+                <p className="text-white font-medium text-sm sm:text-base">Galaxy</p>
+                <p className="text-xs sm:text-sm text-gray-400 truncate">
                   Predict memecoin moves, earn points
                 </p>
               </div>
             </div>
             <Link
               href="/arena-bets"
-              className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-gradient-to-r from-amber-500 via-rose-500 to-violet-500 text-white text-sm font-medium hover:opacity-90 transition-opacity"
+              className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-gradient-to-r from-amber-500 via-rose-500 to-violet-500 text-white text-sm font-medium hover:opacity-90 transition-opacity whitespace-nowrap flex-shrink-0"
             >
               <Zap className="w-3.5 h-3.5" />
               Play Now
@@ -179,18 +179,18 @@ export default function DashboardPage() {
       {/* Best formula highlight */}
       {stats?.best_formula && (
         <Card className="border-arena-purple/30">
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-400 mb-1">Your Best Formula</p>
-                <p className="text-lg font-semibold text-white">{stats.best_formula.name}</p>
-                <p className="text-arena-cyan font-mono">{stats.best_formula.win_rate}% win rate</p>
+          <CardContent className="p-4 sm:p-6">
+            <div className="flex items-center justify-between gap-3">
+              <div className="min-w-0">
+                <p className="text-xs sm:text-sm text-gray-400 mb-0.5">Your Best Formula</p>
+                <p className="text-base sm:text-lg font-semibold text-white truncate">{stats.best_formula.name}</p>
+                <p className="text-arena-cyan font-mono text-sm">{stats.best_formula.win_rate}% win rate</p>
               </div>
               <Link 
                 href={`/formulas/${stats.best_formula.id}`}
-                className="px-4 py-2 bg-white/5 hover:bg-white/10 rounded-lg text-sm text-white transition-colors"
+                className="px-3 sm:px-4 py-2 bg-white/5 hover:bg-white/10 rounded-lg text-sm text-white transition-colors whitespace-nowrap flex-shrink-0"
               >
-                View Formula
+                View
               </Link>
             </div>
           </CardContent>
