@@ -1,6 +1,6 @@
 import Link from 'next/link'
 import { Button } from '@/components/ui/Button'
-import { ArrowRight } from 'lucide-react'
+import { ArrowRight, ShieldCheck, Trophy, Activity } from 'lucide-react'
 import { VideoBackground } from './FlowField'
 
 export function Hero() {
@@ -59,55 +59,42 @@ export function Hero() {
         {/* Preview image/mockup */}
         <div className="mt-16 relative">
           <div className="absolute inset-0 bg-gradient-to-t from-arena-darker via-transparent to-transparent z-10 pointer-events-none" />
-          <div className="glass-card rounded-xl p-4 neon-glow mx-auto max-w-4xl">
-            <div className="bg-arena-dark rounded-lg overflow-hidden">
-              {/* Formula Builder Preview */}
-              <div className="p-6">
-                <div className="flex items-center justify-between mb-6">
-                  <div className="flex items-center gap-3">
-                    <div className="w-3 h-3 rounded-full bg-red-500" />
-                    <div className="w-3 h-3 rounded-full bg-yellow-500" />
-                    <div className="w-3 h-3 rounded-full bg-green-500" />
-                  </div>
-                  <span className="text-sm text-gray-500 font-mono">Global Rankings</span>
-                </div>
-                
-                <div className="glass-card rounded-lg p-4">
-                  <div className="flex items-center justify-between mb-4">
-                    <span className="text-xs text-gray-400 uppercase tracking-wider">Top 10 — This Week</span>
-                    <span className="text-xs text-arena-purple">Live</span>
-                  </div>
-                  <div className="space-y-2 max-h-[320px] overflow-y-auto pr-1">
-                    {[
-                      { rank: 1, name: 'ArenaBot_Claude', tag: 'AI', wins: '91%', badge: null },
-                      { rank: 2, name: 'degen_whale', tag: null, wins: '87%', badge: null },
-                      { rank: 3, name: 'alpha_hunter', tag: null, wins: '82%', badge: null },
-                      { rank: 4, name: 'ArenaBot_Grok', tag: 'AI', wins: '79%', badge: null },
-                      { rank: 5, name: 'memecoin_sage', tag: null, wins: '76%', badge: null },
-                      { rank: 6, name: 'ArenaBot_ChatGPT', tag: 'AI', wins: '74%', badge: null },
-                      { rank: 7, name: 'sol_flipper', tag: null, wins: '71%', badge: null },
-                      { rank: 8, name: 'pump_detective', tag: null, wins: '68%', badge: null },
-                      { rank: 9, name: 'whale_watcher', tag: null, wins: '65%', badge: null },
-                      { rank: 10, name: 'onchain_oracle', tag: null, wins: '62%', badge: null },
-                    ].map((trader) => (
-                      <div key={trader.name} className="flex items-center justify-between py-1.5 border-b border-white/5 last:border-0">
-                        <div className="flex items-center gap-2.5">
-                          <span className={`w-7 text-center font-bold text-sm ${trader.rank === 1 ? 'text-yellow-400' : trader.rank === 2 ? 'text-gray-300' : trader.rank === 3 ? 'text-orange-400' : 'text-gray-500'}`}>
-                            #{trader.rank}
-                          </span>
-                          <span className="text-white font-medium text-sm">{trader.name}</span>
-                          {trader.tag && (
-                            <span className="text-[10px] px-1.5 py-0.5 rounded bg-arena-purple/30 text-arena-purple">{trader.tag}</span>
-                          )}
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <span className="text-arena-cyan font-mono text-sm">{trader.wins}</span>
-                          {trader.badge && <span>{trader.badge}</span>}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
+          <div className="glass-card rounded-2xl p-6 sm:p-8 neon-glow mx-auto max-w-5xl text-left">
+            <p className="text-xs sm:text-sm tracking-[0.28em] uppercase text-gray-400 mb-6">
+              Real-Time Snapshot
+            </p>
+
+            <div className="grid gap-4 sm:grid-cols-3">
+              <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-5 sm:p-6">
+                <ShieldCheck className="w-7 h-7 text-arena-cyan mb-5" strokeWidth={1.8} />
+                <p className="text-4xl sm:text-5xl leading-none text-white mb-4">—</p>
+                <p className="text-gray-400 text-lg sm:text-xl">Verified Profiles</p>
+              </div>
+
+              <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-5 sm:p-6">
+                <Trophy className="w-7 h-7 text-arena-pink mb-5" strokeWidth={1.8} />
+                <p className="text-4xl sm:text-5xl leading-none text-white mb-4">—</p>
+                <p className="text-gray-400 text-lg sm:text-xl">Competitions Run</p>
+              </div>
+
+              <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-5 sm:p-6">
+                <Activity className="w-7 h-7 text-arena-purple mb-5" strokeWidth={1.8} />
+                <p className="text-4xl sm:text-5xl leading-none text-white mb-4">—</p>
+                <p className="text-gray-400 text-lg sm:text-xl">Signals Triggered</p>
+              </div>
+            </div>
+
+            <div className="mt-7 rounded-2xl border border-arena-purple/35 bg-gradient-to-r from-arena-purple/15 via-arena-blue/10 to-arena-cyan/15 p-5 sm:p-6">
+              <div className="flex items-center justify-between mb-4">
+                <p className="text-2xl sm:text-3xl text-gray-200">Weekly League</p>
+                <span className="text-3xl sm:text-4xl text-arena-cyan">Live</span>
+              </div>
+              <div className="h-4 rounded-full bg-white/10 overflow-hidden mb-4">
+                <div className="h-full w-1/2 bg-gradient-to-r from-arena-purple via-arena-blue to-arena-cyan rounded-full" />
+              </div>
+              <div className="flex items-center justify-between text-2xl sm:text-4xl text-gray-400">
+                <span>— traders active</span>
+                <span>— left</span>
               </div>
             </div>
           </div>
