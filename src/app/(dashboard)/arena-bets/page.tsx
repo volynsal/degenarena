@@ -697,7 +697,7 @@ export default function ArenaBetsPage() {
       <Card className="!bg-white/[0.01]">
         <CardContent className="py-6 px-6">
           <h3 className="text-sm font-semibold text-white mb-4">How Galaxy Works</h3>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 text-xs text-gray-400">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 text-xs text-gray-400">
             <div>
               <p className="text-white font-medium mb-1">1. Markets auto-generate</p>
               <p>Our scanners detect trending tokens and cultural moments, creating markets across 6 types — from price bets to head-to-head showdowns.</p>
@@ -713,6 +713,10 @@ export default function ArenaBetsPage() {
             <div>
               <p className="text-white font-medium mb-1">4. Winner takes the pool</p>
               <p>When the market resolves, the losing side&apos;s pool is distributed to winners proportionally. Build streaks to climb ranks.</p>
+            </div>
+            <div>
+              <p className="text-white font-medium mb-1">5. Solo bettor rewards</p>
+              <p>No one on the other side? You still get rewarded. Correct prediction earns +50 bonus points on top of your refund. Wrong call costs you 50 points from your stake.</p>
             </div>
           </div>
         </CardContent>
