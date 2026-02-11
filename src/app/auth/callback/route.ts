@@ -32,9 +32,32 @@ export async function GET(request: NextRequest) {
 
     if (!error) {
       // Return an HTML page that sets cookies via Set-Cookie headers,
-      // then redirects client-side after a brief delay to ensure cookies persist.
-      // This avoids the browser dropping cookies during 302 redirect chains.
-      const html = `<!DOCTYPE html><html><head><meta http-equiv="refresh" content="1;url=${redirect}"><script>setTimeout(function(){window.location.href="${redirect}"},100)</script></head><body>Redirecting...</body></html>`
+      // then waits for the cookie to actually be readable before redirecting.
+      // This prevents the race condition where the redirect fires before
+      // the browser has persisted the Set-Cookie headers.
+      const html = `<!DOCTYPE html><html><head>
+<script>
+(function() {
+  var dest = "${redirect}";
+  var maxWait = 3000;
+  var start = Date.now();
+  function check() {
+    // Check if Supabase auth cookie is readable yet
+    if (document.cookie.indexOf("sb-") !== -1) {
+      window.location.href = dest;
+    } else if (Date.now() - start > maxWait) {
+      // Fallback: redirect anyway after 3s
+      window.location.href = dest;
+    } else {
+      setTimeout(check, 100);
+    }
+  }
+  // Start checking after a small initial delay
+  setTimeout(check, 200);
+})();
+</script>
+<noscript><meta http-equiv="refresh" content="3;url=${redirect}"></noscript>
+</head><body>Redirecting...</body></html>`
       const response = new NextResponse(html, {
         status: 200,
         headers: { 'Content-Type': 'text/html' },
