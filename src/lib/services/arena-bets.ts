@@ -137,6 +137,7 @@ const NARRATIVE_LABELS: Record<string, string> = {
   ai_agents: 'AI Agent',
   political: 'Political',
   celebrity: 'Celebrity',
+  seasonal: 'Seasonal',
   revenge_pump: 'Revenge Pump',
   meta_wars: 'Meta Wars',
   trending: 'Trending',
@@ -165,6 +166,9 @@ export function detectNarrative(symbol: string, name: string): string | null {
 
   // CT — crypto twitter native meme culture
   if (/degen|wagmi|ngmi|\bgm\b|hodl|fomo|based|copium|hopium|pepe|wojak|chad\b|doge|shib|floki|bonk|brett|andy\b|matt.?furie|4chan|ponzi|rugged|rug\b|jeet|moon.?boy|ct\b|crypto.?twitter|solana.?summer|pump.?fun|pumpfun|memecoin|meme.?coin|wif\b|popcat|mother|slerf|boden|tremp|book.?of/.test(combined)) return 'ct'
+
+  // Seasonal — holidays, cultural events, annual moments (not sports)
+  if (/christmas|xmas|santa|holiday|halloween|spooky|pumpkin|skeleton|ghost|turkey|thanksgiv|easter|bunny|valentine|cupid|love.?day|st.?patrick|shamrock|clover|new.?year|nye|firework|4th.?of.?july|fourth.?of.?july|independence|memorial.?day|labor.?day|cinco.?de.?mayo|lunar.?new|chinese.?new|diwali|hanukkah|kwanzaa|ramadan|eid|mothers?.?day|fathers?.?day|black.?friday|cyber.?monday|grammy|oscar|emmy|golden.?globe|coachella|burning.?man|comic.?con|festival|solstice|equinox/.test(combined)) return 'seasonal'
 
   // Culture — brands, fashion, internet culture, gaming
   if (/bape|supreme|nike|gucci|louis.?vuitton|prada|balenciaga|yeezy|offwhite|off.?white|stussy|kith|jordan\b|dior|chanel|versace|burberry|hermes|rolex|ferrari|lambo|lamborghini|porsche|tesla\b|mcdonalds|wendys|starbucks|coca.?cola|pepsi|redbull|tiktok|youtube|twitch\b|discord|reddit|anime|manga|naruto|goku|one.?piece|pokemon|pikachu|mario|zelda|minecraft|fortnite|roblox/.test(combined)) return 'culture'

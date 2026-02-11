@@ -648,6 +648,7 @@ export default function ArenaBetsPage() {
             { key: 'celebrity', label: 'Celebrity' },
             { key: 'political', label: 'Political' },
             { key: 'super_bowl', label: 'Sports' },
+            { key: 'seasonal', label: 'Seasonal' },
           ].map((f) => (
             <button
               key={f.key}

@@ -16,6 +16,7 @@ function detectNarrativeFromQuestion(question: string): string | null {
   if (/influencer|celebrity|famous/.test(q)) return 'celebrity'
   if (/trump|biden|maga|politic|election/.test(q)) return 'political'
   if (/super.?bowl|nfl|nba|championship/.test(q)) return 'super_bowl'
+  if (/christmas|halloween|valentine|easter|holiday|new.?year|thanksgiv|4th.?of.?july|seasonal|festival|grammy|oscar|coachella/.test(q)) return 'seasonal'
   return null
 }
 
