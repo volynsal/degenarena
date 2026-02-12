@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import { useUserStats } from '@/lib/hooks/use-user-stats'
 import { useRecentMatches } from '@/lib/hooks/use-matches'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card'
-import { TrendingUp, Target, Trophy, Zap, ArrowUpRight, ExternalLink, Loader2, Radio, Orbit } from 'lucide-react'
+import { TrendingUp, Target, Trophy, Zap, ArrowUpRight, ExternalLink, Loader2, Radio, Orbit, CheckCircle2, XCircle, Clock, ChevronRight } from 'lucide-react'
 import Link from 'next/link'
 
 // Twitch icon component
@@ -32,6 +32,10 @@ export default function DashboardPage() {
   const { matches, isLoading: matchesLoading } = useRecentMatches(5)
   const [liveCount, setLiveCount] = useState(0)
   const [userTwitchUrl, setUserTwitchUrl] = useState<string | null>(null)
+  const [betHistory, setBetHistory] = useState<any[]>([])
+  const [betSummary, setBetSummary] = useState<any>(null)
+  const [betHistoryLoading, setBetHistoryLoading] = useState(true)
+  const [betFilter, setBetFilter] = useState<'all' | 'won' | 'lost' | 'pending'>('all')
   
   useEffect(() => {
     // Fetch live count for the live widget
@@ -45,6 +49,19 @@ export default function DashboardPage() {
       .then(d => { if (d.data?.twitch_url) setUserTwitchUrl(d.data.twitch_url) })
       .catch(() => {})
   }, [])
+
+  // Fetch Galaxy bet history
+  useEffect(() => {
+    setBetHistoryLoading(true)
+    fetch(`/api/arena-bets/history?filter=${betFilter}&limit=20`)
+      .then(r => r.json())
+      .then(d => {
+        setBetHistory(d.data || [])
+        if (d.summary) setBetSummary(d.summary)
+      })
+      .catch(() => {})
+      .finally(() => setBetHistoryLoading(false))
+  }, [betFilter])
   
   const statsData = [
     {
@@ -172,6 +189,150 @@ export default function DashboardPage() {
         </CardContent>
       </Card>
       
+      {/* Galaxy Bet History */}
+      <Card>
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Orbit className="w-5 h-5 text-rose-400" />
+              <CardTitle>Galaxy History</CardTitle>
+            </div>
+            <Link
+              href="/arena-bets"
+              className="text-xs text-gray-400 hover:text-white transition-colors flex items-center gap-1"
+            >
+              Go to Galaxy <ChevronRight className="w-3 h-3" />
+            </Link>
+          </div>
+        </CardHeader>
+        <CardContent>
+          {/* Summary stats row */}
+          {betSummary && !betHistoryLoading && (
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-5">
+              <div className="p-2.5 rounded-lg bg-white/[0.03]">
+                <p className="text-[10px] text-gray-500 uppercase tracking-wider">Total Bets</p>
+                <p className="text-lg font-bold text-white">{betSummary.total_bets}</p>
+              </div>
+              <div className="p-2.5 rounded-lg bg-white/[0.03]">
+                <p className="text-[10px] text-gray-500 uppercase tracking-wider">Win Rate</p>
+                <p className="text-lg font-bold text-white">
+                  {betSummary.wins + betSummary.losses > 0
+                    ? `${Math.round((betSummary.wins / (betSummary.wins + betSummary.losses)) * 100)}%`
+                    : '—'}
+                </p>
+              </div>
+              <div className="p-2.5 rounded-lg bg-white/[0.03]">
+                <p className="text-[10px] text-gray-500 uppercase tracking-wider">W / L</p>
+                <p className="text-lg font-bold">
+                  <span className="text-green-400">{betSummary.wins}</span>
+                  <span className="text-gray-600 mx-1">/</span>
+                  <span className="text-red-400">{betSummary.losses}</span>
+                </p>
+              </div>
+              <div className="p-2.5 rounded-lg bg-white/[0.03]">
+                <p className="text-[10px] text-gray-500 uppercase tracking-wider">Net P&L</p>
+                <p className={`text-lg font-bold ${betSummary.net_pnl >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+                  {betSummary.net_pnl >= 0 ? '+' : ''}{betSummary.net_pnl.toLocaleString()} pts
+                </p>
+              </div>
+            </div>
+          )}
+
+          {/* Filter tabs */}
+          <div className="flex items-center gap-0.5 p-0.5 rounded-lg bg-white/5 w-fit mb-4">
+            {[
+              { key: 'all' as const, label: 'All' },
+              { key: 'won' as const, label: 'Won' },
+              { key: 'lost' as const, label: 'Lost' },
+              { key: 'pending' as const, label: 'Pending' },
+            ].map((f) => (
+              <button
+                key={f.key}
+                onClick={() => setBetFilter(f.key)}
+                className={`px-3 py-1 rounded-md text-xs font-medium transition-colors ${
+                  betFilter === f.key
+                    ? 'bg-rose-500/20 text-white'
+                    : 'text-gray-400 hover:text-white'
+                }`}
+              >
+                {f.label}
+              </button>
+            ))}
+          </div>
+
+          {/* Bet list */}
+          {betHistoryLoading ? (
+            <div className="flex items-center justify-center py-8">
+              <Loader2 className="w-6 h-6 text-rose-400 animate-spin" />
+            </div>
+          ) : betHistory.length === 0 ? (
+            <div className="text-center py-8">
+              <Orbit className="w-8 h-8 text-gray-600 mx-auto mb-3" />
+              <p className="text-gray-400 text-sm mb-1">
+                {betFilter === 'all'
+                  ? 'No Galaxy bets yet'
+                  : `No ${betFilter} bets`}
+              </p>
+              <p className="text-xs text-gray-500">
+                Head to Galaxy to start predicting memecoin moves
+              </p>
+            </div>
+          ) : (
+            <div className="space-y-0">
+              {betHistory.map((bet: any) => {
+                const market = bet.market
+                if (!market) return null
+                const isResolved = market.status === 'resolved'
+                const isWinner = bet.is_winner === true
+                const isLoser = bet.is_winner === false
+                const pnl = isWinner
+                  ? bet.payout - bet.amount
+                  : isLoser
+                  ? -bet.amount
+                  : 0
+
+                return (
+                  <div
+                    key={bet.id}
+                    className="flex items-center justify-between py-3 border-b border-white/5 last:border-0 gap-3"
+                  >
+                    <div className="flex items-center gap-3 min-w-0">
+                      {/* Outcome icon */}
+                      <div className="flex-shrink-0">
+                        {isWinner && <CheckCircle2 className="w-5 h-5 text-green-400" />}
+                        {isLoser && <XCircle className="w-5 h-5 text-red-400" />}
+                        {!isResolved && <Clock className="w-5 h-5 text-yellow-400" />}
+                      </div>
+                      <div className="min-w-0">
+                        <p className="text-sm text-white font-medium truncate">{market.question}</p>
+                        <p className="text-xs text-gray-500">
+                          <span className={`font-medium ${bet.position === 'yes' ? 'text-green-400' : 'text-red-400'}`}>
+                            {bet.position.toUpperCase()}
+                          </span>
+                          <span className="mx-1.5">·</span>
+                          {bet.amount} pts
+                          <span className="mx-1.5">·</span>
+                          {formatTimeAgo(bet.created_at)}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="flex-shrink-0 text-right">
+                      {isResolved ? (
+                        <p className={`text-sm font-bold ${isWinner ? 'text-green-400' : 'text-red-400'}`}>
+                          {pnl >= 0 ? '+' : ''}{pnl} pts
+                        </p>
+                      ) : (
+                        <p className="text-xs text-yellow-400 font-medium">Pending</p>
+                      )}
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
       {/* Best formula highlight */}
       {stats?.best_formula && (
         <Card className="border-arena-purple/30">

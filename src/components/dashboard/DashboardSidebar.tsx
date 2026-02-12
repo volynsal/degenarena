@@ -43,7 +43,7 @@ export function DashboardSidebar() {
       className={cn(
         'fixed left-0 top-14 bottom-0 z-20 bg-arena-darker border-r border-white/5 hidden lg:block',
         'transition-[width] duration-300 ease-in-out overflow-hidden',
-        expanded ? 'w-52' : 'w-[72px]'
+        expanded ? 'w-56' : 'w-[72px]'
       )}
       onMouseEnter={() => setExpanded(true)}
       onMouseLeave={() => setExpanded(false)}
