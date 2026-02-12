@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { cn } from '@/lib/utils'
@@ -15,7 +15,8 @@ import {
   Swords,
   Radio,
   Orbit,
-  MessageSquare
+  MessageSquare,
+  ShieldAlert
 } from 'lucide-react'
 
 const navigation = [
@@ -37,6 +38,14 @@ export function DashboardSidebar() {
   const pathname = usePathname()
   const { xp, progress } = useUserXp()
   const [expanded, setExpanded] = useState(false)
+  const [isAdmin, setIsAdmin] = useState(false)
+
+  useEffect(() => {
+    fetch('/api/admin/check')
+      .then(r => r.json())
+      .then(data => { if (data.is_admin) setIsAdmin(true) })
+      .catch(() => {})
+  }, [])
   
   return (
     <aside
@@ -119,6 +128,34 @@ export function DashboardSidebar() {
         
         {/* Bottom navigation */}
         <nav className="space-y-0.5 pt-4 border-t border-white/5">
+          {/* Admin link — only visible to admins */}
+          {isAdmin && (
+            <Link
+              href="/admin"
+              className={cn(
+                'flex items-center rounded-xl transition-all duration-150 h-11',
+                expanded ? 'gap-4 px-4' : 'justify-center px-0',
+                pathname === '/admin'
+                  ? 'text-rose-400 font-bold'
+                  : 'text-rose-400/60 font-normal hover:text-rose-400 hover:bg-rose-500/[0.05]'
+              )}
+              title={expanded ? undefined : 'Admin'}
+            >
+              <ShieldAlert
+                size={24}
+                strokeWidth={pathname === '/admin' ? 2.5 : 1.5}
+                className="flex-shrink-0"
+              />
+              <span
+                className={cn(
+                  'text-base whitespace-nowrap transition-opacity duration-200',
+                  expanded ? 'opacity-100' : 'opacity-0 w-0 overflow-hidden'
+                )}
+              >
+                Admin
+              </span>
+            </Link>
+          )}
           {bottomNavigation.map((item) => {
             const isActive = pathname === item.href
             return (

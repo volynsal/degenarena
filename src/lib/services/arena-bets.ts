@@ -1198,13 +1198,31 @@ export async function resolveMarkets(): Promise<{ resolved: number; cancelled: n
         continue
       }
 
+      // Log resolution details for auditability
+      const creationPrice = parseFloat(market.price_at_creation || '0')
+      console.log(
+        `📊 Resolving ${market.token_symbol} (${market.id}): ` +
+        `type=${mType}, outcome=${outcome}, ` +
+        `creation=$${creationPrice}, resolution=$${priceAtResolution}, ` +
+        `change=${creationPrice > 0 ? ((((priceAtResolution || 0) - creationPrice) / creationPrice) * 100).toFixed(1) + '%' : 'N/A'}`
+      )
+
       // Update market with resolution
       await supabase.from('arena_markets').update({
         status: 'resolved',
         outcome,
         price_at_resolution: priceAtResolution,
         resolved_at: now,
-        market_data: mData, // Save updated market_data (e.g., token_b resolution price)
+        market_data: {
+          ...mData,
+          resolution_log: {
+            creation_price: creationPrice,
+            resolution_price: priceAtResolution,
+            price_change_pct: creationPrice > 0 ? (((priceAtResolution || 0) - creationPrice) / creationPrice) * 100 : null,
+            resolved_by: 'cron',
+            resolved_at_utc: now,
+          },
+        },
       }).eq('id', market.id)
 
       // Calculate payouts
