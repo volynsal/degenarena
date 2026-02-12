@@ -189,6 +189,16 @@ input:focus {
   padding-top: env(safe-area-inset-top);
 }
 
+/* Marquee scroll animation */
+.marquee-scroll {
+  animation: marquee-scroll 30s linear infinite;
+}
+
+@keyframes marquee-scroll {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
 /* Mobile-optimized touch targets */
 @media (max-width: 640px) {
   .touch-target {

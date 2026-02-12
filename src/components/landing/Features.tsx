@@ -1,23 +1,21 @@
-import { Card, CardContent, CardDescription, CardTitle } from '@/components/ui/Card'
-import { 
-  Sliders, 
-  Bell, 
-  TrendingUp, 
-  Trophy, 
-  Radio, 
+import {
+  Sliders,
+  Bell,
+  TrendingUp,
+  Trophy,
+  Radio,
   Zap,
   BarChart3,
   Swords,
   Bot,
-  Orbit
+  Orbit,
 } from 'lucide-react'
 
 interface Feature {
-  icon: React.ComponentType<{ className?: string }>
+  icon: React.ComponentType<{ className?: string; size?: number; strokeWidth?: number }>
   title: string
   description: React.ReactNode
   comingSoon?: boolean
-  premium?: boolean
   earlyAccess?: boolean
 }
 
@@ -74,49 +72,54 @@ const features: Feature[] = [
 
 export function Features() {
   return (
-    <section id="features" className="py-24 relative">
-      <div className="absolute inset-0 grid-pattern opacity-50" />
-      
-      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Section header */}
-        <div className="text-center mx-auto mb-16">
-          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-white mb-4">
-            The complete arena for competitive degens
-          </h2>
-          {/* <p className="text-lg text-gray-400">
-            Compete against AI and humans. Track verified performance. Enter competitions. The tools you need to prove your alpha.
-          </p> */}
+    <section id="features" className="py-20 sm:py-28 relative">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        {/* Bracketed label */}
+        <div className="text-center mb-6">
+          <span className="text-xs sm:text-sm font-semibold tracking-[0.3em] uppercase text-gray-500">
+            [ Features ]
+          </span>
         </div>
-        
+
+        {/* Section headline */}
+        <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-white text-center max-w-3xl mx-auto mb-16">
+          The complete arsenal for competitive degens.
+        </h2>
+
         {/* Features grid */}
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {features.map((feature, index) => (
-            <Card key={index} hover className="group relative">
-              <CardContent>
-                {feature.comingSoon && (
-                  <span className="absolute top-4 right-4 text-xs px-2 py-1 rounded-full bg-gradient-to-r from-arena-purple to-arena-cyan text-white font-medium">
-                    Coming Soon
-                  </span>
-                )}
-                {feature.premium && (
-                  <span className="absolute top-4 right-4 text-xs px-2 py-1 rounded-full bg-yellow-500/20 text-yellow-400 border border-yellow-500/30 font-medium">
-                    Premium
-                  </span>
-                )}
-                {feature.earlyAccess && (
-                  <span className="absolute top-4 right-4 text-xs px-2 py-1 rounded-full bg-green-500/20 text-green-400 border border-green-500/30 font-medium">
-                    Free for early users
-                  </span>
-                )}
-                <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-arena-purple/20 to-arena-cyan/20 flex items-center justify-center mb-4 group-hover:from-arena-purple/30 group-hover:to-arena-cyan/30 transition-colors">
-                  <feature.icon className="w-6 h-6 text-arena-cyan" />
-                </div>
-                <CardTitle className="mb-2">{feature.title}</CardTitle>
-                <CardDescription className="text-gray-400">
-                  {feature.description}
-                </CardDescription>
-              </CardContent>
-            </Card>
+        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
+          {features.map((feature) => (
+            <div
+              key={feature.title}
+              className="relative rounded-2xl border border-white/[0.06] bg-white/[0.02] hover:border-white/[0.12] p-7 sm:p-8 transition-colors duration-300 group"
+            >
+              {/* Badges */}
+              {feature.comingSoon && (
+                <span className="absolute top-5 right-5 text-[10px] px-2.5 py-1 rounded-full bg-gradient-to-r from-arena-purple to-arena-cyan text-white font-semibold">
+                  Coming Soon
+                </span>
+              )}
+              {feature.earlyAccess && (
+                <span className="absolute top-5 right-5 text-[10px] px-2.5 py-1 rounded-full bg-green-500/15 text-green-400 border border-green-500/25 font-semibold">
+                  Free for early users
+                </span>
+              )}
+
+              {/* Icon */}
+              <div className="w-11 h-11 rounded-xl bg-white/[0.04] border border-white/[0.06] flex items-center justify-center mb-5 group-hover:bg-white/[0.08] transition-colors">
+                <feature.icon size={20} strokeWidth={1.5} className="text-arena-cyan" />
+              </div>
+
+              {/* Title */}
+              <h3 className="text-base sm:text-lg font-semibold text-white mb-2">
+                {feature.title}
+              </h3>
+
+              {/* Description */}
+              <p className="text-sm text-gray-400 leading-relaxed">
+                {feature.description}
+              </p>
+            </div>
           ))}
         </div>
       </div>

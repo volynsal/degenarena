@@ -1,5 +1,7 @@
 export { Navbar } from './Navbar'
 export { Hero } from './Hero'
+export { Marquee } from './Marquee'
+export { Stats } from './Stats'
 export { Features } from './Features'
 export { HowItWorks } from './HowItWorks'
 export { LeaderboardPreview } from './LeaderboardPreview'
