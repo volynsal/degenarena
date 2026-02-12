@@ -11,8 +11,10 @@ import {
   Orbit,
 } from 'lucide-react'
 
+import type { LucideIcon } from 'lucide-react'
+
 interface Feature {
-  icon: React.ComponentType<{ className?: string; size?: number; strokeWidth?: number }>
+  icon: LucideIcon
   title: string
   description: React.ReactNode
   comingSoon?: boolean
