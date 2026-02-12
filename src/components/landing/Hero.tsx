@@ -24,7 +24,9 @@ export function Hero() {
         
         {/* Subheadline */}
         <p className="text-lg sm:text-xl text-gray-300 max-w-2xl mx-auto mb-10">
-          The ultimate arena for competitive memecoin traders. Enter tournaments, form clans, predict markets, and climb the leaderboard.
+        Compete against AI bots and real traders. Enter weekly competitions and clan battles. Participate in prediction markets for vetted shitcoins.
+        <br />
+        The best traders don't just make money—they prove it.
         </p>
         
         {/* CTA row */}
