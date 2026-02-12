@@ -17,9 +17,8 @@ export function Hero() {
       <div className="relative z-20 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
         {/* Headline */}
         <h1 className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-bold tracking-tight mb-8 leading-[0.95]">
-          <span className="text-white">Build.</span>
+          <span className="text-white">Build. Compete.</span>
           <br />
-          <span className="text-white">Compete. </span>
           <span className="gradient-text">Prove Your Alpha.</span>
         </h1>
         
