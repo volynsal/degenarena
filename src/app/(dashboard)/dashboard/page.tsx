@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import { useUserStats } from '@/lib/hooks/use-user-stats'
 import { useRecentMatches } from '@/lib/hooks/use-matches'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card'
-import { TrendingUp, Target, Trophy, Zap, ArrowUpRight, ExternalLink, Loader2, Radio, Orbit, CheckCircle2, XCircle, Clock, ChevronRight } from 'lucide-react'
+import { TrendingUp, Target, Trophy, Zap, ExternalLink, Loader2, Radio, Orbit, CheckCircle2, XCircle, Clock } from 'lucide-react'
 import Link from 'next/link'
 
 // Twitch icon component
@@ -165,50 +165,34 @@ export default function DashboardPage() {
         </CardContent>
       </Card>
       
-      {/* Galaxy widget */}
+      {/* Galaxy widget + History */}
       <Card className="border-rose-500/20">
         <CardContent className="p-4 sm:p-6">
-          <div className="flex items-center gap-3 mb-3">
-            <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-amber-500/20 to-violet-500/20 flex items-center justify-center flex-shrink-0">
-              <Orbit className="w-5 h-5 text-rose-400" />
-            </div>
-            <div className="min-w-0">
-              <p className="text-white font-medium">Galaxy</p>
-              <p className="text-xs sm:text-sm text-gray-400">
-                Predict memecoin moves, earn points
-              </p>
-            </div>
-          </div>
-          <Link
-            href="/arena-bets"
-            className="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-gradient-to-r from-amber-500 via-rose-500 to-violet-500 text-white text-sm font-medium hover:opacity-90 transition-opacity"
-          >
-            <Zap className="w-3.5 h-3.5" />
-            Play Now
-          </Link>
-        </CardContent>
-      </Card>
-      
-      {/* Galaxy Bet History */}
-      <Card>
-        <CardHeader>
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <Orbit className="w-5 h-5 text-rose-400" />
-              <CardTitle>Galaxy History</CardTitle>
+          {/* Header + Play Now */}
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-amber-500/20 to-violet-500/20 flex items-center justify-center flex-shrink-0">
+                <Orbit className="w-5 h-5 text-rose-400" />
+              </div>
+              <div className="min-w-0">
+                <p className="text-white font-medium">Galaxy</p>
+                <p className="text-xs sm:text-sm text-gray-400">
+                  Predict memecoin moves, earn points
+                </p>
+              </div>
             </div>
             <Link
               href="/arena-bets"
-              className="text-xs text-gray-400 hover:text-white transition-colors flex items-center gap-1"
+              className="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-gradient-to-r from-amber-500 via-rose-500 to-violet-500 text-white text-sm font-medium hover:opacity-90 transition-opacity flex-shrink-0"
             >
-              Go to Galaxy <ChevronRight className="w-3 h-3" />
+              <Zap className="w-3.5 h-3.5" />
+              Play Now
             </Link>
           </div>
-        </CardHeader>
-        <CardContent>
+
           {/* Summary stats row */}
           {betSummary && !betHistoryLoading && (
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-5">
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-4">
               <div className="p-2.5 rounded-lg bg-white/[0.03]">
                 <p className="text-[10px] text-gray-500 uppercase tracking-wider">Total Bets</p>
                 <p className="text-lg font-bold text-white">{betSummary.total_bets}</p>
@@ -238,98 +222,96 @@ export default function DashboardPage() {
             </div>
           )}
 
-          {/* Filter tabs */}
-          <div className="flex items-center gap-0.5 p-0.5 rounded-lg bg-white/5 w-fit mb-4">
-            {[
-              { key: 'all' as const, label: 'All' },
-              { key: 'won' as const, label: 'Won' },
-              { key: 'lost' as const, label: 'Lost' },
-              { key: 'pending' as const, label: 'Pending' },
-            ].map((f) => (
-              <button
-                key={f.key}
-                onClick={() => setBetFilter(f.key)}
-                className={`px-3 py-1 rounded-md text-xs font-medium transition-colors ${
-                  betFilter === f.key
-                    ? 'bg-rose-500/20 text-white'
-                    : 'text-gray-400 hover:text-white'
-                }`}
-              >
-                {f.label}
-              </button>
-            ))}
+          {/* Divider + History */}
+          <div className="border-t border-white/5 pt-4">
+            {/* Filter tabs */}
+            <div className="flex items-center gap-0.5 p-0.5 rounded-lg bg-white/5 w-fit mb-4">
+              {[
+                { key: 'all' as const, label: 'All' },
+                { key: 'won' as const, label: 'Won' },
+                { key: 'lost' as const, label: 'Lost' },
+                { key: 'pending' as const, label: 'Pending' },
+              ].map((f) => (
+                <button
+                  key={f.key}
+                  onClick={() => setBetFilter(f.key)}
+                  className={`px-3 py-1 rounded-md text-xs font-medium transition-colors ${
+                    betFilter === f.key
+                      ? 'bg-rose-500/20 text-white'
+                      : 'text-gray-400 hover:text-white'
+                  }`}
+                >
+                  {f.label}
+                </button>
+              ))}
+            </div>
+
+            {/* Bet list */}
+            {betHistoryLoading ? (
+              <div className="flex items-center justify-center py-6">
+                <Loader2 className="w-5 h-5 text-rose-400 animate-spin" />
+              </div>
+            ) : betHistory.length === 0 ? (
+              <div className="text-center py-6">
+                <p className="text-gray-400 text-sm">
+                  {betFilter === 'all'
+                    ? 'No Galaxy bets yet — make your first prediction!'
+                    : `No ${betFilter} bets`}
+                </p>
+              </div>
+            ) : (
+              <div className="space-y-0">
+                {betHistory.map((bet: any) => {
+                  const market = bet.market
+                  if (!market) return null
+                  const isResolved = market.status === 'resolved'
+                  const isWinner = bet.is_winner === true
+                  const isLoser = bet.is_winner === false
+                  const pnl = isWinner
+                    ? bet.payout - bet.amount
+                    : isLoser
+                    ? -bet.amount
+                    : 0
+
+                  return (
+                    <div
+                      key={bet.id}
+                      className="flex items-center justify-between py-2.5 border-b border-white/5 last:border-0 gap-3"
+                    >
+                      <div className="flex items-center gap-2.5 min-w-0">
+                        <div className="flex-shrink-0">
+                          {isWinner && <CheckCircle2 className="w-4 h-4 text-green-400" />}
+                          {isLoser && <XCircle className="w-4 h-4 text-red-400" />}
+                          {!isResolved && <Clock className="w-4 h-4 text-yellow-400" />}
+                        </div>
+                        <div className="min-w-0">
+                          <p className="text-sm text-white truncate">{market.question}</p>
+                          <p className="text-xs text-gray-500">
+                            <span className={`font-medium ${bet.position === 'yes' ? 'text-green-400' : 'text-red-400'}`}>
+                              {bet.position.toUpperCase()}
+                            </span>
+                            <span className="mx-1.5">·</span>
+                            {bet.amount} pts
+                            <span className="mx-1.5">·</span>
+                            {formatTimeAgo(bet.created_at)}
+                          </p>
+                        </div>
+                      </div>
+                      <div className="flex-shrink-0 text-right">
+                        {isResolved ? (
+                          <p className={`text-sm font-bold ${isWinner ? 'text-green-400' : 'text-red-400'}`}>
+                            {pnl >= 0 ? '+' : ''}{pnl} pts
+                          </p>
+                        ) : (
+                          <p className="text-xs text-yellow-400 font-medium">Pending</p>
+                        )}
+                      </div>
+                    </div>
+                  )
+                })}
+              </div>
+            )}
           </div>
-
-          {/* Bet list */}
-          {betHistoryLoading ? (
-            <div className="flex items-center justify-center py-8">
-              <Loader2 className="w-6 h-6 text-rose-400 animate-spin" />
-            </div>
-          ) : betHistory.length === 0 ? (
-            <div className="text-center py-8">
-              <Orbit className="w-8 h-8 text-gray-600 mx-auto mb-3" />
-              <p className="text-gray-400 text-sm mb-1">
-                {betFilter === 'all'
-                  ? 'No Galaxy bets yet'
-                  : `No ${betFilter} bets`}
-              </p>
-              <p className="text-xs text-gray-500">
-                Head to Galaxy to start predicting memecoin moves
-              </p>
-            </div>
-          ) : (
-            <div className="space-y-0">
-              {betHistory.map((bet: any) => {
-                const market = bet.market
-                if (!market) return null
-                const isResolved = market.status === 'resolved'
-                const isWinner = bet.is_winner === true
-                const isLoser = bet.is_winner === false
-                const pnl = isWinner
-                  ? bet.payout - bet.amount
-                  : isLoser
-                  ? -bet.amount
-                  : 0
-
-                return (
-                  <div
-                    key={bet.id}
-                    className="flex items-center justify-between py-3 border-b border-white/5 last:border-0 gap-3"
-                  >
-                    <div className="flex items-center gap-3 min-w-0">
-                      {/* Outcome icon */}
-                      <div className="flex-shrink-0">
-                        {isWinner && <CheckCircle2 className="w-5 h-5 text-green-400" />}
-                        {isLoser && <XCircle className="w-5 h-5 text-red-400" />}
-                        {!isResolved && <Clock className="w-5 h-5 text-yellow-400" />}
-                      </div>
-                      <div className="min-w-0">
-                        <p className="text-sm text-white font-medium truncate">{market.question}</p>
-                        <p className="text-xs text-gray-500">
-                          <span className={`font-medium ${bet.position === 'yes' ? 'text-green-400' : 'text-red-400'}`}>
-                            {bet.position.toUpperCase()}
-                          </span>
-                          <span className="mx-1.5">·</span>
-                          {bet.amount} pts
-                          <span className="mx-1.5">·</span>
-                          {formatTimeAgo(bet.created_at)}
-                        </p>
-                      </div>
-                    </div>
-                    <div className="flex-shrink-0 text-right">
-                      {isResolved ? (
-                        <p className={`text-sm font-bold ${isWinner ? 'text-green-400' : 'text-red-400'}`}>
-                          {pnl >= 0 ? '+' : ''}{pnl} pts
-                        </p>
-                      ) : (
-                        <p className="text-xs text-yellow-400 font-medium">Pending</p>
-                      )}
-                    </div>
-                  </div>
-                )
-              })}
-            </div>
-          )}
         </CardContent>
       </Card>
 
