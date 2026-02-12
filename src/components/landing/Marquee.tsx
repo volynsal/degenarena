@@ -1,4 +1,11 @@
+'use client'
+
+import { useEffect, useRef } from 'react'
+
 export function Marquee() {
+  const row1Ref = useRef<HTMLDivElement>(null)
+  const row2Ref = useRef<HTMLDivElement>(null)
+
   const row1 = [
     { text: 'DEGENARENA HQ', style: 'text-white font-bold' },
     { text: '◆', style: 'text-arena-purple/50 text-sm' },
@@ -25,8 +32,34 @@ export function Marquee() {
     { text: '—', style: 'text-white/10' },
   ]
 
-  // Render a single set of items
-  const renderRow = (items: typeof row1, prefix: string) => (
+  useEffect(() => {
+    function startMarquee(container: HTMLDivElement, speed: number, reverse: boolean) {
+      let pos = reverse ? -(container.scrollWidth / 2) : 0
+      const half = container.scrollWidth / 2
+
+      let animId: number
+      const step = () => {
+        if (reverse) {
+          pos += speed
+          if (pos >= 0) pos = -half
+        } else {
+          pos -= speed
+          if (pos <= -half) pos = 0
+        }
+        container.style.transform = `translateX(${pos}px)`
+        animId = requestAnimationFrame(step)
+      }
+      animId = requestAnimationFrame(step)
+      return () => cancelAnimationFrame(animId)
+    }
+
+    const cancel1 = row1Ref.current ? startMarquee(row1Ref.current, 0.8, false) : () => {}
+    const cancel2 = row2Ref.current ? startMarquee(row2Ref.current, 0.5, true) : () => {}
+
+    return () => { cancel1(); cancel2() }
+  }, [])
+
+  const renderItems = (items: typeof row1, prefix: string) =>
     items.map((item, i) => (
       <span
         key={`${prefix}-${i}`}
@@ -35,28 +68,32 @@ export function Marquee() {
         {item.text}
       </span>
     ))
-  )
+
+  // Repeat enough times to always fill the screen
+  const repeat = (items: typeof row1, prefix: string, times: number) => {
+    const out = []
+    for (let t = 0; t < times; t++) {
+      out.push(...renderItems(items, `${prefix}${t}`))
+    }
+    return out
+  }
 
   return (
     <section className="relative border-y border-white/5 overflow-hidden py-4 space-y-3">
-      {/* Row 1 — two identical divs side by side, seamless loop */}
-      <div className="flex whitespace-nowrap text-base sm:text-lg tracking-[0.15em] uppercase font-brand marquee-scroll">
-        <div className="flex shrink-0">
-          {renderRow(row1, 'r1a')}
-        </div>
-        <div className="flex shrink-0" aria-hidden="true">
-          {renderRow(row1, 'r1b')}
-        </div>
+      {/* Row 1 — JS-driven continuous scroll left */}
+      <div
+        ref={row1Ref}
+        className="flex whitespace-nowrap text-base sm:text-lg tracking-[0.15em] uppercase font-brand will-change-transform"
+      >
+        {repeat(row1, 'r1', 6)}
       </div>
 
-      {/* Row 2 — same technique, reverse direction */}
-      <div className="flex whitespace-nowrap text-xs sm:text-sm tracking-[0.2em] uppercase font-brand marquee-scroll-reverse">
-        <div className="flex shrink-0">
-          {renderRow(row2, 'r2a')}
-        </div>
-        <div className="flex shrink-0" aria-hidden="true">
-          {renderRow(row2, 'r2b')}
-        </div>
+      {/* Row 2 — JS-driven continuous scroll right */}
+      <div
+        ref={row2Ref}
+        className="flex whitespace-nowrap text-xs sm:text-sm tracking-[0.2em] uppercase font-brand will-change-transform"
+      >
+        {repeat(row2, 'r2', 6)}
       </div>
     </section>
   )
