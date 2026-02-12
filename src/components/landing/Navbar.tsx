@@ -24,7 +24,7 @@ export function Navbar() {
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2.5">
             <img src="/logo.png" alt="DegenArena HQ" className="w-9 h-9 rounded-lg" />
-            <span className="text-sm font-bold tracking-[0.25em] uppercase gradient-text font-brand">DEGENARENA HQ</span>
+            <span className="text-base font-bold tracking-[0.25em] uppercase gradient-text font-brand">DEGENARENA HQ</span>
           </Link>
           
           {/* Desktop Navigation */}
