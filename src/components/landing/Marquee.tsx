@@ -1,10 +1,10 @@
 export function Marquee() {
   const items = [
-    'DegenArena',
+    'DegenArena HQ',
     '(',
     'The Arena for Competitive Degens',
     ')',
-    'DegenArena',
+    'DegenArena HQ',
     '(',
     'Witness the Future of Competitive Trading',
     ')',
