@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import { useUserStats } from '@/lib/hooks/use-user-stats'
 import { useRecentMatches } from '@/lib/hooks/use-matches'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card'
-import { TrendingUp, Target, Trophy, Zap, ExternalLink, Loader2, Radio, Orbit, CheckCircle2, XCircle, Clock } from 'lucide-react'
+import { TrendingUp, Target, Trophy, Zap, ExternalLink, Loader2, Radio, Orbit, CheckCircle2, XCircle, Clock, RotateCcw } from 'lucide-react'
 import Link from 'next/link'
 
 // Twitch icon component
@@ -265,6 +265,7 @@ export default function DashboardPage() {
                   const market = bet.market
                   if (!market) return null
                   const isResolved = market.status === 'resolved'
+                  const isCancelled = market.status === 'cancelled'
                   const isWinner = bet.is_winner === true
                   const isLoser = bet.is_winner === false
                   const pnl = isWinner
@@ -282,7 +283,8 @@ export default function DashboardPage() {
                         <div className="flex-shrink-0">
                           {isWinner && <CheckCircle2 className="w-4 h-4 text-green-400" />}
                           {isLoser && <XCircle className="w-4 h-4 text-red-400" />}
-                          {!isResolved && <Clock className="w-4 h-4 text-yellow-400" />}
+                          {isCancelled && <RotateCcw className="w-4 h-4 text-gray-400" />}
+                          {!isResolved && !isCancelled && <Clock className="w-4 h-4 text-yellow-400" />}
                         </div>
                         <div className="min-w-0">
                           <p className="text-sm text-white truncate">{market.question}</p>
@@ -302,6 +304,8 @@ export default function DashboardPage() {
                           <p className={`text-sm font-bold ${isWinner ? 'text-green-400' : 'text-red-400'}`}>
                             {pnl >= 0 ? '+' : ''}{pnl} pts
                           </p>
+                        ) : isCancelled ? (
+                          <p className="text-xs text-gray-400 font-medium">Refunded</p>
                         ) : (
                           <p className="text-xs text-yellow-400 font-medium">Pending</p>
                         )}

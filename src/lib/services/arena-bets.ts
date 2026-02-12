@@ -843,7 +843,10 @@ export async function resolveMarkets(): Promise<{ resolved: number; cancelled: n
   let cancelled = 0
   let errors = 0
 
+  const FORCE_CANCEL_THRESHOLD_MS = 6 * 60 * 60 * 1000 // 6 hours
+
   for (const market of markets) {
+    const overdueMs = Date.now() - new Date(market.resolve_at).getTime()
     try {
       const mType = market.market_type
       const mData = market.market_data || {}
@@ -852,11 +855,19 @@ export async function resolveMarkets(): Promise<{ resolved: number; cancelled: n
 
       // ── SINGLE-TOKEN MARKETS (up_down, rug_call, moonshot, culture) ──
       if (['up_down', 'rug_call', 'moonshot', 'culture'].includes(mType)) {
-        const pair = await dex.getTokenByAddress(market.token_address)
+        let pair: any = null
+        try {
+          pair = await dex.getTokenByAddress(market.token_address)
+        } catch (fetchErr) {
+          console.error(`DexScreener fetch failed for ${market.token_symbol} (${market.id}):`, fetchErr)
+        }
         const currentPrice = pair ? parseFloat(pair.priceUsd || '0') : 0
         priceAtResolution = currentPrice
 
         if (currentPrice <= 0) {
+          if (overdueMs > FORCE_CANCEL_THRESHOLD_MS) {
+            console.log(`⏰ Force-cancelling stuck market ${market.token_symbol} (${market.id}) — overdue ${Math.round(overdueMs / 3600000)}h, price unavailable`)
+          }
           await cancelMarket(supabase, market)
           cancelled++
           continue
@@ -1201,7 +1212,19 @@ export async function resolveMarkets(): Promise<{ resolved: number; cancelled: n
       resolved++
     } catch (err) {
       console.error(`Error resolving market ${market.id}:`, err)
-      errors++
+      // If the market has been stuck for 6+ hours and keeps erroring, force-cancel it
+      if (overdueMs > FORCE_CANCEL_THRESHOLD_MS) {
+        try {
+          console.log(`⏰ Force-cancelling erroring market ${market.token_symbol} (${market.id}) — overdue ${Math.round(overdueMs / 3600000)}h`)
+          await cancelMarket(supabase, market)
+          cancelled++
+        } catch (cancelErr) {
+          console.error(`Failed to force-cancel market ${market.id}:`, cancelErr)
+          errors++
+        }
+      } else {
+        errors++
+      }
     }
   }
 
