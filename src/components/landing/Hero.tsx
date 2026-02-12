@@ -1,13 +1,13 @@
 import Link from 'next/link'
 import { Button } from '@/components/ui/Button'
 import { ArrowRight } from 'lucide-react'
-import { VideoBackground } from './FlowField'
+import { FlowField } from './FlowField'
 
 export function Hero() {
   return (
     <section className="relative min-h-screen flex items-center justify-center pt-16 overflow-hidden">
-      {/* Animated Video Background */}
-      <VideoBackground />
+      {/* Tron-style grid background */}
+      <FlowField />
       
       {/* Background effects */}
       <div className="absolute inset-0 grid-pattern" style={{ zIndex: 1 }} />
