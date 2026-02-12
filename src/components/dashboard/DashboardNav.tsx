@@ -35,9 +35,9 @@ export function DashboardNav() {
     <nav className="fixed top-0 left-0 right-0 z-50 bg-arena-darker/90 backdrop-blur-xl border-b border-white/5 h-14">
       <div className="h-full px-4 lg:px-8 flex items-center justify-between">
         {/* Left side — Logo */}
-        <Link href="/dashboard" className="flex items-center gap-2">
+        <Link href="/dashboard" className="flex items-center gap-2.5">
           <img src="/logo.png" alt="DegenArena HQ" className="w-8 h-8 rounded-lg" />
-          <span className="text-lg font-bold gradient-text font-brand uppercase hidden sm:block">DEGENARENA HQ</span>
+          <span className="text-xs font-bold tracking-[0.25em] uppercase gradient-text font-brand hidden sm:block">DEGENARENA HQ</span>
         </Link>
       
         {/* Right side */}

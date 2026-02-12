@@ -20,9 +20,9 @@ export function Navbar() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
-          <Link href="/" className="flex items-center gap-2">
-            <img src="/logo.png" alt="DegenArena HQ" className="w-10 h-10 rounded-lg" />
-            <span className="text-xl font-bold gradient-text font-brand uppercase">DEGENARENA HQ</span>
+          <Link href="/" className="flex items-center gap-2.5">
+            <img src="/logo.png" alt="DegenArena HQ" className="w-9 h-9 rounded-lg" />
+            <span className="text-sm font-bold tracking-[0.25em] uppercase gradient-text font-brand">DEGENARENA HQ</span>
           </Link>
           
           {/* Desktop Navigation */}

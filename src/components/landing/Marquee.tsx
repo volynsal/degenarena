@@ -53,8 +53,8 @@ export function Marquee() {
       return () => cancelAnimationFrame(animId)
     }
 
-    const cancel1 = row1Ref.current ? startMarquee(row1Ref.current, 0.8, false) : () => {}
-    const cancel2 = row2Ref.current ? startMarquee(row2Ref.current, 0.5, true) : () => {}
+    const cancel1 = row1Ref.current ? startMarquee(row1Ref.current, 1.5, false) : () => {}
+    const cancel2 = row2Ref.current ? startMarquee(row2Ref.current, 1.0, true) : () => {}
 
     return () => { cancel1(); cancel2() }
   }, [])
