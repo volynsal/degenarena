@@ -191,12 +191,21 @@ input:focus {
 
 /* Marquee scroll animation */
 .marquee-scroll {
-  animation: marquee-scroll 30s linear infinite;
+  animation: marquee-scroll 15s linear infinite;
+}
+
+.marquee-scroll-reverse {
+  animation: marquee-scroll-reverse 18s linear infinite;
 }
 
 @keyframes marquee-scroll {
   0% { transform: translateX(0); }
   100% { transform: translateX(-50%); }
+}
+
+@keyframes marquee-scroll-reverse {
+  0% { transform: translateX(-50%); }
+  100% { transform: translateX(0); }
 }
 
 /* Mobile-optimized touch targets */
