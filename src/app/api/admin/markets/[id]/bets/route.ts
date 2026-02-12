@@ -45,7 +45,7 @@ export async function GET(
 
   // Enrich with usernames
   if (bets?.length) {
-    const userIds = [...new Set(bets.map(b => b.user_id))]
+    const userIds = Array.from(new Set(bets.map(b => b.user_id)))
     const { data: profiles } = await service
       .from('profiles')
       .select('id, username')
