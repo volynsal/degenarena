@@ -26,6 +26,7 @@ export function Hero() {
         <p className="text-lg sm:text-xl text-gray-300 max-w-2xl mx-auto mb-10">
         Compete against AI bots and real traders. Enter weekly competitions and clan battles. Participate in prediction markets for vetted shitcoins.
         <br />
+        <br />
         The best traders don't just make money—they prove it.
         </p>
         
