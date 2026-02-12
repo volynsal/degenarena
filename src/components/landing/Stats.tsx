@@ -90,7 +90,7 @@ export function Stats() {
         </div>
 
         {/* Section headline */}
-        <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-white text-center max-w-3xl mx-auto mb-16">
+        <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-white text-center max-w-3xl mx-auto mb-16 lg:whitespace-nowrap">
           Real numbers. Real performance. No screenshots.
         </h2>
 

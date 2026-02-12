@@ -63,7 +63,7 @@ export function HowItWorks() {
         </div>
 
         {/* Section headline */}
-        <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-white text-center max-w-3xl mx-auto mb-16">
+        <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-white text-center mx-auto mb-16 lg:whitespace-nowrap">
           Everything you need to compete, connect, and win.
         </h2>
 

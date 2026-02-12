@@ -37,7 +37,7 @@ export function DashboardNav() {
         {/* Left side — Logo */}
         <Link href="/dashboard" className="flex items-center gap-2">
           <img src="/logo.png" alt="DegenArena HQ" className="w-8 h-8 rounded-lg" />
-          <span className="text-lg font-bold gradient-text font-brand hidden sm:block">DegenArena HQ</span>
+          <span className="text-lg font-bold gradient-text font-brand uppercase hidden sm:block">DEGENARENA HQ</span>
         </Link>
       
         {/* Right side */}
