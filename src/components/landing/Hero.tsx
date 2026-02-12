@@ -16,12 +16,8 @@ export function Hero() {
       
       <div className="relative z-20 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
         {/* Stylized badge */}
-        <div className="inline-flex items-center gap-3 px-5 py-2.5 rounded-full border border-white/10 bg-white/[0.03] backdrop-blur-sm mb-10">
-          <span className="text-lg">🎮</span>
-          <span className="text-sm sm:text-base font-bold tracking-[0.25em] uppercase text-gray-300 font-brand">
-            Esports for Degens
-          </span>
-          <span className="text-lg">🏆</span>
+        <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 mb-8">
+          <span className="text-sm text-gray-300">🎮 ESPORTS FOR DEGENS 🏆</span>
         </div>
 
         {/* Headline */}
