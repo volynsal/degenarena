@@ -1,128 +1,103 @@
 import {
-  Sliders,
   Bell,
   TrendingUp,
-  Trophy,
   Radio,
   Zap,
   BarChart3,
-  Swords,
   Bot,
-  Orbit,
 } from 'lucide-react'
-
 import type { LucideIcon } from 'lucide-react'
 
 interface Feature {
   icon: LucideIcon
   title: string
-  description: React.ReactNode
+  description: string
   comingSoon?: boolean
-  earlyAccess?: boolean
 }
 
+// Only features NOT already covered in the Highlights pillars
+// (Competitions, Clans, Galaxy, Formulas are in HowItWorks)
 const features: Feature[] = [
-  {
-    icon: Trophy,
-    title: 'Weekly Competitions',
-    description: 'Enter 24-hour flips, weekly leagues, and special events. Compete against the best traders for ranking and recognition.',
-  },
-  {
-    icon: Swords,
-    title: 'Clan Battles',
-    description: 'Form elite trading teams. Your combined win rates compete against rival clans. Rise together or fall together.',
-    earlyAccess: true,
-  },
-  {
-    icon: Sliders,
-    title: 'Formulas & Presets',
-    description: 'Scan new tokens with 20+ filters or use battle-tested presets. We offer these as a starting point but feel free to BYO; our platform is tool-agnostic.',
-    earlyAccess: true,
-  },
   {
     icon: TrendingUp,
     title: 'Verified Performance',
-    description: 'Every match is tracked on-chain. Your win rate, average returns, and complete history — no faking, no hiding, and no need to connect your wallet.',
+    description: 'Every trade tracked on-chain. No faking, no hiding.',
   },
   {
     icon: Bell,
-    title: 'Instant Alerts',
-    description: 'AI copilot to advise you on alerts instantly in the same chat, powered by Grok. Never miss a play.',
+    title: 'Grok-Powered Alerts',
+    description: 'AI copilot that advises you in real time. Never miss a play.',
   },
   {
     icon: Radio,
     title: 'Go Live',
-    description: 'Link your Twitch and stream your trades. Viewers watch directly inside — no switching tabs. Build your audience from the arena.',
+    description: 'Stream trades on Twitch. Viewers watch directly inside the arena.',
   },
   {
     icon: BarChart3,
     title: 'Global Rankings',
-    description: 'Climb the leaderboard. See where you stand against traders worldwide. The best rise to the top.',
-  },
-  {
-    icon: Orbit,
-    title: 'Galaxy',
-    description: <>Prediction markets on proper memecoins and even <em className="line-through italic">shit</em>coins. Bet with points and build win streaks to unlock go live and clans.</>,
+    description: 'Climb the leaderboard. Your win rate is your reputation.',
   },
   {
     icon: Bot,
     title: 'AI Challengers',
-    description: 'Official AI traders running 24/7. Multiple LLMs competing in the arena — can you outperform them?',
+    description: 'Official AI traders running 24/7. Can you outperform them?',
     comingSoon: true,
+  },
+  {
+    icon: Zap,
+    title: 'No Wallet Required',
+    description: 'Sign up with email. Trade with any tool — we\'re tool-agnostic.',
   },
 ]
 
 export function Features() {
   return (
     <section id="features" className="py-20 sm:py-28 relative">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="w-[90%] lg:w-[70%] mx-auto">
         {/* Bracketed label */}
         <div className="text-center mb-6">
           <span className="text-xs sm:text-sm font-semibold tracking-[0.3em] uppercase text-gray-500">
-            [ Features ]
+            [ Also Included ]
           </span>
         </div>
 
         {/* Section headline */}
-        <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-white text-center max-w-3xl mx-auto mb-16">
-          The complete arsenal for competitive degens.
+        <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold gradient-text text-center mb-4">
+          Everything else that comes with the arena.
         </h2>
+        <p className="text-base text-gray-500 text-center mb-16">
+          Built-in tools and systems that power your competitive edge
+        </p>
 
-        {/* Features grid */}
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
+        {/* 2x3 on mobile, 3x2 on desktop — no cards, just floating icons */}
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-y-14 gap-x-8 sm:gap-x-12 lg:gap-x-16">
           {features.map((feature) => (
             <div
               key={feature.title}
-              className="relative rounded-2xl border border-white/[0.06] bg-white/[0.02] hover:border-white/[0.12] p-7 sm:p-8 transition-colors duration-300 group"
+              className="flex flex-col items-center text-center group"
             >
-              {/* Badges */}
-              {feature.comingSoon && (
-                <span className="absolute top-5 right-5 text-[10px] px-2.5 py-1 rounded-full bg-gradient-to-r from-arena-purple to-arena-cyan text-white font-semibold">
-                  Coming Soon
-                </span>
-              )}
-              {feature.earlyAccess && (
-                <span className="absolute top-5 right-5 text-[10px] px-2.5 py-1 rounded-full bg-green-500/15 text-green-400 border border-green-500/25 font-semibold">
-                  Free for early users
-                </span>
-              )}
-
               {/* Glowing icon */}
-              <div className="mb-5">
+              <div className="relative mb-5">
                 <feature.icon
-                  size={32}
+                  size={36}
                   strokeWidth={1.5}
-                  className="text-arena-cyan/70 group-hover:text-arena-cyan transition-colors duration-300 drop-shadow-[0_0_12px_rgba(20,241,149,0.4)] group-hover:drop-shadow-[0_0_20px_rgba(20,241,149,0.6)]"
+                  className="text-arena-cyan/60 group-hover:text-arena-cyan transition-colors duration-300 drop-shadow-[0_0_12px_rgba(20,241,149,0.3)] group-hover:drop-shadow-[0_0_20px_rgba(20,241,149,0.5)]"
                 />
+                {feature.comingSoon && (
+                  <span className="absolute -top-2 -right-8 text-[9px] px-1.5 py-0.5 rounded-full bg-arena-purple/20 text-arena-purple font-semibold whitespace-nowrap">
+                    Soon
+                  </span>
+                )}
               </div>
 
               {/* Title */}
-              <h3 className="text-base sm:text-lg font-semibold text-white mb-2">
+              <h3 className="text-base sm:text-lg font-semibold text-gray-200 mb-1.5">
                 {feature.title}
               </h3>
 
               {/* Description */}
-              <p className="text-sm text-gray-400 leading-relaxed">
+              <p className="text-sm text-gray-400 leading-relaxed max-w-[220px] mx-auto">
                 {feature.description}
               </p>
             </div>

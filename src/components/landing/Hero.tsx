@@ -15,6 +15,15 @@ export function Hero() {
       <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-arena-cyan/10 rounded-full blur-[128px]" style={{ zIndex: 1 }} />
       
       <div className="relative z-20 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+        {/* Stylized badge */}
+        <div className="inline-flex items-center gap-3 px-5 py-2.5 rounded-full border border-white/10 bg-white/[0.03] backdrop-blur-sm mb-10">
+          <span className="text-lg">🎮</span>
+          <span className="text-sm sm:text-base font-bold tracking-[0.25em] uppercase text-gray-300 font-brand">
+            Esports for Degens
+          </span>
+          <span className="text-lg">🏆</span>
+        </div>
+
         {/* Headline */}
         <h1 className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-bold tracking-tight mb-8 leading-[0.95]">
           <span className="text-white">Build. Compete.</span>
