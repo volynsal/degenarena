@@ -12,7 +12,11 @@ import {
   Calendar,
   Shield,
   Zap,
-  ExternalLink
+  ExternalLink,
+  Orbit,
+  CheckCircle2,
+  XCircle,
+  Clock
 } from 'lucide-react'
 
 // Twitch icon component
@@ -84,12 +88,27 @@ interface ApiBadge {
   earned_at: string
 }
 
+function formatTimeAgo(dateString: string): string {
+  const date = new Date(dateString)
+  const now = new Date()
+  const diffMs = now.getTime() - date.getTime()
+  const diffMins = Math.floor(diffMs / 60000)
+  const diffHours = Math.floor(diffMs / 3600000)
+  const diffDays = Math.floor(diffMs / 86400000)
+  if (diffMins < 60) return `${diffMins}m ago`
+  if (diffHours < 24) return `${diffHours}h ago`
+  return `${diffDays}d ago`
+}
+
 export default function ProfilePage({ params }: { params: { username: string } }) {
   const [profile, setProfile] = useState<ProfileData | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [streamInfo, setStreamInfo] = useState<TwitchStreamInfo | null>(null)
   const [badges, setBadges] = useState<ApiBadge[]>([])
+  const [galaxyBets, setGalaxyBets] = useState<any[]>([])
+  const [galaxySummary, setGalaxySummary] = useState<any>(null)
+  const [galaxyLoading, setGalaxyLoading] = useState(true)
   
   useEffect(() => {
     fetchProfile()
@@ -118,6 +137,18 @@ export default function ProfilePage({ params }: { params: { username: string } }
         }
       } catch {
         // Non-critical
+      }
+      
+      // Fetch Galaxy bet history
+      try {
+        const galaxyRes = await fetch(`/api/profiles/${params.username}/galaxy?limit=20`)
+        const galaxyData = await galaxyRes.json()
+        if (galaxyData.data) setGalaxyBets(galaxyData.data)
+        if (galaxyData.summary) setGalaxySummary(galaxyData.summary)
+      } catch {
+        // Non-critical
+      } finally {
+        setGalaxyLoading(false)
       }
       
       // Check Twitch live status if user has a Twitch URL
@@ -470,6 +501,95 @@ export default function ProfilePage({ params }: { params: { username: string } }
         </Card>
       )}
       
+      {/* Galaxy Bet History */}
+      {!galaxyLoading && (galaxySummary?.total_bets > 0) && (
+        <Card className="border-rose-500/20">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Orbit className="w-5 h-5 text-rose-400" />
+              <span>Galaxy Record</span>
+              <span className="text-sm font-normal text-gray-500">
+                ({galaxySummary.total_bets} bets)
+              </span>
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            {/* Summary stats */}
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-5">
+              <div className="p-2.5 rounded-lg bg-white/[0.03]">
+                <p className="text-[10px] text-gray-500 uppercase tracking-wider">Win Rate</p>
+                <p className="text-lg font-bold text-white">{galaxySummary.win_rate}%</p>
+              </div>
+              <div className="p-2.5 rounded-lg bg-white/[0.03]">
+                <p className="text-[10px] text-gray-500 uppercase tracking-wider">W / L</p>
+                <p className="text-lg font-bold">
+                  <span className="text-green-400">{galaxySummary.wins}</span>
+                  <span className="text-gray-600 mx-1">/</span>
+                  <span className="text-red-400">{galaxySummary.losses}</span>
+                </p>
+              </div>
+              <div className="p-2.5 rounded-lg bg-white/[0.03]">
+                <p className="text-[10px] text-gray-500 uppercase tracking-wider">Net P&L</p>
+                <p className={`text-lg font-bold ${galaxySummary.net_pnl >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+                  {galaxySummary.net_pnl >= 0 ? '+' : ''}{galaxySummary.net_pnl.toLocaleString()} pts
+                </p>
+              </div>
+              <div className="p-2.5 rounded-lg bg-white/[0.03]">
+                <p className="text-[10px] text-gray-500 uppercase tracking-wider">Pending</p>
+                <p className="text-lg font-bold text-yellow-400">{galaxySummary.pending}</p>
+              </div>
+            </div>
+
+            {/* Recent resolved bets */}
+            {galaxyBets.length > 0 && (
+              <div>
+                <p className="text-xs text-gray-500 uppercase tracking-wider mb-3">Recent Outcomes</p>
+                <div className="space-y-0">
+                  {galaxyBets.map((bet: any) => {
+                    const market = bet.market
+                    if (!market) return null
+                    const isWinner = bet.is_winner === true
+                    const pnl = isWinner ? bet.payout - bet.amount : -bet.amount
+
+                    return (
+                      <div
+                        key={bet.id}
+                        className="flex items-center justify-between py-2.5 border-b border-white/5 last:border-0 gap-3"
+                      >
+                        <div className="flex items-center gap-2.5 min-w-0">
+                          <div className="flex-shrink-0">
+                            {isWinner ? (
+                              <CheckCircle2 className="w-4 h-4 text-green-400" />
+                            ) : (
+                              <XCircle className="w-4 h-4 text-red-400" />
+                            )}
+                          </div>
+                          <div className="min-w-0">
+                            <p className="text-sm text-white truncate">{market.question}</p>
+                            <p className="text-xs text-gray-500">
+                              <span className={bet.position === 'yes' ? 'text-green-400' : 'text-red-400'}>
+                                {bet.position.toUpperCase()}
+                              </span>
+                              <span className="mx-1.5">·</span>
+                              {bet.amount} pts
+                              <span className="mx-1.5">·</span>
+                              {formatTimeAgo(bet.created_at)}
+                            </p>
+                          </div>
+                        </div>
+                        <p className={`text-sm font-bold flex-shrink-0 ${isWinner ? 'text-green-400' : 'text-red-400'}`}>
+                          {pnl >= 0 ? '+' : ''}{pnl} pts
+                        </p>
+                      </div>
+                    )
+                  })}
+                </div>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      )}
+
       {/* Badges Section */}
       <Card>
         <CardHeader>
