@@ -5,7 +5,7 @@ import { FlowField } from './FlowField'
 
 export function Hero() {
   return (
-    <section className="relative min-h-screen flex items-center justify-center pt-16 overflow-hidden">
+    <section className="relative flex items-start justify-center pt-24 pb-16 overflow-hidden">
       {/* Tron-style grid background */}
       <FlowField />
       
@@ -16,7 +16,7 @@ export function Hero() {
       
       <div className="relative z-20 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
         {/* Stylized badge */}
-        <div className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-white/5 border border-white/10 mb-10">
+        <div className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-white/5 border border-white/10 mb-6">
           <span className="text-sm sm:text-base text-gray-300">🎮 ESPORTS FOR DEGENS 🏆</span>
         </div>
 
@@ -28,11 +28,11 @@ export function Hero() {
         </h1>
         
         {/* Subheadline */}
-        <p className="text-lg sm:text-xl text-gray-300 max-w-2xl mx-auto mb-10">
-        Compete against AI bots and real traders. Enter weekly competitions and clan battles. Participate in prediction markets for vetted <em className="line-through italic">shit</em>coins.
-        <br />
-        <br />
-        The best traders don't just make money—they prove it.
+        <p className="text-lg sm:text-xl text-gray-300 max-w-2xl mx-auto mb-4">
+          Compete against AI bots and real traders. Enter weekly competitions and clan battles. Participate in prediction markets for vetted <em className="line-through italic">shit</em>coins.
+        </p>
+        <p className="text-lg sm:text-xl text-gray-300 max-w-2xl mx-auto mb-8">
+          The best traders don&apos;t just make money—they prove it.
         </p>
         
         {/* CTA row */}
