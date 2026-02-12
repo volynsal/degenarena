@@ -107,9 +107,13 @@ export function Features() {
                 </span>
               )}
 
-              {/* Icon */}
-              <div className="w-11 h-11 rounded-xl bg-white/[0.04] border border-white/[0.06] flex items-center justify-center mb-5 group-hover:bg-white/[0.08] transition-colors">
-                <feature.icon size={20} strokeWidth={1.5} className="text-arena-cyan" />
+              {/* Glowing icon */}
+              <div className="mb-5">
+                <feature.icon
+                  size={32}
+                  strokeWidth={1.5}
+                  className="text-arena-cyan/70 group-hover:text-arena-cyan transition-colors duration-300 drop-shadow-[0_0_12px_rgba(20,241,149,0.4)] group-hover:drop-shadow-[0_0_20px_rgba(20,241,149,0.6)]"
+                />
               </div>
 
               {/* Title */}
