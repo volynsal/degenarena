@@ -5,7 +5,7 @@ import { FlowField } from './FlowField'
 
 export function Hero() {
   return (
-    <section className="relative flex items-start justify-center pt-24 pb-16 overflow-hidden">
+    <section className="relative flex items-start justify-center pt-36 pb-16 overflow-hidden">
       {/* Tron-style grid background */}
       <FlowField />
       
