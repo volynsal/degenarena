@@ -43,12 +43,12 @@ export function DashboardSidebar() {
       className={cn(
         'fixed left-0 top-14 bottom-0 z-20 bg-arena-darker border-r border-white/5 hidden lg:block',
         'transition-[width] duration-300 ease-in-out overflow-hidden',
-        expanded ? 'w-52' : 'w-14'
+        expanded ? 'w-52' : 'w-[72px]'
       )}
       onMouseEnter={() => setExpanded(true)}
       onMouseLeave={() => setExpanded(false)}
     >
-      <div className="flex flex-col h-full py-4 px-1.5">
+      <div className="flex flex-col h-full py-6 px-2">
         {/* Main navigation */}
         <nav className="flex-1 space-y-0.5">
           {navigation.map((item) => {
@@ -58,8 +58,8 @@ export function DashboardSidebar() {
                 key={item.name}
                 href={item.href}
                 className={cn(
-                  'flex items-center rounded-lg transition-all duration-150 h-10',
-                  expanded ? 'gap-3 px-3' : 'justify-center px-0',
+                  'flex items-center rounded-xl transition-all duration-150 h-12',
+                  expanded ? 'gap-4 px-4' : 'justify-center px-0',
                   isActive
                     ? 'text-white font-bold'
                     : 'text-gray-400 font-normal hover:text-white hover:bg-white/[0.03]'
@@ -67,13 +67,13 @@ export function DashboardSidebar() {
                 title={expanded ? undefined : item.name}
               >
                 <item.icon
-                  size={20}
+                  size={24}
                   strokeWidth={isActive ? 2.5 : 1.5}
                   className="flex-shrink-0"
                 />
                 <span
                   className={cn(
-                    'text-sm whitespace-nowrap transition-opacity duration-200',
+                    'text-base whitespace-nowrap transition-opacity duration-200',
                     expanded ? 'opacity-100' : 'opacity-0 w-0 overflow-hidden'
                   )}
                 >
@@ -88,7 +88,7 @@ export function DashboardSidebar() {
         {xp && progress && (
           <div
             className={cn(
-              'mx-1 mb-3 p-2.5 rounded-lg bg-white/[0.03] border border-white/5 transition-all duration-200',
+              'mx-1 mb-4 p-3 rounded-xl bg-white/[0.03] border border-white/5 transition-all duration-200',
               expanded ? 'opacity-100' : 'opacity-0 h-0 overflow-hidden m-0 p-0 border-0'
             )}
           >
@@ -126,8 +126,8 @@ export function DashboardSidebar() {
                 key={item.name}
                 href={item.href}
                 className={cn(
-                  'flex items-center rounded-lg transition-all duration-150 h-10',
-                  expanded ? 'gap-3 px-3' : 'justify-center px-0',
+                  'flex items-center rounded-xl transition-all duration-150 h-11',
+                  expanded ? 'gap-4 px-4' : 'justify-center px-0',
                   isActive
                     ? 'text-white font-bold'
                     : 'text-gray-400 font-normal hover:text-white hover:bg-white/[0.03]'
@@ -135,13 +135,13 @@ export function DashboardSidebar() {
                 title={expanded ? undefined : item.name}
               >
                 <item.icon
-                  size={20}
+                  size={24}
                   strokeWidth={isActive ? 2.5 : 1.5}
                   className="flex-shrink-0"
                 />
                 <span
                   className={cn(
-                    'text-sm whitespace-nowrap transition-opacity duration-200',
+                    'text-base whitespace-nowrap transition-opacity duration-200',
                     expanded ? 'opacity-100' : 'opacity-0 w-0 overflow-hidden'
                   )}
                 >

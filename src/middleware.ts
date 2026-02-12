@@ -81,7 +81,12 @@ export async function middleware(request: NextRequest) {
   if (isProtectedPath && !user) {
     const redirectUrl = new URL('/login', request.url)
     redirectUrl.searchParams.set('redirect', request.nextUrl.pathname)
-    return NextResponse.redirect(redirectUrl)
+    const redirectResponse = NextResponse.redirect(redirectUrl)
+    // Carry over any cookies set during getUser() (e.g. token refresh)
+    response.cookies.getAll().forEach((cookie) => {
+      redirectResponse.cookies.set(cookie)
+    })
+    return redirectResponse
   }
 
   // Auth/landing pages - redirect to dashboard if already authenticated
@@ -91,7 +96,12 @@ export async function middleware(request: NextRequest) {
   )
 
   if (isAuthPath && user) {
-    return NextResponse.redirect(new URL('/dashboard', request.url))
+    const redirectResponse = NextResponse.redirect(new URL('/dashboard', request.url))
+    // Carry over any cookies set during getUser() (e.g. token refresh)
+    response.cookies.getAll().forEach((cookie) => {
+      redirectResponse.cookies.set(cookie)
+    })
+    return redirectResponse
   }
 
   return response

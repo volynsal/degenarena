@@ -36,6 +36,21 @@ export default function LoginPage() {
     
     const supabase = createClient()
     
+    // Set up a listener for the SIGNED_IN event BEFORE calling signInWithPassword.
+    // This ensures we wait until the session is fully persisted to cookies,
+    // preventing the race condition where the redirect fires before cookies are set.
+    const sessionPersisted = new Promise<void>((resolve) => {
+      const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
+        if (event === 'SIGNED_IN') {
+          subscription.unsubscribe()
+          // Small buffer for cookie propagation to complete
+          setTimeout(resolve, 150)
+        }
+      })
+      // Fallback timeout so we don't hang forever
+      setTimeout(() => { subscription.unsubscribe(); resolve() }, 4000)
+    })
+    
     const { error: signInError } = await supabase.auth.signInWithPassword({
       email,
       password,
@@ -47,14 +62,8 @@ export default function LoginPage() {
       return
     }
     
-    // Wait for Supabase session cookie to be readable before navigating.
-    // Without this, the middleware may not see the cookies on the first redirect.
-    const maxWait = 3000
-    const start = Date.now()
-    while (Date.now() - start < maxWait) {
-      if (document.cookie.includes('sb-')) break
-      await new Promise(resolve => setTimeout(resolve, 100))
-    }
+    // Wait for session to be fully persisted to cookies
+    await sessionPersisted
     
     // Use window.location for full navigation (router.push can be too fast)
     window.location.href = redirect
