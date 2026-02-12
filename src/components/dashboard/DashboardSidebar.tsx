@@ -1,5 +1,6 @@
 'use client'
 
+import { useState } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { cn } from '@/lib/utils'
@@ -35,10 +36,19 @@ const bottomNavigation = [
 export function DashboardSidebar() {
   const pathname = usePathname()
   const { xp, progress } = useUserXp()
+  const [expanded, setExpanded] = useState(false)
   
   return (
-    <aside className="fixed left-0 top-14 bottom-0 w-64 z-20 bg-arena-darker border-r border-white/5 hidden lg:block">
-      <div className="flex flex-col h-full px-3 py-6">
+    <aside
+      className={cn(
+        'fixed left-0 top-14 bottom-0 z-20 bg-arena-darker border-r border-white/5 hidden lg:block',
+        'transition-[width] duration-300 ease-in-out overflow-hidden',
+        expanded ? 'w-64' : 'w-[72px]'
+      )}
+      onMouseEnter={() => setExpanded(true)}
+      onMouseLeave={() => setExpanded(false)}
+    >
+      <div className="flex flex-col h-full py-6 px-2">
         {/* Main navigation */}
         <nav className="flex-1 space-y-0.5">
           {navigation.map((item) => {
@@ -48,26 +58,40 @@ export function DashboardSidebar() {
                 key={item.name}
                 href={item.href}
                 className={cn(
-                  'flex items-center gap-4 px-4 py-3.5 rounded-xl text-base transition-all duration-150',
+                  'flex items-center rounded-xl transition-all duration-150 h-12',
+                  expanded ? 'gap-4 px-4' : 'justify-center px-0',
                   isActive
                     ? 'text-white font-bold'
                     : 'text-gray-400 font-normal hover:text-white hover:bg-white/[0.03]'
                 )}
+                title={expanded ? undefined : item.name}
               >
                 <item.icon
                   size={24}
                   strokeWidth={isActive ? 2.5 : 1.5}
                   className="flex-shrink-0"
                 />
-                {item.name}
+                <span
+                  className={cn(
+                    'text-base whitespace-nowrap transition-opacity duration-200',
+                    expanded ? 'opacity-100' : 'opacity-0 w-0 overflow-hidden'
+                  )}
+                >
+                  {item.name}
+                </span>
               </Link>
             )
           })}
         </nav>
 
-        {/* Tier / XP Card */}
+        {/* Tier / XP Card — only visible when expanded */}
         {xp && progress && (
-          <div className="mb-4 mx-1 p-3 rounded-xl bg-white/[0.03] border border-white/5">
+          <div
+            className={cn(
+              'mx-1 mb-4 p-3 rounded-xl bg-white/[0.03] border border-white/5 transition-all duration-200',
+              expanded ? 'opacity-100' : 'opacity-0 h-0 overflow-hidden m-0 p-0 border-0'
+            )}
+          >
             <div className="flex items-center justify-between mb-2">
               <span className={cn(
                 'inline-flex items-center px-2 py-0.5 rounded border text-[10px] font-bold uppercase',
@@ -102,18 +126,27 @@ export function DashboardSidebar() {
                 key={item.name}
                 href={item.href}
                 className={cn(
-                  'flex items-center gap-4 px-4 py-3 rounded-xl text-base transition-all duration-150',
+                  'flex items-center rounded-xl transition-all duration-150 h-11',
+                  expanded ? 'gap-4 px-4' : 'justify-center px-0',
                   isActive
                     ? 'text-white font-bold'
                     : 'text-gray-400 font-normal hover:text-white hover:bg-white/[0.03]'
                 )}
+                title={expanded ? undefined : item.name}
               >
                 <item.icon
                   size={24}
                   strokeWidth={isActive ? 2.5 : 1.5}
                   className="flex-shrink-0"
                 />
-                {item.name}
+                <span
+                  className={cn(
+                    'text-base whitespace-nowrap transition-opacity duration-200',
+                    expanded ? 'opacity-100' : 'opacity-0 w-0 overflow-hidden'
+                  )}
+                >
+                  {item.name}
+                </span>
               </Link>
             )
           })}
