@@ -42,7 +42,7 @@ const pillars = [
     label: 'Formulas',
     headline: 'Your Scanner. Your Rules.',
     description:
-      'Scanners and presets are just a starting point. We're tool-agnostic — bring your own research, alpha, and methods. Build what works for you.',
+      'Scanners and presets are just a starting point. We\'re tool-agnostic — bring your own research, alpha, and methods. Build what works for you.',
     details: ['20+ filters', 'Presets', 'Real-time alerts'],
     color: '#4F46E5',
     borderColor: 'border-arena-blue/30',
